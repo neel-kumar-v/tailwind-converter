@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+    <!-- <div id="app"></div> -->
+    <div class="grid grid-cols-2">
+      <div class="mx-auto w-full py-8 col-start-1">
+        <div class="w-max  mx-auto bg-gray-700 rounded-lg shadow-xl drop-shadow-xl ">
+          <div class="px-6 py-4 min-w-[52rem]">
+            <div class="grid grid-cols-2">
+              <p for="input" class="block font-medium text-2xl  text-white">Input CSS:</label>
+                <div class="text-right translate-y-[-0.5rem]"><button class="btn btn-ghost mx-auto w-32 text-xl" id="copycss">Copy</button></div>
+            </div>
+            
+            
+            <textarea id="input" name="input" class="w-full text-white p-2 border bg-slate-800 rounded-md resize-vertical min-w-[52rem]" rows="43"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="mx-auto w-full py-8">
+        <div class="w-max  mx-auto bg-gray-700 rounded-lg shadow-xl drop-shadow-xl ">
+          <div class="px-6 py-4 min-w-[52rem]">
+            <div class="grid grid-cols-2">
+              <p for="input" class="block font-medium text-2xl  text-white">Output TailwindCSS:</label>
+              <div class="text-right translate-y-[-0.5rem]"><button class="btn btn-ghost mx-auto w-32 text-xl" id="copytailwind">Copy</button></div>
+            </div>
+            <textarea id="output" class="w-full inline-block whitespace-pre-wrap break-words text-white p-2 bg-slate-800 rounded-md resize-vertical min-w-[52rem] min-h-[65.5rem]" readonly ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
