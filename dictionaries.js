@@ -1,4 +1,3 @@
-//TODO: Move dictionaries to this file as a module
 export const shorthandDict = {
   'margin': 'm',
   'padding': 'p',
