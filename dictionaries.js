@@ -263,6 +263,7 @@ export const borderRadiusUnitDict = {
   '16px': '2xl',
   '24px': '3xl',
 }
+
 export const blurUnitDict = {
   '0px': 'none',
   '4px': 'sm',
@@ -273,6 +274,7 @@ export const blurUnitDict = {
   '24px': '2xl',
   '64px': '3xl',
 }
+
 export const letterSpacingUnitDict = {
   '-0.05em': 'tighter',
   '-0.025em': 'tight',
@@ -281,6 +283,7 @@ export const letterSpacingUnitDict = {
   '0.05em': 'wider',
   '0.1em': 'widest',
 }
+
 export const fontWeightUnitDict = {
   '100': 'thin',
   '200': 'extralight',

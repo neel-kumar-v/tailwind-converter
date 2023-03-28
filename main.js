@@ -1,6 +1,5 @@
 import './style.css'
 import { shorthandDict, unitDict, colorsDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict } from './dictionaries'
-const submitButton = document.getElementById('submit')
 const cssButton = document.getElementById('copycss')
 const tailwindButton = document.getElementById('copytailwind')
 const input = document.getElementById('input')
@@ -17,147 +16,151 @@ input.addEventListener('input', () => {
 })
 
 cssButton.addEventListener('click', () => {
-
-  // Select the text field
   input.select();
   input.setSelectionRange(0, 99999); // For mobile devices
-
-   // Copy the text inside the text field
   navigator.clipboard.writeText(input.value);
-
-  // Alert the copied text
   alert("Copied the text: " + input.value.slice(0, 40) + "...");
 })
-tailwindButton.addEventListener('click', () => {
 
-  // Select the text field
+tailwindButton.addEventListener('click', () => {
   output.select();
   output.setSelectionRange(0, 99999); // For mobile devices
-
-   // Copy the text inside the text field
   navigator.clipboard.writeText(output.value);
-
-  // Alert the copied text
   alert("Copied the text: " + output.value.slice(0, 40) + "...");
 })
 
 function convertToTailwind(css) {
-  const styles = css.split('\n')
-    .filter(style => style.trim() !== '') // remove empty lines
-    .map(style => style.trim()) // trim leading/trailing spaces
+  const styles = css.split('\n') // Split styles by line
+    .filter(style => style.trim() !== '') // Remove empty lines
+    .map(style => style.trim()) // Trim leading/trailing spaces
     .reduce((stylesList, style) => {
       let [property, value] = style.split(':').map(s => s.trim()); // Split up the properties and the styles
-      if(value != undefined) value = value.replace(';', ''); //Get rid of the semicolon
-      console.log(property)
-      console.log(value)
-      if(value == undefined && property.includes('{')) stylesList.push(`${property}\n`)
-      if(value == undefined && property.includes('}')) stylesList.push(`\n} \n`)
+      if(value != undefined) value = value.replace(';', ''); // Get rid of the semicolon
+      if(value == undefined && property.includes('{')) stylesList.push(`${property}\n`) // If its the style declaration: list it out and enter a new line
+      if(value == undefined && property.includes('}')) stylesList.push(`\n} \n`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
 
-      if(property == 'filter' || property == 'transform' || property == 'backdrop-filter') {
-        let [newProperty, newValue] = value.split('(').map(s => s.trim())
+      if(property == 'filter' || property == 'backdrop-filter') { // Special case #1: The filter backdrop-filter properties all have many different values based on their functions
+        let [newProperty, newValue] = value.split('(').map(s => s.trim()) // EX: filter: blur(4px); treated as blur: 4px
         newValue = newValue.replace(')', '')
-        if(property == 'filter' || property == 'backdrop-filter') {
-          const backdrop = (property == 'backdrop-filter') ? 'backdrop-' : ''
-          let availableValues = [];
-          switch(newProperty) {
-            case 'blur':
-              stylesList.push(`${backdrop}blur-${irregularConvertUnits(blurUnitDict, newValue)}`)
+        const backdrop = (property == 'backdrop-filter') ? 'backdrop-' : '' // Filter and backdrop-filter are grouped so the backdrop prefix can be added concisely
+        let availableValues = [];
+        switch(newProperty) {
+          case 'blur':
+            stylesList.push(`${backdrop}blur-${irregularConvertUnits(blurUnitDict, newValue)}`)
+            break;
+          case 'brightness':
+            availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5, 2] 
+            if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}brightness-${newValue * 100}`) // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
+            else stylesList.push(`${backdrop}brightness-[${newValue}]`) // Else use a arbitrary value
+            break;
+          case 'contrast':
+            availableValues = [0, 0.5, 0.75, 1, 1.25, 1.5, 2] 
+            if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}contrast-${newValue * 100}`)
+            else stylesList.push(`${backdrop}contrast-[${newValue}]`)
+            break;
+          case 'grayscale':
+            if(newValue.includes('100%')) stylesList.push(`${backdrop}grayscale`)
+            else if(zeroRegex.test(newValue)) stylesList.push(`${backdrop}grayscale-0`)
+            else stylesList.push(`${backdrop}grayscale-[${newValue}]`)
+            break;
+          case 'hue-rotate':
+            availableValues = [0, 15, 30, 60, 90, 180]
+            newValue = newValue.replace('deg', '') 
+            if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}hue-rotate-${newValue}`)
+            else stylesList.push(`${backdrop}hue-rotate-[${newValue}deg]`)
+            break;
+          case 'invert':
+            if(newValue.includes('100%')) stylesList.push(`${backdrop}invert`)
+            else if(zeroRegex.test(newValue)) stylesList.push(`${backdrop}invert-0`)
+            else stylesList.push(`${backdrop}invert-[${newValue}]`)
+            break;
+          case 'saturate':
+            availableValues = [0, 0.5, 1, 1.5, 2] 
+            if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}contrast-${newValue * 100}`)
+            else stylesList.push(`${backdrop}contrast-[${newValue}]`)
+            break;
+          case 'sepia':
+            if(newValue.includes('100%')) stylesList.push(`${backdrop}sepia`)
+            else if(zeroRegex.test(newValue)) stylesList.push(`${backdrop}sepia-0`)
+            else stylesList.push(`${backdrop}sepia-[${newValue}]`)
+            break;
+          default:
+            break;
 
-              break;
-            case 'brightness':
-              availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5, 2] 
-              if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}brightness-${newValue * 100}`)
-              else stylesList.push(`${backdrop}brightness-[${newValue}]`)
-              break;
-            case 'contrast':
-              availableValues = [0, 0.5, 0.75, 1, 1.25, 1.5, 2] 
-              if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}contrast-${newValue * 100}`)
-              else stylesList.push(`${backdrop}contrast-[${newValue}]`)
-              break;
-            case 'grayscale':
-              if(newValue.includes('100%')) stylesList.push(`${backdrop}grayscale`)
-              else if(zeroRegex.test(newValue)) stylesList.push(`${backdrop}grayscale-0`)
-              else stylesList.push(`${backdrop}grayscale-[${newValue}]`)
-              break;
-            case 'hue-rotate':
-              availableValues = [0, 15, 30, 60, 90, 180]
-              newValue = newValue.replace('deg', '') 
-              if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}hue-rotate-${newValue}`)
-              else stylesList.push(`${backdrop}hue-rotate-[${newValue}deg]`)
-              break;
-            case 'invert':
-              if(newValue.includes('100%')) stylesList.push(`${backdrop}invert`)
-              else if(zeroRegex.test(newValue)) stylesList.push(`${backdrop}invert-0`)
-              else stylesList.push(`${backdrop}invert-[${newValue}]`)
-              break;
-            case 'saturate':
-              availableValues = [0, 0.5, 1, 1.5, 2] 
-              if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}contrast-${newValue * 100}`)
-              else stylesList.push(`${backdrop}contrast-[${newValue}]`)
-              break;
-            case 'sepia':
-              if(newValue.includes('100%')) stylesList.push(`${backdrop}sepia`)
-              else if(zeroRegex.test(newValue)) stylesList.push(`${backdrop}sepia-0`)
-              else stylesList.push(`${backdrop}sepia-[${newValue}]`)
-              break;
-            default:
-              break;
-          }
-
-        } else {
-          let availableValues = [];
-          switch(newProperty) {
-            case 'scale':
-              availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
-              if(availableValues.includes(Number(newValue))) stylesList.push(`scale-${newValue * 100}`)
-              else stylesList.push(`scale-[${newValue}]`) 
-              break;
-            case 'scaleX':
-              availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
-              if(availableValues.includes(Number(newValue))) stylesList.push(`scale-x-${newValue * 100}`)
-              else stylesList.push(`scale-x-[${newValue}]`) 
-              break;
-            case 'scaleY':
-              availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
-              if(availableValues.includes(Number(newValue))) stylesList.push(`scale-y-${newValue * 100}`)
-              else stylesList.push(`scale-y-[${newValue}]`) 
-              break;
-            case 'rotate':
-              availableValues = [0, 1, 2, 3, 6, 12, 45, 90, 180]
-              newValue = newValue.replace('deg', '') 
-              if(availableValues.includes(Number(newValue))) stylesList.push(`rotate-${newValue}`)
-              else stylesList.push(`rotate-[${newValue}deg]`)
-              break;
-            case 'translateX':
-              stylesList.push(`translate-x-${convertUnits(newValue)}`)
-              break;
-            case 'translateY':
-              stylesList.push(`translate-y-${convertUnits(newValue)}`)
-              break;
-            case 'skewX':
-              availableValues = [0, 1, 2, 3, 6, 12]
-              newValue = newValue.replace('deg', '') 
-              if(availableValues.includes(Number(newValue))) stylesList.push(`skew-x-${newValue}`)
-              else stylesList.push(`skew-x-[${newValue}deg]`)
-              break;
-              break;
-            case 'skewY':
-              availableValues = [0, 1, 2, 3, 6, 12]
-              newValue = newValue.replace('deg', '') 
-              if(availableValues.includes(Number(newValue))) stylesList.push(`skew-y-${newValue}`)
-              else stylesList.push(`skew-y-[${newValue}deg]`)
-              break;
-
-            default:
-              break;
-          }
-        }
+        } 
       }
+
+      if(property == "transform") {
+        let [newProperty, newValue] = value.split('(').map(s => s.trim()) // EX: filter: blur(4px); treated as blur: 4px
+        newValue = newValue.replace(')', '')
+        let availableValues = [];
+        switch(newProperty) {
+          case 'scale':
+            availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
+            if(availableValues.includes(Number(newValue))) stylesList.push(`scale-${newValue * 100}`)
+            else stylesList.push(`scale-[${newValue}]`) 
+            break;
+          case 'scaleX':
+            availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
+            if(availableValues.includes(Number(newValue))) stylesList.push(`scale-x-${newValue * 100}`)
+            else stylesList.push(`scale-x-[${newValue}]`) 
+            break;
+          case 'scaleY':
+            availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
+            if(availableValues.includes(Number(newValue))) stylesList.push(`scale-y-${newValue * 100}`)
+            else stylesList.push(`scale-y-[${newValue}]`) 
+            break;
+          case 'rotate':
+            availableValues = [0, 1, 2, 3, 6, 12, 45, 90, 180]
+            newValue = newValue.replace('deg', '') 
+            if(availableValues.includes(Number(newValue))) stylesList.push(`rotate-${newValue}`)
+            else stylesList.push(`rotate-[${newValue}deg]`)
+            break;
+          case 'translateX':
+            // console.log(newValue)
+            newValue = newValue.split(' ')
+            // console.log(newValue)
+            if(newValue.length == 1) {
+              stylesList.push(`translate-x-${convertUnits(String(newValue))}`)
+            } else if(newValue.length == 2) {
+              stylesList.push(`translate-x-${convertUnits(newValue[0])}`)
+              stylesList.push(`translate-y-${convertUnits(newValue[1])}`)
+            } 
+            break;
+          case 'translateY':
+            // console.log(newValue)
+            newValue = newValue.split(' ')
+            // console.log(newValue)
+            if(newValue.length == 1) {
+              stylesList.push(`translate-y-${convertUnits(String(newValue))}`)
+            } else if(newValue.length == 2) {
+              stylesList.push(`translate-y-${convertUnits(newValue[0])}`)
+              stylesList.push(`translate-x-${convertUnits(newValue[1])}`)
+            } 
+            break;
+          case 'skewX':
+            availableValues = [0, 1, 2, 3, 6, 12]
+            newValue = newValue.replace('deg', '') 
+            if(availableValues.includes(Number(newValue))) stylesList.push(`skew-x-${newValue}`)
+            else stylesList.push(`skew-x-[${newValue}deg]`)
+            break;
+            break;
+          case 'skewY':
+            availableValues = [0, 1, 2, 3, 6, 12]
+            newValue = newValue.replace('deg', '') 
+            if(availableValues.includes(Number(newValue))) stylesList.push(`skew-y-${newValue}`)
+            else stylesList.push(`skew-y-[${newValue}deg]`)
+            break;
+
+          default:
+            break;
+        }
+
 
       value = convertUnits(value)
 
       switch (property) {
-        // * * SINGLE VALUES
+        // * SINGLE VALUES WITH UNITS
         // TODO: Revert Units and convert to sm, md, xl, etc for border radius, font size, max width, etc
         case 'margin-top':
           stylesList.push(`mt-${value}`);
@@ -196,15 +199,19 @@ function convertToTailwind(css) {
           stylesList.push(`border-r-${value}`);
           break;
         case 'border-top-right-radius':
+          value = translateConvertedToIrregular(borderRadiusUnitDict, value)
           stylesList.push(`rounded-tr-${value}`);
           break;
         case 'border-bottom-left-radius':
+          value = translateConvertedToIrregular(borderRadiusUnitDict, value)
           stylesList.push(`rounded-bl-${value}`);
           break;
         case 'border-bottom-right-radius':
+          value = translateConvertedToIrregular(borderRadiusUnitDict, value)
           stylesList.push(`rounded-br-${value}`);
           break;
         case 'border-top-right-radius':
+          value = translateConvertedToIrregular(borderRadiusUnitDict, value)
           stylesList.push(`rounded-tr-${value}`);
           break;
         case 'height':
@@ -277,9 +284,10 @@ function convertToTailwind(css) {
         case 'border-radius':
           let borderRadiuses = value.split(' ')
           for(let i = 0; i < borderRadiuses.length; i++) {
-            if(revertUnits(unitDict, borderRadiuses[i]) != undefined) borderRadiuses[i] = `[${revertUnits(unitDict, borderRadiuses[i])}]`
-            const formattedBorderRadiuses = borderRadiuses[i].replace('[', '').replace(']', '')
-            if(borderRadiusUnitDict[formattedBorderRadiuses] != undefined) borderRadiuses[i] = borderRadiusUnitDict[formattedBorderRadiuses]
+            // if(revertUnits(unitDict, borderRadiuses[i]) != undefined) borderRadiuses[i] = `[${revertUnits(unitDict, borderRadiuses[i])}]`
+            // const formattedBorderRadiuses = borderRadiuses[i].replace('[', '').replace(']', '')
+            // if(borderRadiusUnitDict[formattedBorderRadiuses] != undefined) borderRadiuses[i] = borderRadiusUnitDict[formattedBorderRadiuses]
+            borderRadiuses[i] = translateConvertedToIrregular(borderRadiusUnitDict, borderRadiuses[i])
           }
           if (borderRadiuses.length === 1) {
             stylesList.push(`rounded-${borderRadiuses[0]}`);
@@ -288,7 +296,7 @@ function convertToTailwind(css) {
             stylesList.push(`rounded-br-${borderRadiuses[0]}`);
             stylesList.push(`rounded-tr-${borderRadiuses[1]}`);
             stylesList.push(`rounded-bl-${borderRadiuses[1]}`);
-          } else if (borderRadiuses.length === 3) {
+          } else if (borderRadiuses.length === 3) { 
             stylesList.push(`rounded-tl-${borderRadiuses[0]}`);
             stylesList.push(`rounded-tr-${borderRadiuses[1]}`);
             stylesList.push(`rounded-bl-${borderRadiuses[1]}`);
@@ -622,6 +630,9 @@ function convertToTailwind(css) {
           break;
         
         // * COLORS
+        case 'background-color':
+          stylesList.push(`bg-${value}`)
+          break;
         case 'background':
           stylesList.push(`bg-${value}`)
           break;
@@ -637,7 +648,7 @@ function convertToTailwind(css) {
         case 'outline-color':
           stylesList.push(`outline-${value}`)
           break;
-        case 'stylesListent-color':
+        case 'accent-color':
           stylesList.push(`stylesListent-${value}`)
           break;
         case 'caret-color':
@@ -682,6 +693,47 @@ function shorthand(values, property) {
   }
 
   return returnStyles;n
+}
+
+
+function convertUnits(value) {
+  if(value != undefined) {
+    if(unitDict[value] != undefined) { 
+      return unitDict[value]
+    } else if(colorsDict[value] != undefined) { 
+      return '[' + colorsDict[value] + ']'
+    } else if(hexColorRegex.test(value) || otherColorRegex.test(value)) { 
+      return '[' + value + ']'
+    } else if(value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/')) {
+      let values = value.split(' ')
+      let returnValues = '';
+      for(let i = 0; i < values.length; i++) {
+        values[i] = convertUnits(values[i])
+        returnValues += `${values[i]} `
+      }
+      return returnValues.substring(0, returnValues.length - 1)
+    } else if(value.includes('/')) {
+      return '[' + value + ']'
+    } else if(!numberRegex.test(value) || !unitRegex.test(value)) { // if it is not a digit or it is a digit without a unit
+      return value
+    } else {
+      return '[' + value + ']'
+    }
+  }
+}
+function revertUnits(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}
+
+function irregularConvertUnits(unitDictionary, value) {
+  if(unitDictionary[value] != undefined) return unitDictionary[value]
+  else return `[${value}]`
+}
+function translateConvertedToIrregular (irregularUnitDict, value) {
+  if(revertUnits(unitDict, value) != undefined) value = `[${revertUnits(unitDict, value)}]`
+  const formattedValue = value.replace('[', '').replace(']', '')
+  if(irregularUnitDict[formattedValue] != undefined) value = irregularUnitDict[formattedValue]
+  return value
 }
 
 // EXAMPLE
@@ -733,36 +785,3 @@ example2 {
   border-radius: 25% 12px 8px;
   border-radius: 25% 12px 8px 7%;
 } */
-function convertUnits(value) {
-  if(value != undefined) {
-    if(unitDict[value] != undefined) { 
-      return unitDict[value]
-    } else if(colorsDict[value] != undefined) { 
-      return '[' + colorsDict[value] + ']'
-    } else if(hexColorRegex.test(value) || otherColorRegex.test(value)) { 
-      return '[' + value + ']'
-    } else if(value.split(' ').length > 1 && !value.includes('/')) {
-      let values = value.split(' ')
-      let returnValues = '';
-      for(let i = 0; i < values.length; i++) {
-        values[i] = convertUnits(values[i])
-        returnValues += `${values[i]} `
-      }
-      return returnValues.substring(0, returnValues.length - 1)
-    } else if(value.includes('/')) {
-      return '[' + value + ']'
-    } else if(!numberRegex.test(value) || !unitRegex.test(value)) { // if it is not a digit or it is a digit without a unit
-      return value
-    } else {
-      return '[' + value + ']'
-    }
-  }
-}
-function revertUnits(object, value) {
-  return Object.keys(object).find(key => object[key] === value);
-}
-
-function irregularConvertUnits(unitDictionary, value) {
-  if(unitDictionary[value] != undefined) return unitDictionary[value]
-  else return `[${value}]`
-}
