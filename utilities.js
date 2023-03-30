@@ -1,3 +1,9 @@
+const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+const otherColorRegex = /^(rgb|rgba|hsl|hsla|hsv|cmyk)\(\s*(-?\d+%?\s*([,\s]+|$)){2,3}(-?\d+%?\s*,?\s*[\d.]*%?\s*)?\)$/
+const numberRegex = /\d/
+const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|vmax|vmin|vw|%)/
+import { unitDict, colorsDict } from './dictionaries'
+
 export function shorthand(values, property) {
     let returnStyles = [];
 
@@ -60,7 +66,7 @@ export function irregularConvertUnits(unitDictionary, value) {
 }
 export function translateConvertedToIrregular (irregularUnitDict, value) {
     if(revertUnits(unitDict, value) != undefined) value = `${revertUnits(unitDict, value)}`
-    if(irregularUnitDict[formattedValue] != undefined) value = irregularUnitDict[value]
+    if(irregularUnitDict[value] != undefined) value = irregularUnitDict[value]
     return value
 }
 export function copy(elementToCopyFrom) {

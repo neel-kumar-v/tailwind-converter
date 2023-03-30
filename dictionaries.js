@@ -256,7 +256,7 @@ export const colorsDict = {
 export const borderRadiusUnitDict = {
   '0px': 'none',
   '2px': 'sm',
-  '4px': '',
+  '4px': '/',
   '6px': 'md',
   '8px': 'lg',
   '12px': 'xl',
