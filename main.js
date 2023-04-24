@@ -1,6 +1,9 @@
 import './style.css'
 import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict } from './dictionaries'
 import * as util from './utilities'
+import { inject } from '@vercel/analytics';
+ 
+inject();
 const cssButton = document.getElementById('copycss')
 const tailwindButton = document.getElementById('copytailwind')
 const htmlButton = document.getElementById('copyhtml')
