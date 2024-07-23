@@ -33,31 +33,24 @@ export function shorthand(values, property) {
   
 export function convertUnits(value) {
     if(value != undefined) {
-        if(unitDict[value] != undefined) { 
-        return unitDict[value]
-        } else if(colorsDict[value] != undefined) { 
-        return '[' + colorsDict[value] + ']'
-        } else if(hexColorRegex.test(value) || otherColorRegex.test(value)) { 
-        return '[' + value + ']'
-        } else if(value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/')) {
-        let values = value.split(' ')
-        let returnValues = '';
-        for(let i = 0; i < values.length; i++) {
-            values[i] = convertUnits(values[i])
-            returnValues += `${values[i]} `
-        }
-        return returnValues.substring(0, returnValues.length - 1)
-        } else if(value.includes('/')) {
-        return '[' + value + ']'
-        } else if(!numberRegex.test(value) || !unitRegex.test(value)) { // if it is not a digit or it is a digit without a unit
-        return value
-        } else {
-        return '[' + value + ']'
-        }
+        if(unitDict[value] != undefined) return unitDict[value]
+        else if(colorsDict[value] != undefined) return '[' + colorsDict[value] + ']'
+        else if(hexColorRegex.test(value) || otherColorRegex.test(value)) return '[' + value + ']'
+        else if(value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/')) {
+            let values = value.split(' ')
+            let returnValues = '';
+            for(let i = 0; i < values.length; i++) {
+                values[i] = convertUnits(values[i])
+                returnValues += `${values[i]} `
+            }
+            return returnValues.substring(0, returnValues.length - 1)
+        } else if(value.includes('/')) return '[' + value + ']'
+        else if(!numberRegex.test(value) || !unitRegex.test(value)) return value // if it is not a digit or it is a digit without a unit
+        else return '[' + value + ']'
     }
 }
-export function revertUnits(object, value) {
-    return Object.keys(object).find(key => object[key] === value);
+export function revertUnits(object, value) { // This function is used to convert the shorthand values back to their original values
+    return Object.keys(object).find(key => object[key] === value); 
 }
 
 export function irregularConvertUnits(unitDictionary, value) {

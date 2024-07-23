@@ -2,11 +2,40 @@ export const shorthandDict = {
   'margin': 'm',
   'padding': 'p',
   'inset': 'inset-',
-  'border-radius': 'rounded-',
   'border-width': 'border-',
   'scroll-margin': 'scroll-m',
   'scroll-padding': 'scroll-p',
+  'border-spacing': 'border-spacing-',
 }
+
+export const singleValueDict = {
+  'margin-top': 'mt',
+  'margin-left': 'ml',
+  'margin-bottom': 'mb',
+  'margin-right': 'mr',
+  'padding-top': 'pt',
+  'padding-left': 'pl',
+  'padding-bottom': 'pb',
+  'padding-right': 'pr',
+  'border-top-width': 'border-t',
+  'border-left-width': 'border-l',
+  'border-bottom-width': 'border-b',
+  'border-right-width': 'border-r',
+  'height': 'h',
+  'width': 'w',
+  'gap': 'gap',
+  'column-gap': 'gap-x',
+  'row-gap': 'gap-y',
+  'min-width': 'min-w',
+  'max-width': 'max-w',
+  'min-height': 'min-h',
+  'max-height': 'max-h',
+  'line-height': 'leading',
+  'text-indent': 'indent',
+  'transition-duration': 'duration',
+  'transition-delay': 'delay'
+}
+
 
 export const unitDict = {
   '0px': '0',
@@ -101,6 +130,15 @@ export const unitDict = {
   '50%': '1/2',
   '75%': '3/4',
   '100vh': 'screen',
+  '0s': '0',
+  '75ms': '75',
+  '100ms': '100',
+  '150ms': '150',
+  '200ms': '200',
+  '300ms': '300',
+  '500ms': '500',
+  '700ms': '700',
+  '1000ms': '1000',
 };
 
 export const colorsDict = {
@@ -295,3 +333,4 @@ export const fontWeightUnitDict = {
   '800': 'extrabold',
   '800': 'black',
 }
+

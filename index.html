@@ -1,28 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-[#232323]">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>CSS to Tailwind Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/material-darker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/css/css.min.js"></script>
   </head>
   <body>
-    <!-- <div id="app"></div> -->
-    <div class="grid grid-cols-2">
-      <div class="grid grid-rows-2">
-        <div class="mx-auto w-full py-8 row-start-1">
-          <div class="w-max  mx-auto bg-gray-700 rounded-lg shadow-xl drop-shadow-xl ">
-            <div class="px-6 py-4 min-w-[52rem]">
-              <div class="grid grid-cols-2">
-                <p for="input" class="block font-medium text-2xl  text-white">Input CSS:</label>
-                  <div class="text-right translate-y-[-0.5rem]"><button class="btn btn-ghost mx-auto w-32 text-xl" id="copycss">Copy</button></div>
-              </div>
-              <textarea id="input" name="input" class="w-full text-white p-2 border bg-slate-800 rounded-md resize-vertical min-w-[68rem]" rows="18"></textarea>
-            </div>
+    <div class="grid grid-cols-2 w-screen h-screen divide-x-2 divide-gray-700">
+
+      <div class="w-full py-12 px-12 row-start-1 h-screen mx-auto bg-[#212121]  ">
+          <div class="grid grid-cols-2">
+            <p for="input" class="block font-medium text-xl xl:text-2xl  text-white">Input CSS: </label>
+              <div class="text-right translate-y-[-0.5rem]"><button class="btn btn-ghost mx-auto w-min text-md xl:text-xl text-white/75" id="copycss">Copy</button></div>
           </div>
+          <textarea id="input" name="input" class=""></textarea>
+      </div>
+
+      
+
+      <div class="py-12 px-12 w-full h-screen  mx-auto bg-[#212121]  ">
+        <div class="grid grid-cols-2">
+          <p for="input" class="block font-medium text-xl xl:text-2xl  text-white">Output TailwindCSS:</label>
+          <div class="text-right translate-y-[-0.5rem]"><button class="btn btn-ghost mx-auto w-min text-md xl:text-xl text-white/75" id="copytailwind">Copy</button></div>
         </div>
-        <div class="mx-auto w-full py-8 row-start-2">
-          <div class="w-max  mx-auto bg-gray-700 rounded-lg shadow-xl drop-shadow-xl ">
+        <textarea id="output" class="" readonly ></textarea>
+      </div>
+
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
+<!-- <div class="mx-auto w-full py-8 row-start-2">
+          <div class="w-max  mx-auto bg-gray-700 rounded-lg ">
             <div class="px-6 py-4 min-w-[52rem]">
               <div class="grid grid-cols-2">
                 <p for="inputHTML" class="block font-medium text-2xl  text-white">Input HTML:</label>
@@ -31,20 +45,4 @@
               <textarea id="inputHTML" name="inputHTML" class="w-full text-white p-2 border bg-slate-800 rounded-md resize-vertical min-w-[68rem]" rows="18"></textarea>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="mx-auto w-full py-8">
-        <div class="w-max  mx-auto bg-gray-700 rounded-lg shadow-xl drop-shadow-xl ">
-          <div class="px-6 py-4 min-w-[52rem]">
-            <div class="grid grid-cols-2">
-              <p for="input" class="block font-medium text-2xl  text-white">Output TailwindCSS:</label>
-              <div class="text-right translate-y-[-0.5rem]"><button class="btn btn-ghost mx-auto w-32 text-xl" id="copytailwind">Copy</button></div>
-            </div>
-            <textarea id="output" class="w-full inline-block whitespace-pre-wrap break-words text-white p-2 bg-slate-800 rounded-md resize-vertical min-w-[68rem] min-h-[65.5rem]" readonly ></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script type="module" src="/main.js"></script>
-  </body>
-</html>
+        </div> -->
