@@ -4,6 +4,7 @@ const numberRegex = /\d/
 const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|vmax|vmin|vw|%)/
 import { unitDict, colorsDict, tailwindColors } from './dictionaries'
 import tinycolor from 'tinycolor2';
+import { createNotification } from './notification';
 
 export function shorthand(values, property) {
     let returnStyles = [];
@@ -87,10 +88,8 @@ export function translateConvertedToIrregular (irregularUnitDict, value) {
     if(irregularUnitDict[value] != undefined) value = irregularUnitDict[value]
     return value
 }
-export function copy(elementToCopyFrom) {
-    elementToCopyFrom.select();
-    elementToCopyFrom.setSelectionRange(0, 99999); // For mobile devices
-    navigator.clipboard.writeText(elementToCopyFrom.value);
-    alert("Copied the text: " + elementToCopyFrom.value.slice(0, 40) + "...");
+function copy(text) {
+    navigator.clipboard.writeText(text);
+    createNotification("Copied the text: " + elementToCopyFrom.value.slice(0, 40) + "...");
 }
 

@@ -6,35 +6,28 @@ import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpac
 import * as util from './utilities'
 import { inject } from '@vercel/analytics'
 import { createAlert } from "./alerts"
- 
+import { createNotification } from "./notification"
+
 inject() // 
 
+const outputElement = document.getElementById('output');
 const cssButton = document.getElementById('copycss')
 const tailwindButton = document.getElementById('copytailwind')
-// const htmlButton = document.getElementById('copyhtml')
 const input = document.getElementById('input')
-// const inputHTML = document.getElementById('inputHTML')
-const output = document.getElementById('output')
 
 const numberRegex = /\d/
 const zeroRegex = /0[a-zA-Z]*/
-
-
-
-// inputHTML.addEventListener('input', () => {
-//   console.log("sdsdf")
-//   output.textContent = convertToHTML(convertCSSToPVPair(input.value), inputHTML.value)
-// })
-// htmlButton.addEventListener('click', () => {
-  //   util.copy(inputHTML)
-  // })
   
 cssButton.addEventListener('click', () => {
-  util.copy(input)
+  copy(inputEditor.getValue())
 })
-// tailwindButton.addEventListener('click', () => {
-//   util.copy(output)
-// })
+
+tailwindButton.addEventListener('click', () => {
+  if (outputTailwind == '') {
+    createNotification('Nothing was copied')
+  }
+  copy('all TailwindCSS directives', `${outputTailwind}`)
+})
 
 var inputEditor = CodeMirror.fromTextArea(input, {
   lineNumbers: true,
@@ -42,17 +35,11 @@ var inputEditor = CodeMirror.fromTextArea(input, {
   theme: "material-darker",
   lint: false,
 })
-// var outputEditor = CodeMirror.fromTextArea(output, {
-//   lineNumbers: true,
-//   mode: "text", 
-//   theme: "material-darker",
-//   lint: false,
-// })
-
+let outputTailwind = ''
 inputEditor.on('change', () => {
   const css = inputEditor.getValue()
   // console.log(css)
-  const outputTailwind = convertCSSToPVPair(css)
+  outputTailwind = convertCSSToPVPair(css)
   console.log(`tailwind output:
 
     ${outputTailwind}`)
@@ -61,80 +48,76 @@ inputEditor.on('change', () => {
 
 })
 
-function displayOutputNoSelectors(styles) {
- 
-}
+
 function resetDisplay() {
   const outputElement = document.getElementById('output')
   outputElement.innerHTML = '';
 }
+
+function copy(type, text) {
+    navigator.clipboard.writeText(text);
+    const longText = text.length > 40 ? ' ...' : ''
+    createNotification(`Copied ${type}: ${text.slice(0, 40)}${longText}`, 3);
+}
+
+
+
+function createOutputSelectorDiv(selector, json) {
+  const outputSelectorDiv = document.createElement('div')
+  outputSelectorDiv.className = 'outputSelector first:mt-0 my-6'
+  
+  const selectorFlexContainer = document.createElement('div')
+  selectorFlexContainer.className = 'flex flex-wrap justify-start mb-3'
+  
+  const selectorNameElement = document.createElement('h2')
+  selectorNameElement.className = 'selector mr-2 font-normal text-xl xl:text-2xl text-white p-1'
+  selectorNameElement.textContent = selector
+  selectorFlexContainer.appendChild(selectorNameElement)
+  
+  const selectorCopyButton1 = document.createElement('button')
+  selectorCopyButton1.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit xl:mx-3 mx-1 p-1 xl:px-3 px-1 rounded-lg'
+  selectorCopyButton1.innerHTML = `
+    <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case">Copy as TailwindCSS directive</p>
+    <svg-icon width="5" opacity="75"></svg-icon>
+  `
+  selectorCopyButton1.addEventListener('click', () => copy('selector tailwind directive ', `${selector} {\n  @apply ${json[selector].join(' ')}\n}`))
+  selectorFlexContainer.appendChild(selectorCopyButton1)
+  
+  const selectorCopyButton2 = document.createElement('button')
+  selectorCopyButton2.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit mx-3 p-1 px-3 rounded-lg'
+  selectorCopyButton2.innerHTML = `
+    <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case">Copy as TailwindCSS classes</p>
+    <svg-icon width="5" opacity="75"></svg-icon>
+  `
+  selectorCopyButton2.addEventListener('click', () => copy('selector tailwind classes', `${json[selector].join(' ')}`))
+  selectorFlexContainer.appendChild(selectorCopyButton2) 
+  outputSelectorDiv.appendChild(selectorFlexContainer)
+  
+  const classesFlexContainer = document.createElement('div')
+  classesFlexContainer.className = 'classes flex flex-wrap justify-start'
+  
+  json[selector].forEach(className => {
+    const classButton = document.createElement('button')
+    classButton.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline w-fit mr-2 p-1 px-3 hover:px-1.5 h-fit group rounded-lg bg-white/[0.1] my-1 class-copybutton'
+    classButton.innerHTML = `
+      <p class="group-hover:mr-1 duration-200 text-sm xl:text-md text-white font-normal class-name">${className}</p>
+      <svg class="w-0 group-hover:w-4 opacity-0 group-hover:opacity-100 duration-200 aspect-square stroke-1 fill-white" viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
+        <rect class="w-6 aspect-square stroke-none fill-white opacity-0"/>
+        <g transform="matrix(1.43 0 0 1.43 12 12)" >
+          <path style="stroke: none stroke-width: 1 stroke-dasharray: none stroke-linecap: butt stroke-dashoffset: 0 stroke-linejoin: miter stroke-miterlimit: 4  fill-rule: nonzero opacity: 1" transform=" translate(-8, -7.5)" d="M 2.5 1 C 1.675781 1 1 1.675781 1 2.5 L 1 10.5 C 1 11.324219 1.675781 12 2.5 12 L 4 12 L 4 12.5 C 4 13.324219 4.675781 14 5.5 14 L 13.5 14 C 14.324219 14 15 13.324219 15 12.5 L 15 4.5 C 15 3.675781 14.324219 3 13.5 3 L 12 3 L 12 2.5 C 12 1.675781 11.324219 1 10.5 1 Z M 2.5 2 L 10.5 2 C 10.78125 2 11 2.21875 11 2.5 L 11 10.5 C 11 10.78125 10.78125 11 10.5 11 L 2.5 11 C 2.21875 11 2 10.78125 2 10.5 L 2 2.5 C 2 2.21875 2.21875 2 2.5 2 Z M 12 4 L 13.5 4 C 13.78125 4 14 4.21875 14 4.5 L 14 12.5 C 14 12.78125 13.78125 13 13.5 13 L 5.5 13 C 5.21875 13 5 12.78125 5 12.5 L 5 12 L 10.5 12 C 11.324219 12 12 11.324219 12 10.5 Z" stroke-linecap="round" />
+        </g>
+      </svg>
+    `
+    classButton.addEventListener('click', () => copy('the tailwind class', className))
+    classesFlexContainer.appendChild(classButton)
+  })
+  
+  outputSelectorDiv.appendChild(classesFlexContainer)
+  outputElement.appendChild(outputSelectorDiv)
+}
 function displayOutputWithSelectors(json) {
   resetDisplay();
-  const outputElement = document.getElementById('output');
-  
-  Object.keys(json).forEach(selector => {
-    const outputSelectorDiv = document.createElement('div')
-    outputSelectorDiv.className = 'outputSelector first:mt-0 my-6'
-    
-    // Create the first inner div
-    const selectorFlexContainer = document.createElement('div')
-    selectorFlexContainer.className = 'flex flex-wrap justify-start mb-3'
-    
-    // Create the h2 element for the selector
-    const selectorNameElement = document.createElement('h2')
-    selectorNameElement.className = 'selector mr-2 font-normal text-xl xl:text-2xl text-white p-1'
-    selectorNameElement.textContent = selector
-    selectorFlexContainer.appendChild(selectorNameElement)
-    
-    // Create the first button
-    const selectorCopyButton1 = document.createElement('button')
-    selectorCopyButton1.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit xl:mx-3 mx-1 p-1 xl:px-3 px-1 rounded-lg'
-    selectorCopyButton1.id = 'copytailwind'
-    selectorCopyButton1.innerHTML = `
-      <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case">Copy as TailwindCSS directive</p>
-      <svg-icon width="5" opacity="75"></svg-icon>
-    `
-    selectorFlexContainer.appendChild(selectorCopyButton1)
-    
-    // Create the second button
-    const selectorCopyButton2 = document.createElement('button')
-    selectorCopyButton2.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit mx-3 p-1 px-3 rounded-lg'
-    selectorCopyButton2.id = 'copytailwind'
-    selectorCopyButton2.innerHTML = `
-      <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case">Copy as TailwindCSS classes</p>
-      <svg-icon width="5" opacity="75"></svg-icon>
-    `
-    selectorFlexContainer.appendChild(selectorCopyButton2)
-    
-    // Append the first inner div to the outer div
-    outputSelectorDiv.appendChild(selectorFlexContainer)
-    
-    // Create the second inner div
-    const classesFlexContainer = document.createElement('div')
-    classesFlexContainer.className = 'classes flex flex-wrap justify-start'
-    
-    // Create the class buttons
-    json[selector].forEach(className => {
-      const classButton = document.createElement('button')
-      classButton.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline w-fit mr-2 p-1 px-3 hover:px-1.5 h-fit group rounded-lg bg-white/[0.1] my-1 class-copybutton'
-      classButton.innerHTML = `
-        <p class="group-hover:mr-1 duration-200 text-sm xl:text-md text-white font-normal class-name">${className}</p>
-        <svg class="w-0 group-hover:w-4 opacity-0 group-hover:opacity-100 duration-200 aspect-square stroke-1 fill-white" viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
-          <rect class="w-6 aspect-square stroke-none fill-white opacity-0"/>
-          <g transform="matrix(1.43 0 0 1.43 12 12)" >
-            <path style="stroke: none stroke-width: 1 stroke-dasharray: none stroke-linecap: butt stroke-dashoffset: 0 stroke-linejoin: miter stroke-miterlimit: 4  fill-rule: nonzero opacity: 1" transform=" translate(-8, -7.5)" d="M 2.5 1 C 1.675781 1 1 1.675781 1 2.5 L 1 10.5 C 1 11.324219 1.675781 12 2.5 12 L 4 12 L 4 12.5 C 4 13.324219 4.675781 14 5.5 14 L 13.5 14 C 14.324219 14 15 13.324219 15 12.5 L 15 4.5 C 15 3.675781 14.324219 3 13.5 3 L 12 3 L 12 2.5 C 12 1.675781 11.324219 1 10.5 1 Z M 2.5 2 L 10.5 2 C 10.78125 2 11 2.21875 11 2.5 L 11 10.5 C 11 10.78125 10.78125 11 10.5 11 L 2.5 11 C 2.21875 11 2 10.78125 2 10.5 L 2 2.5 C 2 2.21875 2.21875 2 2.5 2 Z M 12 4 L 13.5 4 C 13.78125 4 14 4.21875 14 4.5 L 14 12.5 C 14 12.78125 13.78125 13 13.5 13 L 5.5 13 C 5.21875 13 5 12.78125 5 12.5 L 5 12 L 10.5 12 C 11.324219 12 12 11.324219 12 10.5 Z" stroke-linecap="round" />
-          </g>
-        </svg>
-      `
-      classesFlexContainer.appendChild(classButton)
-    })
-    
-    // Append the second inner div to the outer div
-    outputSelectorDiv.appendChild(classesFlexContainer)
-    
-    // Append the outer div to the output element
-    outputElement.appendChild(outputSelectorDiv)
-  });
+  Object.keys(json).forEach(selector => createOutputSelectorDiv(selector, json));
 }
 
 function parseOutput(cssString) {
@@ -299,6 +282,7 @@ function convertPVPairToTailwind(stylesList, style) {
   if(value != undefined) value = value.replace(';', '') // Get rid of the semicolon
   
   if(value == undefined && property.includes('{')){
+    // if(insideCSSRule) createAlert('Error: Nested CSS rules are not supported yet')
     insideCSSRule = true
     appendToStylesList(stylesList, `${property}\n @apply`) // If its the style declaration: list it out and enter a new line
   } 
