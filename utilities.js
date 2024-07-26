@@ -42,14 +42,19 @@ export function convertUnits(value) {
         const isColor = colorsDict[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)
         // console.log(`convertUnits() - ${value} was a color: ${isColor}`)
 
-        const includesMultipleValues = value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/')
-        // console.log(`convertUnits() - ${value} includes multiple values: ${includesMultipleValues}`)
+        const includesMultipleValues = value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/') && !value.includes(',')
+        console.log(`convertUnits() - ${value} includes multiple values: ${includesMultipleValues}`)
         
-        const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value)
+        const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',')
         // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
+        console.log(value)
 
-        if(coveredByDictionary) return unitDict[value]
-        else if(isColor) return handleColors(value)
+        let returnValue = ''
+
+        console.log(coveredByDictionary, isColor, includesMultipleValues, !isDigitWithUnits, value.includes('/'))
+
+        if(coveredByDictionary) returnValue = unitDict[value]
+        else if(isColor) returnValue = handleColors(value)
         else if(includesMultipleValues) {
             let values = value.split(' ')
             let returnValues = '';
@@ -57,10 +62,12 @@ export function convertUnits(value) {
                 values[i] = convertUnits(values[i])
                 returnValues += `${values[i]} `
             }
-            return returnValues.substring(0, returnValues.length - 1)
-        } else if(value.includes('/')) return '[' + value + ']'
-        else if(!isDigitWithUnits) return value // if it is not a digit or it is a digit without a unit
-        else return '[' + value + ']'
+            returnValue = returnValues.substring(0, returnValues.length - 1)
+        } else if(value.includes('/')) returnValue = '[' + value + ']'
+        else if(!isDigitWithUnits) returnValue = value // if it is not a digit or it is a digit without a unit
+        else returnValue = '[' + value.replace(' ', '_') + ']'
+        console.log(`returned value: ${returnValue}`)
+        return returnValue
     }
 }
 

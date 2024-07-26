@@ -40,9 +40,9 @@ inputEditor.on('change', () => {
   const css = inputEditor.getValue()
   // console.log(css)
   outputTailwind = convertCSSToPVPair(css)
-  console.log(`tailwind output:
+  // console.log(`tailwind output:
 
-    ${outputTailwind}`)
+  //   ${outputTailwind}`)
   const jsonOutput = parseOutput(outputTailwind)
   displayOutputWithSelectors(jsonOutput)
 
@@ -132,12 +132,12 @@ function parseOutput(cssString) {
     cssRules.forEach(rule => {
         // Extract the selector and the class definitions
         const [selector, classes] = rule.split('{').map(part => part.trim())
-        console.log(`selector, classes :
-          ${selector}, ${classes}`)
+        // console.log(`selector, classes :
+        //   ${selector}, ${classes}`)
         // Split the classes into an array
         const classArray = classes.split(/\s+/).filter(className => className.length > 0)
-        console.log(`class array:
-          ${classArray}`)
+        // console.log(`class array:
+        //   ${classArray}`)
         // Add to the result object
         jsonResult[selector] = classArray
     });
@@ -280,29 +280,33 @@ function convertPVPairToTailwind(stylesList, style) {
   let [property, value] = style.split(':').map(s => s.trim()) // Split up the properties and the styles
   
   if(value != undefined) value = value.replace(';', '') // Get rid of the semicolon
-  
-  if(value == undefined && property.includes('{')){
-    // if(insideCSSRule) createAlert('Error: Nested CSS rules are not supported yet')
-    insideCSSRule = true
-    appendToStylesList(stylesList, `${property}\n @apply`) // If its the style declaration: list it out and enter a new line
+  else {
+    if(property.includes('{')) {
+      // if(insideCSSRule) createAlert('Error: Nested CSS rules are not supported yet')
+      insideCSSRule = true
+      appendToStylesList(stylesList, `${property}\n @apply`) // If its the style declaration: list it out and enter a new line
+    } else if(property.includes('}')) {
+      appendToStylesList(stylesList, `\n} \n`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
+      insideCSSRule = false
+    } else {
+      value = ''
+    }
+
   } 
 
-  if(value == undefined && property.includes('}')) {
-    appendToStylesList(stylesList, `\n} \n`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
-    insideCSSRule = false
-  }
 
   if(property == 'filter' || property == 'backdrop-filter') convertFilterToTailwind(property, value, stylesList)  // Case #1: The filter and backdrop-filter properties all have many different values based on their functions
 
   if(property == "transform") convertTransformToTailwind(property, value, stylesList) // Case #2: The transform property has many different values based on their functions
 
   value = util.convertUnits(value)
+  const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
+  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) convertShorthandToTailwind(stylesList, property, value)
 
-  if (singleValueDict.hasOwnProperty(property)) appendToStylesList(stylesList, `${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
+  if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) appendToStylesList(stylesList, `${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
 
   if (propertylessDict.hasOwnProperty(property)) convertPropertylessToTailwind(stylesList, property, value) // Applies to display, position, visibility, etc
  
-  if (shorthandDict.hasOwnProperty(property)) convertShorthandToTailwind(stylesList, property, value)
 
   if (borderRadiusDict.hasOwnProperty(property)) {
     value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
@@ -420,12 +424,11 @@ function convertPVPairToTailwind(stylesList, style) {
     case 'grid-auto-flow':
       appendToStylesList(stylesList, `grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
       break
-    // case 'grid-auto-columns':
-    //   appendToStylesList(stylesList, `auto-cols-${value}`)
-    //   break
-    // case 'grid-auto-rows':
-    //   appendToStylesList(stylesList, `auto-rows-${value}`)
-    //   break
+    case 'grid-row':
+      break
+    case 'grid-column':
+      break
+    
     case 'font-style':
       if(value.includes('italic')) appendToStylesList(stylesList, `italic`)
       else if(value.includes('normal')) appendToStylesList(stylesList, `not-italic`)
