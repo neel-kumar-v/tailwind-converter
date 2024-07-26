@@ -20,6 +20,7 @@
     "@vercel/analytics": "^1.0.0",
     "codemirror": "^6.0.1",
     "daisyui": "^2.51.5",
-    "highlight.js": "^11.7.0"
+    "highlight.js": "^11.7.0",
+    "tinycolor2": "^1.6.0"
   }
 }

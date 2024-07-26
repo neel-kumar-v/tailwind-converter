@@ -1,12 +1,13 @@
-import { EditorView } from "@codemirror/view";
-import { basicSetup } from "codemirror";
-import { EditorState } from "@codemirror/state";
+import { EditorView } from "@codemirror/view"
+import { basicSetup } from "codemirror"
+import { EditorState } from "@codemirror/state"
 import './style.css'
-import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict } from './dictionaries'
+import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict } from './dictionaries'
 import * as util from './utilities'
-import { inject } from '@vercel/analytics';
+import { inject } from '@vercel/analytics'
+import { createAlert } from "./alerts"
  
-inject(); // 
+inject() // 
 
 const cssButton = document.getElementById('copycss')
 const tailwindButton = document.getElementById('copytailwind')
@@ -31,175 +32,297 @@ const zeroRegex = /0[a-zA-Z]*/
 cssButton.addEventListener('click', () => {
   util.copy(input)
 })
-tailwindButton.addEventListener('click', () => {
-  util.copy(output)
-})
+// tailwindButton.addEventListener('click', () => {
+//   util.copy(output)
+// })
 
 var inputEditor = CodeMirror.fromTextArea(input, {
   lineNumbers: true,
   mode: "css", 
   theme: "material-darker",
   lint: false,
-});
-var outputEditor = CodeMirror.fromTextArea(output, {
-  lineNumbers: true,
-  mode: "text", 
-  theme: "material-darker",
-  lint: false,
-});
+})
+// var outputEditor = CodeMirror.fromTextArea(output, {
+//   lineNumbers: true,
+//   mode: "text", 
+//   theme: "material-darker",
+//   lint: false,
+// })
 
 inputEditor.on('change', () => {
   const css = inputEditor.getValue()
-  console.log(css)
+  // console.log(css)
   const outputTailwind = convertCSSToPVPair(css)
-  console.log(outputTailwind)
-  outputEditor.setValue(outputTailwind)
-  // if(inputHTML.value == '')  {
-  //   console.log("esfg")
-  // }
-  // else {
-  //   console.log("sdsdf")
-  //   output.textContent = convertToHTML(convertCSSToPVPair(input.value), inputHTML.value)
-  // }
+  console.log(`tailwind output:
+
+    ${outputTailwind}`)
+  const jsonOutput = parseOutput(outputTailwind)
+  displayOutputWithSelectors(jsonOutput)
+
 })
+
+function displayOutputNoSelectors(styles) {
+ 
+}
+function resetDisplay() {
+  const outputElement = document.getElementById('output')
+  outputElement.innerHTML = '';
+}
+function displayOutputWithSelectors(json) {
+  resetDisplay();
+  const outputElement = document.getElementById('output');
+  
+  Object.keys(json).forEach(selector => {
+    const outputSelectorDiv = document.createElement('div')
+    outputSelectorDiv.className = 'outputSelector first:mt-0 my-6'
+    
+    // Create the first inner div
+    const selectorFlexContainer = document.createElement('div')
+    selectorFlexContainer.className = 'flex flex-wrap justify-start mb-3'
+    
+    // Create the h2 element for the selector
+    const selectorNameElement = document.createElement('h2')
+    selectorNameElement.className = 'selector mr-2 font-normal text-xl xl:text-2xl text-white p-1'
+    selectorNameElement.textContent = selector
+    selectorFlexContainer.appendChild(selectorNameElement)
+    
+    // Create the first button
+    const selectorCopyButton1 = document.createElement('button')
+    selectorCopyButton1.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit xl:mx-3 mx-1 p-1 xl:px-3 px-1 rounded-lg'
+    selectorCopyButton1.id = 'copytailwind'
+    selectorCopyButton1.innerHTML = `
+      <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case">Copy as TailwindCSS directive</p>
+      <svg-icon width="5" opacity="75"></svg-icon>
+    `
+    selectorFlexContainer.appendChild(selectorCopyButton1)
+    
+    // Create the second button
+    const selectorCopyButton2 = document.createElement('button')
+    selectorCopyButton2.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit mx-3 p-1 px-3 rounded-lg'
+    selectorCopyButton2.id = 'copytailwind'
+    selectorCopyButton2.innerHTML = `
+      <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case">Copy as TailwindCSS classes</p>
+      <svg-icon width="5" opacity="75"></svg-icon>
+    `
+    selectorFlexContainer.appendChild(selectorCopyButton2)
+    
+    // Append the first inner div to the outer div
+    outputSelectorDiv.appendChild(selectorFlexContainer)
+    
+    // Create the second inner div
+    const classesFlexContainer = document.createElement('div')
+    classesFlexContainer.className = 'classes flex flex-wrap justify-start'
+    
+    // Create the class buttons
+    json[selector].forEach(className => {
+      const classButton = document.createElement('button')
+      classButton.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline w-fit mr-2 p-1 px-3 hover:px-1.5 h-fit group rounded-lg bg-white/[0.1] my-1 class-copybutton'
+      classButton.innerHTML = `
+        <p class="group-hover:mr-1 duration-200 text-sm xl:text-md text-white font-normal class-name">${className}</p>
+        <svg class="w-0 group-hover:w-4 opacity-0 group-hover:opacity-100 duration-200 aspect-square stroke-1 fill-white" viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
+          <rect class="w-6 aspect-square stroke-none fill-white opacity-0"/>
+          <g transform="matrix(1.43 0 0 1.43 12 12)" >
+            <path style="stroke: none stroke-width: 1 stroke-dasharray: none stroke-linecap: butt stroke-dashoffset: 0 stroke-linejoin: miter stroke-miterlimit: 4  fill-rule: nonzero opacity: 1" transform=" translate(-8, -7.5)" d="M 2.5 1 C 1.675781 1 1 1.675781 1 2.5 L 1 10.5 C 1 11.324219 1.675781 12 2.5 12 L 4 12 L 4 12.5 C 4 13.324219 4.675781 14 5.5 14 L 13.5 14 C 14.324219 14 15 13.324219 15 12.5 L 15 4.5 C 15 3.675781 14.324219 3 13.5 3 L 12 3 L 12 2.5 C 12 1.675781 11.324219 1 10.5 1 Z M 2.5 2 L 10.5 2 C 10.78125 2 11 2.21875 11 2.5 L 11 10.5 C 11 10.78125 10.78125 11 10.5 11 L 2.5 11 C 2.21875 11 2 10.78125 2 10.5 L 2 2.5 C 2 2.21875 2.21875 2 2.5 2 Z M 12 4 L 13.5 4 C 13.78125 4 14 4.21875 14 4.5 L 14 12.5 C 14 12.78125 13.78125 13 13.5 13 L 5.5 13 C 5.21875 13 5 12.78125 5 12.5 L 5 12 L 10.5 12 C 11.324219 12 12 11.324219 12 10.5 Z" stroke-linecap="round" />
+          </g>
+        </svg>
+      `
+      classesFlexContainer.appendChild(classButton)
+    })
+    
+    // Append the second inner div to the outer div
+    outputSelectorDiv.appendChild(classesFlexContainer)
+    
+    // Append the outer div to the output element
+    outputElement.appendChild(outputSelectorDiv)
+  });
+}
+
+function parseOutput(cssString) {
+    // Remove @apply and extra spaces
+    const cleanedCss = cssString.replace(/@apply\s+/g, '').trim() // Remove the @apply and any extra spaces
+  
+    // Split by selector and braces
+    let jsonResult = {};
+    
+    const cssRules = cleanedCss.split('}').filter(rule => rule.trim().length > 0)
+    
+    cssRules.forEach(rule => {
+        // Extract the selector and the class definitions
+        const [selector, classes] = rule.split('{').map(part => part.trim())
+        console.log(`selector, classes :
+          ${selector}, ${classes}`)
+        // Split the classes into an array
+        const classArray = classes.split(/\s+/).filter(className => className.length > 0)
+        console.log(`class array:
+          ${classArray}`)
+        // Add to the result object
+        jsonResult[selector] = classArray
+    });
+  console.log(jsonResult)
+  return jsonResult;
+}
+
+function convertLinearWithAvailableValues(stylesList, propertyName, value, availableValues, backdrop) {
+  console.log(backdrop)
+  if(availableValues.includes(Number(value))) appendToStylesList(stylesList, `${backdrop}${propertyName}-${value * 100}`) // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
+  else appendToStylesList(stylesList, `${backdrop}${property}-[${value}]`) // Else use a arbitrary value
+}
+
+function convertRotationWithAvailableValues(stylesList, propertyName, value, availableValues, backdrop) {
+  value = value.replace('deg', '')  // Remove the deg from the value for parsing
+  if(availableValues.includes(Number(value))) appendToStylesList(stylesList, `${backdrop}${propertyName}-${value}`) // If the newValue is a number tailwind has a builtin number for, then use it
+  else appendToStylesList(stylesList, `${backdrop}${propertyName}-[${value}deg]`) // Else use a arbitrary value and add deg back to it 
+}
+
+function convertPercentageScaledWithAvailableValues(stylesList, propertyName, value, backdrop) {
+  if(value.includes('100%')) appendToStylesList(stylesList, `${backdrop}${propertyName}`) // If the value is 100%, then just use the property name
+  else if(zeroRegex.test(value)) appendToStylesList(stylesList, `${backdrop}${propertyName}-0`) // If the value is 0, then just use the property name with a 0
+  else appendToStylesList(stylesList, `${backdrop}${propertyName}-[${value}]`) // Else use the property name with the value in brackets
+}
 
 function convertFilterToTailwind(property, value, stylesList) {
   let [newProperty, newValue] = value.split('(').map(s => s.trim()) // EX: filter: blur(4px); treated as blur: 4px
-    newValue = newValue.replace(')', '')
-    const backdrop = (property == 'backdrop-filter') ? 'backdrop-' : '' // Filter and backdrop-filter are grouped so the backdrop prefix can be added concisely
-    let availableValues = [];
-    switch(newProperty) {
-      case 'blur':
-        stylesList.push(`${backdrop}blur-${util.irregularConvertUnits(blurUnitDict, newValue)}`)
-        break;
-      case 'brightness':
-        availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5, 2] 
-        if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}brightness-${newValue * 100}`) // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
-        else stylesList.push(`${backdrop}brightness-[${newValue}]`) // Else use a arbitrary value
-        break;
-      case 'contrast':
-        availableValues = [0, 0.5, 0.75, 1, 1.25, 1.5, 2] 
-        if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}contrast-${newValue * 100}`)
-        else stylesList.push(`${backdrop}contrast-[${newValue}]`)
-        break;
-      case 'grayscale':
-        if(newValue.includes('100%')) stylesList.push(`${backdrop}grayscale`)
-        else if(zeroRegex.test(newValue)) stylesList.push(`${backdrop}grayscale-0`)
-        else stylesList.push(`${backdrop}grayscale-[${newValue}]`)
-        break;
-      case 'hue-rotate':
-        availableValues = [0, 15, 30, 60, 90, 180]
-        newValue = newValue.replace('deg', '') 
-        if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}hue-rotate-${newValue}`)
-        else stylesList.push(`${backdrop}hue-rotate-[${newValue}deg]`)
-        break;
-      case 'invert':
-        if(newValue.includes('100%')) stylesList.push(`${backdrop}invert`)
-        else if(zeroRegex.test(newValue)) stylesList.push(`${backdrop}invert-0`)
-        else stylesList.push(`${backdrop}invert-[${newValue}]`)
-        break;
-      case 'saturate':
-        availableValues = [0, 0.5, 1, 1.5, 2] 
-        if(availableValues.includes(Number(newValue))) stylesList.push(`${backdrop}contrast-${newValue * 100}`)
-        else stylesList.push(`${backdrop}contrast-[${newValue}]`)
-        break;
-      case 'sepia':
-        if(newValue.includes('100%')) stylesList.push(`${backdrop}sepia`)
-        else if(zeroRegex.test(newValue)) stylesList.push(`${backdrop}sepia-0`)
-        else stylesList.push(`${backdrop}sepia-[${newValue}]`)
-        break;
-      default:
-        break;
+  newValue = newValue.replace(')', '')
+  const backdrop = (property == 'backdrop-filter') ? 'backdrop-' : '' // Filter and backdrop-filter are grouped so the backdrop prefix can be added concisely
+  switch(newProperty) {
+    case 'blur':
+      appendToStylesList(stylesList, `${backdrop}blur-${util.irregularConvertUnits(blurUnitDict, newValue)}`)
+      break
+    case 'brightness':
+      convertLinearWithAvailableValues(stylesList, 'brightness', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5, 2], backdrop)
+      break
+    case 'contrast':
+      convertLinearWithAvailableValues(stylesList, 'contrast', newValue, [0, 0.5, 0.75, 1, 1.25, 1.5, 2], backdrop)
+      break
+    case 'grayscale':
+      convertPercentageScaledWithAvailableValues(stylesList, 'grayscale', newValue, backdrop)
+      break
+    case 'hue-rotate':
+      convertRotationWithAvailableValues(stylesList, 'hue-rotate', newValue, [0, 15, 30, 60, 90, 180], backdrop)
+      break
+    case 'invert':
+      convertPercentageScaledWithAvailableValues(stylesList, 'invert', newValue, backdrop)
+      break
+    case 'saturate':
+      convertLinearWithAvailableValues(stylesList, 'saturate', newValue, [0, 0.5, 1, 1.5, 2], backdrop)
+      break
+    case 'sepia':
+      convertPercentageScaledWithAvailableValues(stylesList, 'sepia', newValue, backdrop)
+      break
+    default:
+      appendToStylesList(stylesList, `!(${property}: ${value})`)
+      console.log(`(${property}: ${value}) could not be converted`)
+      break
 
-    }
+  }
 }
 
 function convertTransformToTailwind(property, value, stylesList) {
-  let [newProperty, newValue] = value.split('(').map(s => s.trim()) // EX: filter: blur(4px); treated as blur: 4px
+  let [newProperty, newValue] = value.split('(').map(s => s.trim()) // EX: filter: blur(4px) treated as blur: 4px
   newValue = newValue.replace(')', '')
-  let availableValues = [];
   switch(newProperty) {
     case 'scale':
-      availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
-      if(availableValues.includes(Number(newValue))) stylesList.push(`scale-${newValue * 100}`)
-      else stylesList.push(`scale-[${newValue}]`) 
-      break;
+      convertLinearWithAvailableValues(stylesList, 'scale', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
+      break
     case 'scaleX':
-      availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
-      if(availableValues.includes(Number(newValue))) stylesList.push(`scale-x-${newValue * 100}`)
-      else stylesList.push(`scale-x-[${newValue}]`) 
-      break;
+      convertLinearWithAvailableValues(stylesList, 'scale-x', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
+      break
     case 'scaleY':
-      availableValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
-      if(availableValues.includes(Number(newValue))) stylesList.push(`scale-y-${newValue * 100}`)
-      else stylesList.push(`scale-y-[${newValue}]`) 
-      break;
+      convertLinearWithAvailableValues(stylesList, 'scale-y', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
+      break
     case 'rotate':
-      availableValues = [0, 1, 2, 3, 6, 12, 45, 90, 180]
-      newValue = newValue.replace('deg', '') 
-      if(availableValues.includes(Number(newValue))) stylesList.push(`rotate-${newValue}`)
-      else stylesList.push(`rotate-[${newValue}deg]`)
-      break;
+      convertRotationWithAvailableValues(stylesList, 'rotate', newValue, [0, 1, 2, 3, 6, 12, 45, 90, 180], '')
+      break
     case 'translateX':
       // console.log(newValue)
       newValue = newValue.split(' ')
       // console.log(newValue)
       if(newValue.length == 1) {
-        stylesList.push(`translate-x-${util.convertUnits(String(newValue))}`)
+        appendToStylesList(stylesList, `translate-x-${util.convertUnits(String(newValue))}`)
       } else if(newValue.length == 2) {
-        stylesList.push(`translate-x-${util.convertUnits(newValue[0])}`)
-        stylesList.push(`translate-y-${util.convertUnits(newValue[1])}`)
+        appendToStylesList(stylesList, `translate-x-${util.convertUnits(newValue[0])}`)
+        appendToStylesList(stylesList, `translate-y-${util.convertUnits(newValue[1])}`)
       } 
-      break;
+      break
     case 'translateY':
       // console.log(newValue)
       newValue = newValue.split(' ')
       // console.log(newValue)
       if(newValue.length == 1) {
-        stylesList.push(`translate-y-${util.convertUnits(String(newValue))}`)
+        appendToStylesList(stylesList, `translate-y-${util.convertUnits(String(newValue))}`)
       } else if(newValue.length == 2) {
-        stylesList.push(`translate-y-${util.convertUnits(newValue[0])}`)
-        stylesList.push(`translate-x-${util.convertUnits(newValue[1])}`)
+        appendToStylesList(stylesList, `translate-y-${util.convertUnits(newValue[0])}`)
+        appendToStylesList(stylesList, `translate-x-${util.convertUnits(newValue[1])}`)
       } 
-      break;
+      break
     case 'skewX':
-      availableValues = [0, 1, 2, 3, 6, 12]
-      newValue = newValue.replace('deg', '') 
-      if(availableValues.includes(Number(newValue))) stylesList.push(`skew-x-${newValue}`)
-      else stylesList.push(`skew-x-[${newValue}deg]`)
-      break;
-      break;
+      convertRotationWithAvailableValues(stylesList, 'skew-x', newValue, [0, 1, 2, 3, 6, 12])
+      // break
+      break
     case 'skewY':
-      availableValues = [0, 1, 2, 3, 6, 12]
-      newValue = newValue.replace('deg', '') 
-      if(availableValues.includes(Number(newValue))) stylesList.push(`skew-y-${newValue}`)
-      else stylesList.push(`skew-y-[${newValue}deg]`)
-      break;
-
+      convertRotationWithAvailableValues(stylesList, 'skew-y', newValue, [0, 1, 2, 3, 6, 12])
+      break
     default:
-      break;
+      appendToStylesList(stylesList, `!(${property}: ${value})`)
+      console.log(`(${property}: ${value}) could not be converted`)
+      break
   }
 }
 
-function convertPVPairToCSS(stylesList, style) {
-  let [property, value] = style.split(':').map(s => s.trim()); // Split up the properties and the styles
-  if(value != undefined) value = value.replace(';', ''); // Get rid of the semicolon
-  if(value == undefined && property.includes('{')) stylesList.push(`${property}\n`) // If its the style declaration: list it out and enter a new line
-  if(value == undefined && property.includes('}')) stylesList.push(`\n} \n`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
+function convertShorthandToTailwind(stylesList, property, value) {
+  const shorthandValues = util.shorthand(value.split(' '), shorthandDict[property]) // Split the values by space and parse the shorthand notation
+  for (let i = 0; i < shorthandValues.length; i++) {
+    appendToStylesList(stylesList, shorthandValues[i]) // Push each value to the stylesList
+  }
+}
 
-  if(property == 'filter' || property == 'backdrop-filter') convertFilterToTailwind(property, value, stylesList)  // Special case #1: The filter backdrop-filter properties all have many different values based on their functions
+function convertPropertylessToTailwind(stylesList, property, value) {
+  // Edge cases where the value is not the same as the tailwind class
+  if (property == 'display' && value == 'none') appendToStylesList(stylesList, `hidden`)
+  else if (property == 'visibility' && value == 'hidden') appendToStylesList(stylesList, `invisible`)
+  else if (property == 'font-variant-numeric' && value == 'normal') appendToStylesList(stylesList, `normal-nums`)
+  else appendToStylesList(stylesList, `${value}`) 
+}
 
-  if(property == "transform") convertTransformToTailwind(property, value, stylesList) // Special case #2: The transform property has many different values based on their functions
+function appendToStylesList(stylesList, value) {
+  if(insideCSSRule) {
+    stylesList.push(value)
+  } else {
+    createAlert(`The value ${value} was not inside a CSS rule and was not converted to TailwindCSS`)
+  }
+}
+
+let insideCSSRule = false;
+function convertPVPairToTailwind(stylesList, style) {
+  let [property, value] = style.split(':').map(s => s.trim()) // Split up the properties and the styles
+  
+  if(value != undefined) value = value.replace(';', '') // Get rid of the semicolon
+  
+  if(value == undefined && property.includes('{')){
+    insideCSSRule = true
+    appendToStylesList(stylesList, `${property}\n @apply`) // If its the style declaration: list it out and enter a new line
+  } 
+
+  if(value == undefined && property.includes('}')) {
+    appendToStylesList(stylesList, `\n} \n`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
+    insideCSSRule = false
+  }
+
+  if(property == 'filter' || property == 'backdrop-filter') convertFilterToTailwind(property, value, stylesList)  // Case #1: The filter and backdrop-filter properties all have many different values based on their functions
+
+  if(property == "transform") convertTransformToTailwind(property, value, stylesList) // Case #2: The transform property has many different values based on their functions
 
   value = util.convertUnits(value)
 
-  if (singleValueDict.hasOwnProperty(property)) stylesList.push(`${singleValueDict[property]}-${value}`); // Applies to margin, padding, border-width, border-radius, etc
+  if (singleValueDict.hasOwnProperty(property)) appendToStylesList(stylesList, `${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
 
-  if (shorthandDict.hasOwnProperty(property)) {
-    const shorthandValues = util.shorthand(value.split(' '), shorthandDict[property]); // Split the values by space and apply shorthand to them
-    for (let i = 0; i < shorthandValues.length; i++) {
-      stylesList.push(shorthandValues[i]); // Push each value to the stylesList
-    }
+  if (propertylessDict.hasOwnProperty(property)) convertPropertylessToTailwind(stylesList, property, value) // Applies to display, position, visibility, etc
+ 
+  if (shorthandDict.hasOwnProperty(property)) convertShorthandToTailwind(stylesList, property, value)
+
+  if (borderRadiusDict.hasOwnProperty(property)) {
+    value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
+    appendToStylesList(stylesList, `${borderRadiusDict[property]}-${value}`)
   }
 
 
@@ -207,43 +330,27 @@ function convertPVPairToCSS(stylesList, style) {
   switch (property) {
     // * SINGLE VALUES WITH UNITS
     // * BORDER CORNER RADIUS
-    case 'border-top-right-radius':
-      value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
-      stylesList.push(`rounded-tr-${value}`);
-      break;
-    case 'border-bottom-left-radius':
-      value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
-      stylesList.push(`rounded-bl-${value}`);
-      break;
-    case 'border-bottom-right-radius':
-      value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
-      stylesList.push(`rounded-br-${value}`);
-      break;
-    case 'border-top-right-radius':
-      value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
-      stylesList.push(`rounded-tr-${value}`);
-      break;
     // * STYLES THAT NEED REVERTED UNITS
     case 'text-decoration-thickness':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value).replace('px', '')
-      stylesList.push(`decoration-${value}`)
-      break;
+      appendToStylesList(stylesList, `decoration-${value}`)
+      break
     case 'text-underline-offset':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      stylesList.push(`underline-offset-${value}`)
-      break;
+      appendToStylesList(stylesList, `underline-offset-${value}`)
+      break
     case 'outline-width':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      stylesList.push(`outline-${value.replace('px', '')}`)
-      break;
+      appendToStylesList(stylesList, `outline-${value.replace('px', '')}`)
+      break
     case 'outline-offset':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      stylesList.push(`outline-offset-${value.replace('px', '')}`)
-      break;
+      appendToStylesList(stylesList, `outline-offset-${value.replace('px', '')}`)
+      break
     case 'letter-spacing':
       value = value.replace('[', '').replace(']', '')
-      stylesList.push(`tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
-      break;
+      appendToStylesList(stylesList, `tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
+      break
 
     // * SHORTHANDABLE VALUES
     
@@ -253,387 +360,130 @@ function convertPVPairToCSS(stylesList, style) {
         borderRadiuses[i] = util.translateConvertedToIrregular(borderRadiusUnitDict, borderRadiuses[i])
       }
       if (borderRadiuses.length === 1) {
-        stylesList.push(`rounded-${borderRadiuses[0]}`.replace('-/', ''));
+        appendToStylesList(stylesList, `rounded-${borderRadiuses[0]}`.replace('-/', ''))
       } else if (borderRadiuses.length === 2) {
-        stylesList.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''));
-        stylesList.push(`rounded-br-${borderRadiuses[0]}`.replace('-/', ''));
-        stylesList.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''));
-        stylesList.push(`rounded-bl-${borderRadiuses[1]}`.replace('-/', ''));
+        appendToStylesList(stylesList, `rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
+        appendToStylesList(stylesList, `rounded-br-${borderRadiuses[0]}`.replace('-/', ''))
+        appendToStylesList(stylesList, `rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
+        appendToStylesList(stylesList, `rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
       } else if (borderRadiuses.length === 3) { 
-        stylesList.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''));
-        stylesList.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''));
-        stylesList.push(`rounded-bl-${borderRadiuses[1]}`.replace('-/', ''));
-        stylesList.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''));
+        appendToStylesList(stylesList, `rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
+        appendToStylesList(stylesList, `rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
+        appendToStylesList(stylesList, `rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
+        appendToStylesList(stylesList, `rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
       } else if (borderRadiuses.length === 4) {
-        stylesList.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''));
-        stylesList.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''));
-        stylesList.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''));
-        stylesList.push(`rounded-bl-${borderRadiuses[3]}`.replace('-/', ''));
+        appendToStylesList(stylesList, `rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
+        appendToStylesList(stylesList, `rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
+        appendToStylesList(stylesList, `rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
+        appendToStylesList(stylesList, `rounded-bl-${borderRadiuses[3]}`.replace('-/', ''))
       }
-      break;
-    // case 'border-width':
-    //     const borderWidths = util.shorthand(value.split(' '), shorthandDict[property])
-    //     for(let i = 0; i < borderWidths.length; i++) {
-    //       stylesList.push(borderWidths[i])
-    //     }
-    //   break;
-    // case 'margin':
-    //   const margins = util.shorthand(value.split(' '), shorthandDict[property])
-    //   for(let i = 0; i < margins.length; i++) {
-    //     stylesList.push(margins[i])
-    //   }
-    //   break;
-    // case 'scroll-margin':
-    //   const scrollMargins = util.shorthand(value.split(' '), shorthandDict[property])
-    //   for(let i = 0; i < scrollMargins.length; i++) {
-    //     stylesList.push(scrollMargins[i])
-    //   }
-    //   break;
-    // case 'padding':
-    //   const paddings = util.shorthand(value.split(' '), shorthandDict[property])
-    //   for(let i = 0; i < paddings.length; i++) {
-    //     stylesList.push(paddings[i])
-    //   }
-    //   break;
-    // case 'scroll-padding':
-    //   const scrollPaddings = util.shorthand(value.split(' '), shorthandDict[property])
-    //   for(let i = 0; i < scrollPaddings.length; i++) {
-    //     stylesList.push(scrollPaddings[i])
-    //   }
-    //   break;
-    // case 'border-spacing':
-    //   const borderSpacings = util.shorthand(value.split(' '), shorthandDict[property])
-    //   for(let i = 0; i < borderSpacings.length; i++) {
-    //     stylesList.push(borderSpacings[i])
-    //   }
-    //   break;
+      break
+
     case 'inset':
       const values = value.split(' ')
       if (values.length === 1) {
-        stylesList.push(`inset-${values[0]}`);
+        appendToStylesList(stylesList, `inset-${values[0]}`)
       } else if (values.length === 2) {
-        stylesList.push(`inset-y-${values[0]}`);
-        stylesList.push(`inset-x-${values[1]}`);
+        appendToStylesList(stylesList, `inset-y-${values[0]}`)
+        appendToStylesList(stylesList, `inset-x-${values[1]}`)
       } else if (values.length === 3) {
-        stylesList.push(`top-${values[0]}`);
-        stylesList.push(`inset-x-${values[1]}`);
-        stylesList.push(`bottom-${values[2]}`);
+        appendToStylesList(stylesList, `top-${values[0]}`)
+        appendToStylesList(stylesList, `inset-x-${values[1]}`)
+        appendToStylesList(stylesList, `bottom-${values[2]}`)
       } else if (values.length === 4) {
-        stylesList.push(`top-${values[0]}`);
-        stylesList.push(`right-${values[1]}`);
-        stylesList.push(`bottom-${values[2]}`);
-        stylesList.push(`left-${values[3]}`);
+        appendToStylesList(stylesList, `top-${values[0]}`)
+        appendToStylesList(stylesList, `right-${values[1]}`)
+        appendToStylesList(stylesList, `bottom-${values[2]}`)
+        appendToStylesList(stylesList, `left-${values[3]}`)
       }
-      break;
+      break
 
     // * NUMBER NO UNIT
-    case 'grid-row-start':
-      stylesList.push(`row-start-${value}`)
-      break;
-    case 'grid-row-end':
-      stylesList.push(`row-end-${value}`)
-      break;
-    case 'grid-column-start':
-      stylesList.push(`col-start-${value}`)
-      break;
-    case 'grid-column-end':
-      stylesList.push(`col-end-${value}`)
-      break;
-    case 'stroke-width':
-      stylesList.push(`stroke-${value}`)
-      break;
-    case 'z-index':
-      stylesList.push(`z-${value}`)
-      break;
-    case 'columns':
-      stylesList.push(`columns-${value}`)
-      break;
     case 'order':
-      if(value == '0') stylesList.push('order-none')
-      else stylesList.push(`order-${value}`)
-      break;
+      if(value == '0') appendToStylesList(stylesList, 'order-none')
+      else appendToStylesList(stylesList, `order-${value}`)
+      break
     case 'opacity':
-      stylesList.push(`opacity-${value * 100}`)
-      break;
+      appendToStylesList(stylesList, `opacity-${value * 100}`)
+      break
     case 'aspect-ratio':
-      if(value.includes('1 / 1')) stylesList.push(`aspect-square`)
-      if(value.includes('16 / 9')) stylesList.push(`aspect-video`)
-      else stylesList.push(`aspect-${value}`)
-      break;
+      if(value.includes('1 / 1')) appendToStylesList(stylesList, `aspect-square`)
+      if(value.includes('16 / 9')) appendToStylesList(stylesList, `aspect-video`)
+      else appendToStylesList(stylesList, `aspect-${value}`)
+      break
     case 'font-weight':
-      stylesList.push(`font-${util.irregularConvertUnits(fontWeightUnitDict, value)}`)
-      break;
+      appendToStylesList(stylesList, `font-${util.irregularConvertUnits(fontWeightUnitDict, value)}`)
+      break
     case 'flex-grow':
-      if(value.includes('1')) stylesList.push(`grow`)
-      else stylesList.push(`grow-0`)
-      break;
+      if(value.includes('1')) appendToStylesList(stylesList, `grow`)
+      else appendToStylesList(stylesList, `grow-0`)
+      break
     case 'flex-shrink':
-      if(value.includes('1')) stylesList.push(`shrink`)
-      else stylesList.push(`shrink-0`)
-      break;
+      if(value.includes('1')) appendToStylesList(stylesList, `shrink`)
+      else appendToStylesList(stylesList, `shrink-0`)
+      break
     
     // * WORDS
-    case 'break-after':
-      stylesList.push(`break-after-${value}`)
-      break;
-    case 'break-before':
-      stylesList.push(`break-before-${value}`)
-      break;
-    case 'break-inside':
-      stylesList.push(`break-inside-${value}`)
-      break;
-    case 'box-decoration-break-inside':
-      stylesList.push(`box-decoration-${value}`)
-      break;
-    case 'box-sizing':
-      stylesList.push(`box-${value}`)
-      break;
-    case 'display':
-      stylesList.push(`${value}`)
-      break;
-    case 'position':
-      stylesList.push(`${value}`)
-      break;
-    case 'visibility':
-      stylesList.push(`${value}`)
-      break;
-    case 'float':
-      stylesList.push(`float-${value}`)
-      break;
-    case 'clear':
-      stylesList.push(`clear-${value}`)
-      break;
     case 'isolate':
-      if(value.includes('isolate')) stylesList.push('isolate')
-      else stylesList.push(`isolation-${value}`)
-      break;
-    case 'object-fit':
-      stylesList.push(`object-${value}`)
-      break;
-    case 'object-position':
-      stylesList.push(`object-${value}`)
-      break;
-    case 'overflow':
-      stylesList.push(`overflow-${value}`)
-      break;
-    case 'overflow-x':
-      stylesList.push(`overflow-x-${value}`)
-      break;
-    case 'overflow-y':
-      stylesList.push(`overflow-y-${value}`)
-      break;
-    case 'overscroll':
-      stylesList.push(`overscroll-${value}`)
-      break;
-    case 'overscroll-x':
-      stylesList.push(`overscroll-x-${value}`)
-      break;
-    case 'overscroll-y':
-      stylesList.push(`overscroll-y-${value}`)
-      break;
+      if(value.includes('isolate')) appendToStylesList(stylesList, 'isolate')
+      else appendToStylesList(stylesList, `isolation-${value}`)
+      break
     case 'flex-direction':
-      stylesList.push(`flex-${value}`.replace('column', 'col'))
-      break;
-    case 'flex-wrap':
-      stylesList.push(`flex-${value}`)
-      break;
+      appendToStylesList(stylesList, `flex-${value}`.replace('column', 'col'))
+      break
+  
     // TODO: Flex
     case 'grid-auto-flow':
-      stylesList.push(`grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
-      break;
-    case 'grid-auto-columns':
-      stylesList.push(`auto-cols-${value}`)
-      break;
-    case 'grid-auto-rows':
-      stylesList.push(`auto-rows-${value}`)
-      break;
-    case 'justify-content':
-      stylesList.push(`justify-${value}`)
-      break;
-    case 'justify-items':
-      stylesList.push(`justify-items-${value}`)
-      break;
-    case 'justify-self':
-      stylesList.push(`justify-self-${value}`)
-      break;
-    case 'align-content':
-      stylesList.push(`content-${value}`)
-      break;
-    case 'align-items':
-      stylesList.push(`items-${value}`)
-      break;
-    case 'align-self':
-      stylesList.push(`self-${value}`)
-      break;
-    case 'place-content':
-      stylesList.push(`place-content-${value}`)
-      break;
-    case 'place-items':
-      stylesList.push(`place-items-${value}`)
-      break;
-    case 'place-self':
-      stylesList.push(`place-self-${value}`)
-      break;
+      appendToStylesList(stylesList, `grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
+      break
+    // case 'grid-auto-columns':
+    //   appendToStylesList(stylesList, `auto-cols-${value}`)
+    //   break
+    // case 'grid-auto-rows':
+    //   appendToStylesList(stylesList, `auto-rows-${value}`)
+    //   break
     case 'font-style':
-      if(value.includes('italic')) stylesList.push(`italic`)
-      else if(value.includes('normal')) stylesList.push(`not-italic`)
-      break;
-    case 'font-variant-numeric':
-      stylesList.push(`${value}`)
-      break;
-    case 'list-style-type':
-      stylesList.push(`list-${value}`)
-      break;
-    case 'list-style-position':
-      stylesList.push(`list-${value}`)
-      break;
-    case 'text-align':
-      stylesList.push(`text-${value}`)
-      break;
+      if(value.includes('italic')) appendToStylesList(stylesList, `italic`)
+      else if(value.includes('normal')) appendToStylesList(stylesList, `not-italic`)
+      break
     case 'text-decoration-line':
-      if(value.includes('none')) stylesList.push('no-underline')
-      else stylesList.push(`${value}`)
-      break;
+      if(value.includes('none')) appendToStylesList(stylesList, 'no-underline')
+      else appendToStylesList(stylesList, `${value}`)
+      break
     case 'text-transform':
-      if(value.includes('none')) stylesList.push('normal-case')
-      else stylesList.push(`${value}`)
-      break;
-    case 'text-decoration-style':
-      stylesList.push(`decoration-${value}`)
-      break;
-    case 'text-overflow':
-      stylesList.push(`text-${value}`)
-      break;
-    case 'vertical-align':
-      stylesList.push(`align-${value}`)
-      break;
-    case 'white-space':
-      stylesList.push(`whitespace-pre-${value}`)
-      break;
+      if(value.includes('none')) appendToStylesList(stylesList, 'normal-case')
+      else appendToStylesList(stylesList, `${value}`)
+      break
     case 'overflow-wrap':
-      if(value.include('break-word')) stylesList.push('break-words')
-      else stylesList.push(`${value}`)
-      break;
+      if(value.include('break-word')) appendToStylesList(stylesList, 'break-words')
+      else appendToStylesList(stylesList, `${value}`)
+      break
     case 'word-break':
-      if(value.includes('keep-all')) stylesList.push(`break-keep`)
-      else stylesList.push(`whitespace-pre-${value}`)
-      break;
+      if(value.includes('keep-all')) appendToStylesList(stylesList, `break-keep`)
+      else appendToStylesList(stylesList, `whitespace-pre-${value}`)
+      break
     case 'content':
-      stylesList.push(`content-${value}`)
-      break;
-    case 'background-attachment':
-      stylesList.push(`bg-${value}`)
-      break;
-    case 'background-clip':
-      stylesList.push(`bg-clip-${value}`)
-      break;
-    case 'background-origin':
-      stylesList.push(`bg-origin-${value}`)
-      break;
-    case 'background-position':
-      stylesList.push(`bg-${value}`)
-      break;
-    case 'background-repeat':
-      stylesList.push(`bg-${value}`)
-      break;
-    case 'background-size':
-      stylesList.push(`bg-${value}`)
-      break;
-    case 'border-style':
-      stylesList.push(`border-${value}`)
-      break;
-    case 'outline-style':
-      stylesList.push(`outline-${value}`)
-      break;
-    case 'mix-blend-mode':
-      stylesList.push(`mix-blend-${value}`)
-      break;
-    case 'background-blend-mode':
-      stylesList.push(`bg-blend-${value}`)
-      break;
-    case 'border-collapse':
-      stylesList.push(`border-${value}`)
-      break;
-    case 'table-layout':
-      stylesList.push(`table-${value}`)
-      break;
+      appendToStylesList(stylesList, `content-[${value}]`)
+      break
     case 'transform-origin':
-      stylesList.push(`origin-${value}`.replace(' ', '-'))
-      break;
-    case 'appearance':
-      stylesList.push(`${value}`)
-      break;
-    case 'cursor':
-      stylesList.push(`cursor-${value}`)
-      break;
-    case 'pointer-events':
-      stylesList.push(`pointer-events-${value}`)
-      break;
-    case 'scroll-bahviour':
-      stylesList.push(`scroll-${value}`)
-      break;
+      appendToStylesList(stylesList, `origin-${value}`.replace(' ', '-'))
+      break
     case 'resize':
-      if(value.includes('vertical')) stylesList.push('resize-y')
-      else if(value.includes('horizontal')) stylesList.push('resize-x')
-      else if(value.includes('both')) stylesList.push('resize')
-      else stylesList.push(`resize-${value}`)
-      break;
-    case 'scroll-snap-align':
-      if(value.includes('none')) stylesList.push('snap-align-none')
-      else stylesList.push(`snap-${value}`)
-      break;
-    case 'scroll-snap-stop':
-      stylesList.push(`snap-${value}`)
-      break;
+      if(value.includes('vertical')) appendToStylesList(stylesList, 'resize-y')
+      else if(value.includes('horizontal')) appendToStylesList(stylesList, 'resize-x')
+      else if(value.includes('both')) appendToStylesList(stylesList, 'resize')
+      else appendToStylesList(stylesList, `resize-${value}`)
+      break
     case 'scroll-snap-type':
-      stylesList.push(`snap-${value}`)
-      break;
-    case 'touch-action':
-      stylesList.push(`touch-${value}`)
-      break;
-    case 'user-select':
-      stylesList.push(`select-${value}`)
-      break;
-    case 'will-change':
-      stylesList.push(`will-change-${value}`)
-      break;
-    
-    // * COLORS
-    case 'background-color':
-      stylesList.push(`bg-${value}`)
-      break;
+      appendToStylesList(stylesList, `snap-${value}`)
+      break
     case 'background':
-      stylesList.push(`bg-${value}`)
-      break;
-    case 'text-color':
-      stylesList.push(`text-${value}`)
-      break;
-    case 'text-decoration-color':
-      stylesList.push(`decoration-${value}`)
-      break;
-    case 'border-color':
-      stylesList.push(`border-${value}`)
-      break;
-    case 'outline-color':
-      stylesList.push(`outline-${value}`)
-      break;
-    case 'accent-color':
-      stylesList.push(`stylesListent-${value}`)
-      break;
-    case 'caret-color':
-      stylesList.push(`caret-${value}`)
-      break;
-    case 'fill':
-      stylesList.push(`fill-${value}`)
-      break;
-    case 'stroke':
-      stylesList.push(`stroke-${value}`)
-      break;
-    
+      appendToStylesList(stylesList, `bg-${value}`)
+      break
     default:
-      break;
+      break
   }
-  return stylesList;
+  return stylesList
 }
 
 
@@ -641,69 +491,7 @@ function convertCSSToPVPair(css) {
   const styles = css.split('\n') // Split styles by line
     .filter(style => style.trim() !== '') // Remove empty lines
     .map(style => style.trim()) // Trim leading/trailing spaces
-    .reduce((stylesList, style) => convertPVPairToCSS(stylesList, style), []);
-  return styles.join(' ');
+    .reduce((stylesList, style) => convertPVPairToTailwind(stylesList, style), [])
+  return styles.join(' ')
 }
 
-// function convertToHTML(css, html) {
-//   css = css.split(/[\{\}]/g)
-//   const formattedCSS = []
-//   for(let i = 0; i < css.length; i++) {
-//     formattedCSS.push(css[i].replace(/\n/g, "").replace('}', '').trim()) 
-//   }
-//   console.log(formattedCSS)
-// }
-
-
-// EXAMPLE
-/* 
-example1 {
-  inset: 25px 30px 2px;
-  stroke: #475569;
-  padding: 45px 44px 43px 42px;
-  will-change: scroll-position;
-  scroll-padding: 0.625rem; 
-  margin: 5px 7px;
-  cursor: default;
-  transform-origin: bottom right;
-  transition-duration: 75ms;
-  transition-delay: 75ms;
-  border-collapse: separate;
-  table-layout: fixed;
-  background-blend-mode: color-dodge;
-  mix-blend-mode: lighten;
-  opacity: 0.25;
-  outline-offset: 4px;
-  outline-style: dashed;
-  border-width: 4px 1.25em;
-  background-size: contain;
-  background-origin: content-box;
-  background-clip: text;
-  text-indent: 0.5rem;
-  text-decoration-thickness: 4px;
-  list-style-position: outside;
-  line-height: 1.5rem;
-  font-weight: 400;
-  letter-spacing: 0.025em;
-  height: 0.625rem;
-  max-height: 0.5rem; 
-  place-content: space-between;
-  align-self: flex-end;
-  justify-content: space-around;
-  column-gap: 0.125rem; 
-  row-gap: 0.125rem;
-  order: 4;
-  object-fit: scale-down;
-  border-radius: 25% 12px 8px 7%;
-  backdrop-filter: hue-rotate(30deg);
-  filter: saturate(1.5);
-  transform: translateY(17rem);
-  border-spacing: 1px 1px;
-} 
-example2 {
-  border-radius: 25% 10%;
-  border-radius: 25% 12px;
-  border-radius: 25% 12px 8px;
-  border-radius: 25% 12px 8px 7%;
-  border-spacing: 1px 1px;
-} */

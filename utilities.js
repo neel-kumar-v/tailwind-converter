@@ -2,7 +2,8 @@ const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
 const otherColorRegex = /^(rgb|rgba|hsl|hsla|hsv|cmyk)\(\s*(-?\d+%?\s*([,\s]+|$)){2,3}(-?\d+%?\s*,?\s*[\d.]*%?\s*)?\)$/
 const numberRegex = /\d/
 const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|vmax|vmin|vw|%)/
-import { unitDict, colorsDict } from './dictionaries'
+import { unitDict, colorsDict, tailwindColors } from './dictionaries'
+import tinycolor from 'tinycolor2';
 
 export function shorthand(values, property) {
     let returnStyles = [];
@@ -32,11 +33,23 @@ export function shorthand(values, property) {
   
   
 export function convertUnits(value) {
+    // TODO: Add support for things like calc(), minmax() etc.
     if(value != undefined) {
-        if(unitDict[value] != undefined) return unitDict[value]
-        else if(colorsDict[value] != undefined) return '[' + colorsDict[value] + ']'
-        else if(hexColorRegex.test(value) || otherColorRegex.test(value)) return '[' + value + ']'
-        else if(value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/')) {
+        const coveredByDictionary = unitDict != undefined && unitDict[value] != undefined
+        // console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
+
+        const isColor = colorsDict[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)
+        // console.log(`convertUnits() - ${value} was a color: ${isColor}`)
+
+        const includesMultipleValues = value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/')
+        // console.log(`convertUnits() - ${value} includes multiple values: ${includesMultipleValues}`)
+        
+        const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value)
+        // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
+
+        if(coveredByDictionary) return unitDict[value]
+        else if(isColor) return handleColors(value)
+        else if(includesMultipleValues) {
             let values = value.split(' ')
             let returnValues = '';
             for(let i = 0; i < values.length; i++) {
@@ -45,9 +58,21 @@ export function convertUnits(value) {
             }
             return returnValues.substring(0, returnValues.length - 1)
         } else if(value.includes('/')) return '[' + value + ']'
-        else if(!numberRegex.test(value) || !unitRegex.test(value)) return value // if it is not a digit or it is a digit without a unit
+        else if(!isDigitWithUnits) return value // if it is not a digit or it is a digit without a unit
         else return '[' + value + ']'
     }
+}
+
+function handleColors(value) {
+    if(colorsDict[value] != undefined) value = colorsDict[value]
+    // console.log(value)
+    const hexColor = tinycolor(value).toHexString()
+    // console.log(hexColor)
+    if(tailwindColors.hasOwnProperty(hexColor)) {
+        // console.log(tailwindColors[hexColor])
+        return tailwindColors[hexColor]
+    }
+    else return '[' + hexColor + ']'
 }
 export function revertUnits(object, value) { // This function is used to convert the shorthand values back to their original values
     return Object.keys(object).find(key => object[key] === value); 
