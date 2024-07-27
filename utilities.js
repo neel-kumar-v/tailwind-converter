@@ -43,15 +43,15 @@ export function convertUnits(value) {
         // console.log(`convertUnits() - ${value} was a color: ${isColor}`)
 
         const includesMultipleValues = value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/') && !value.includes(',')
-        console.log(`convertUnits() - ${value} includes multiple values: ${includesMultipleValues}`)
+        // console.log(`convertUnits() - ${value} includes multiple values: ${includesMultipleValues}`)
         
         const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',')
         // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
-        console.log(value)
+        // console.log(value)
 
         let returnValue = ''
 
-        console.log(coveredByDictionary, isColor, includesMultipleValues, !isDigitWithUnits, value.includes('/'))
+        // console.log(coveredByDictionary, isColor, includesMultipleValues, !isDigitWithUnits, value.includes('/'))
 
         if(coveredByDictionary) returnValue = unitDict[value]
         else if(isColor) returnValue = handleColors(value)
@@ -65,8 +65,8 @@ export function convertUnits(value) {
             returnValue = returnValues.substring(0, returnValues.length - 1)
         } else if(value.includes('/')) returnValue = '[' + value + ']'
         else if(!isDigitWithUnits) returnValue = value // if it is not a digit or it is a digit without a unit
-        else returnValue = '[' + value.replace(' ', '_') + ']'
-        console.log(`returned value: ${returnValue}`)
+        else returnValue = '[' + value.replace(/ /g, '_') + ']'
+        // console.log(`returned value: ${returnValue}`)
         return returnValue
     }
 }
@@ -93,6 +93,7 @@ export function irregularConvertUnits(unitDictionary, value) {
 export function translateConvertedToIrregular (irregularUnitDict, value) {
     if(revertUnits(unitDict, value) != undefined) value = `${revertUnits(unitDict, value)}`
     if(irregularUnitDict[value] != undefined) value = irregularUnitDict[value]
+    else value = `[${value.replace(/ /g, '_')}]`.replace('[[', '[').replace(']]', ']')
     return value
 }
 function copy(text) {

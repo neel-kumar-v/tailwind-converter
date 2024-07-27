@@ -120,6 +120,9 @@ export const singleValueDict = {
   'scroll-margin': 'scroll-m',
   'scroll-padding': 'scroll-p',
   'border-spacing': 'border-spacing',
+  '--tw-scroll-snap-strictness': 'snap',
+  'scroll-snap-type': 'snap',
+  'color': 'text',
 }
 
 export const propertylessDict = {
@@ -177,10 +180,11 @@ export const unitDict = {
   'scroll-position': 'scroll',
   'minmax(0, 1fr)': 'fr',
   '100%': 'full', '25%': '1/4', '33%': '1/3', '50%': '1/2', '75%': '3/4',
-  '100vh': 'screen',
+  '100vh': 'screen', '100vw': 'screen', '100dvw': 'dvw', '100dvh': 'dvh', '100lvw': 'lvw', '100lvh': 'lvh', '100svh': 'svh', '100svw': 'svw',
   '0s': '0', '75ms': '75', '100ms': '100', '150ms': '150', '200ms': '200', '300ms': '300', '500ms': '500', '700ms': '700', '1000ms': '1000',
   'column': 'col', 'row': 'row', 'dense': 'dense', 'column dense': 'col-dense', 'row dense': 'row-dense',
   'repeat(1, minmax(0, 1fr))': '1', 'repeat(2, minmax(0, 1fr))': '2', 'repeat(3, minmax(0, 1fr))': '3', 'repeat(4, minmax(0, 1fr))': '4', 'repeat(5, minmax(0, 1fr))': '5', 'repeat(6, minmax(0, 1fr))': '6', 'repeat(7, minmax(0, 1fr))': '7', 'repeat(8, minmax(0, 1fr))': '8', 'repeat(9, minmax(0, 1fr))': '9', 'repeat(10, minmax(0, 1fr))': '10', 'repeat(11, minmax(0, 1fr))': '11', 'repeat(12, minmax(0, 1fr))': '12',
+  'x var(--tw-scroll-snap-strictness)': 'x', 'y var(--tw-scroll-snap-strictness)': 'y', 'both var(--tw-scroll-snap-strictness)': 'both',
 };
 
 export const colorsDict = {
@@ -354,14 +358,19 @@ export const tailwindColors = {
   '#faf5ff': 'purple-50', '#f3e8ff': 'purple-100', '#e9d5ff': 'purple-200', '#d8b4fe': 'purple-300', '#c084fc': 'purple-400', '#a855f7': 'purple-500', '#9333ea': 'purple-600', '#7e22ce': 'purple-700', '#6b21a8': 'purple-800', '#581c87': 'purple-900', '#3b0764': 'purple-950',
   '#fdf4ff': 'fuchsia-50', '#fae8ff': 'fuchsia-100', '#f5d0fe': 'fuchsia-200', '#f0abfc': 'fuchsia-300', '#e879f9': 'fuchsia-400', '#d946ef': 'fuchsia-500', '#c026d3': 'fuchsia-600', '#a21caf': 'fuchsia-700', '#86198f': 'fuchsia-800', '#701a75': 'fuchsia-900', '#4a044e': 'fuchsia-950',
   '#fdf2f8': 'pink-50', '#fce7f3': 'pink-100', '#fbcfe8': 'pink-200', '#f9a8d4': 'pink-300', '#f472b6': 'pink-400', '#ec4899': 'pink-500', '#db2777': 'pink-600', '#be185d': 'pink-700', '#9d174d': 'pink-800', '#831843': 'pink-900', '#500724': 'pink-950',
-  '#fff1f2': 'rose-50', '#ffe4e6': 'rose-100', '#fecdd3': 'rose-200', '#fda4af': 'rose-300', '#fb7185': 'rose-400', '#f43f5e': 'rose-500', '#e11d48': 'rose-600', '#be123c': 'rose-700', '#9f1239': 'rose-800', '#881337': 'rose-900', '#4c0519': 'rose-950'
+  '#fff1f2': 'rose-50', '#ffe4e6': 'rose-100', '#fecdd3': 'rose-200', '#fda4af': 'rose-300', '#fb7185': 'rose-400', '#f43f5e': 'rose-500', '#e11d48': 'rose-600', '#be123c': 'rose-700', '#9f1239': 'rose-800', '#881337': 'rose-900', '#4c0519': 'rose-950',
+  '#ffffff': 'white', '#000000': 'black',
 }
 
 export const borderRadiusDict = {
   'border-top-right-radius': 'rounded-tr',
   'border-top-left-radius': 'rounded-tl',
   'border-bottom-right-radius': 'rounded-br',
-  'border-bottom-left-radius': 'rounded-bl'
+  'border-bottom-left-radius': 'rounded-bl',
+  'border-start-start-radius': 'rounded-ss',
+  'border-start-end-radius': 'rounded-se',
+  'border-end-start-radius': 'rounded-es',
+  'border-end-end-radius': 'rounded-ee',
 }
 
 export const borderRadiusUnitDict = {

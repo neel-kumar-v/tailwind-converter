@@ -12,9 +12,10 @@
     <script defer src="components.js" type="module"></script>
   </head>
   <body>
-    <div class="grid grid-cols-3 xl:grid-cols-4 w-screen h-screen divide-x-2 divide-gray-700">
+    <div class="hidden w-5 bg-white/75"></div>
+    <div class="grid grid-cols-3 xl:grid-cols-4 w-screen h-screen ">
 
-      <div class="w-full pt-12 px-12 row-start-1 h-screen mx-auto bg-[#212121]  ">
+      <div class="w-full pt-12 px-12 row-start-1 h-screen mx-auto bg-[#212121]  shadow-xl drop-shadow-xl">
         <div class="flex flex-nowrap justify-between">
           <h1 class="block font-medium text-xl xl:text-3xl  text-white">Input CSS: </h1>
           <div class="text-right translate-y-[-0.5rem]">
@@ -39,7 +40,7 @@
           </div>
         </div>
 
-        <div id="output" class="w-full h-full">
+        <div id="output" class="w-full h-full overflow-y-scroll">
           
 
         </div>
