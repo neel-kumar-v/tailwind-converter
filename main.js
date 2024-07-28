@@ -63,7 +63,7 @@ function copy(type, text) {
 }
 function createCustomizableButton(text, color, outlineStyles) {
   const button = document.createElement('button')
-    button.className = `inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline w-fit mr-2 p-1 px-3 hover:px-1.5 h-fit group rounded-lg ${color} my-1  class-copybutton`
+    button.className = `inline-flex cursor-pointer select-none text-left duration-200 flex-wrap items-center justify-center no-underline hover:no-underline w-fit mr-2 p-1 px-3 hover:px-1.5 h-fit group rounded-lg ${color} my-1  class-copybutton`
     button.style = outlineStyles
     button.innerHTML = `
       <p class="group-hover:mr-1 duration-200 text-sm xl:text-md text-white font-normal class-name">${text}</p>
@@ -82,7 +82,7 @@ function createOutputSelectorDiv(selector, json) {
   outputSelectorDiv.className = 'outputSelector first:mt-0 my-6'
   
   const selectorFlexContainer = document.createElement('div')
-  selectorFlexContainer.className = 'flex flex-wrap justify-start mb-3'
+  selectorFlexContainer.className = 'flex flex-wrap justify-start mb-3 has-[:hover]:flex-nowrap'
   
   const selectorNameElement = document.createElement('h2')
   selectorNameElement.className = 'selector mr-2 font-normal text-xl xl:text-2xl text-white p-1'
@@ -113,12 +113,16 @@ function createOutputSelectorDiv(selector, json) {
   
   json[selector].forEach(className => {
     let classButton = createCustomizableButton(className, 'bg-white/[0.1]', '')
+    classButton.addEventListener('click', () => copy('the tailwind class', className))
     if(className.includes('!')) {
       classButton = createCustomizableButton(className.substring(1), 'bg-red-500/[0.5]', '')
-      // classButton.classList.replace('bg-white/[0.1]', 'bg-red-500/[0.5]')
-      // classButton.querySelector('.class-name').textContent = className.substring(1)
+      let tooltip = document.createElement('div')
+      tooltip.className = 'tooltip tooltip-error'
+      tooltip.setAttribute('data-tooltip', 'No TailwindCSS equivalent: not recommended')
+      tooltip.appendChild(classButton)
+      classesFlexContainer.appendChild(tooltip)
     }
-    if (className.includes('?')) {
+    else if (className.includes('?')) {
       let colorDict = {
         "0": "59, 130, 246",
         "1": "34, 197, 94",
@@ -134,17 +138,21 @@ function createOutputSelectorDiv(selector, json) {
 
       let split = className.split('?')
       let colorKey = split[0]
-      classButton = createCustomizableButton(split[1], 'bg-transparent', `outline: 2px solid rgba(${colorDict[colorKey]}, 0.5); background-color: rgba(${colorDict[colorKey]}, 0.24);`)
-      // classButton.classList.replace('bg-white/[0.1]', 'bg-transparent')
-      // classButton.classList.add(`outline-2 outline-solid outline-${colorDict[colorKey]}/[0.5]`)
-      // classButton.querySelector('.class-name').textContent = split[1]
+      classButton = createCustomizableButton(split[1], `bg-transparent`, `outline: 2px solid rgba(${colorDict[colorKey]}, 0.5); background-color: rgba(${colorDict[colorKey]}, 0.24);`)
+      classesFlexContainer.appendChild(classButton)
     }
-    classButton.addEventListener('click', () => copy('the tailwind class', className))
-    classesFlexContainer.appendChild(classButton)
+    else {
+      classesFlexContainer.appendChild(classButton)
+    }
   })
   
   outputSelectorDiv.appendChild(classesFlexContainer)
   outputElement.appendChild(outputSelectorDiv)
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      classesFlexContainer.classList.replace('flex-wrap', 'flex-nowrap');
+    }, 0);
+  })
 }
 
 
