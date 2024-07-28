@@ -45,7 +45,7 @@ export function convertUnits(value) {
         const includesMultipleValues = value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/') && !value.includes(',')
         // console.log(`convertUnits() - ${value} includes multiple values: ${includesMultipleValues}`)
         
-        const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',')
+        const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',') || value.includes('(')
         // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
         // console.log(value)
 

@@ -123,6 +123,7 @@ function displayOutputWithSelectors(json) {
 
 function parseOutput(cssString) {
     // Remove @apply and extra spaces
+    console.log(cssString)
     const cleanedCss = cssString.replace(/@apply\s+/g, '').trim() // Remove the @apply and any extra spaces
   
     // Split by selector and braces
@@ -146,154 +147,198 @@ function parseOutput(cssString) {
   return jsonResult;
 }
 
-function convertLinearWithAvailableValues(stylesList, propertyName, value, availableValues, backdrop) {
+function convertLinearWithAvailableValues(propertyName, value, availableValues, backdrop) {
   console.log(availableValues.includes(Number(value)))
-  if(availableValues.includes(Number(value))) appendToStylesList(stylesList, `${isNegative}${backdrop}${propertyName}-${value * 100}`) // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
-  else appendToStylesList(stylesList, `${isNegative}${backdrop}${property}-[${value}]`) // Else use a arbitrary value
+  if(availableValues.includes(Number(value))) return `${isNegative}${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
+  else return `${isNegative}${backdrop}${property}-[${value}]` // Else use a arbitrary value
 }
 
-function convertRotationWithAvailableValues(stylesList, propertyName, value, availableValues, backdrop) {
+function convertRotationWithAvailableValues(propertyName, value, availableValues, backdrop) {
   value = value.replace('deg', '')  // Remove the deg from the value for parsing
-  if(availableValues.includes(Number(value))) appendToStylesList(stylesList, `${isNegative}${backdrop}${propertyName}-${value}`) // If the newValue is a number tailwind has a builtin number for, then use it
-  else appendToStylesList(stylesList, `${isNegative}${backdrop}${propertyName}-[${value}deg]`) // Else use a arbitrary value and add deg back to it 
+  if(availableValues.includes(Number(value))) return `${isNegative}${backdrop}${propertyName}-${value}` // If the newValue is a number tailwind has a builtin number for, then use it
+  else return `${isNegative}${backdrop}${propertyName}-[${value}deg]` // Else use a arbitrary value and add deg back to it 
 }
 
-function convertPercentageScaledWithAvailableValues(stylesList, propertyName, value, backdrop) {
-  if(value.includes('100%')) appendToStylesList(stylesList, `${isNegative}${backdrop}${propertyName}`) // If the value is 100%, then just use the property name
-  else if(zeroRegex.test(value)) appendToStylesList(stylesList, `${isNegative}${backdrop}${propertyName}-0`) // If the value is 0, then just use the property name with a 0
-  else appendToStylesList(stylesList, `${isNegative}${backdrop}${propertyName}-[${value}]`) // Else use the property name with the value in brackets
+function convertPercentageScaledWithAvailableValues(propertyName, value, backdrop) {
+  if(value.includes('100%')) return `${isNegative}${backdrop}${propertyName}` // If the value is 100%, then just use the property name
+  else if(zeroRegex.test(value)) return `${isNegative}${backdrop}${propertyName}-0` // If the value is 0, then just use the property name with a 0
+  else return `${isNegative}${backdrop}${propertyName}-[${value}]` // Else use the property name with the value in brackets
 }
 
-function convertFilterToTailwind(property, value, stylesList) {
-  let [newProperty, newValue] = value.split('(').map(s => s.trim()) // EX: filter: blur(4px); treated as blur: 4px
-  newValue = newValue.replace(')', '')
-  const backdrop = (property == 'backdrop-filter') ? 'backdrop-' : '' // Filter and backdrop-filter are grouped so the backdrop prefix can be added concisely
-  switch(newProperty) {
-    case 'blur':
-      appendToStylesList(stylesList, `${isNegative}${backdrop}blur-${util.irregularConvertUnits(blurUnitDict, newValue)}`)
-      break
-    case 'brightness':
-      convertLinearWithAvailableValues(stylesList, 'brightness', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5, 2], backdrop)
-      break
-    case 'contrast':
-      convertLinearWithAvailableValues(stylesList, 'contrast', newValue, [0, 0.5, 0.75, 1, 1.25, 1.5, 2], backdrop)
-      break
-    case 'grayscale':
-      convertPercentageScaledWithAvailableValues(stylesList, 'grayscale', newValue, backdrop)
-      break
-    case 'hue-rotate':
-      convertRotationWithAvailableValues(stylesList, 'hue-rotate', newValue, [0, 15, 30, 60, 90, 180], backdrop)
-      break
-    case 'invert':
-      convertPercentageScaledWithAvailableValues(stylesList, 'invert', newValue, backdrop)
-      break
-    case 'saturate':
-      convertLinearWithAvailableValues(stylesList, 'saturate', newValue, [0, 0.5, 1, 1.5, 2], backdrop)
-      break
-    case 'sepia':
-      convertPercentageScaledWithAvailableValues(stylesList, 'sepia', newValue, backdrop)
-      break
-    default:
-      appendToStylesList(stylesList, `${isNegative}!(${property}: ${value})`)
-      createNotification(`(${property}: ${value}) could not be converted`, 1)
-      break
+// function convertFilterToTailwind(property, value) {
+//   let [newProperty, newValue] = value.split('(').map(s => s.trim()) // EX: filter: blur(4px); treated as blur: 4px
+//   newValue = newValue.replace(')', '')
+//   const backdrop = (property == 'backdrop-filter') ? 'backdrop-' : '' // Filter and backdrop-filter are grouped so the backdrop prefix can be added concisely
+//   switch(newProperty) {
+//     case 'blur':
+//       return `${backdrop}blur-${util.irregularConvertUnits(blurUnitDict, newValue)}`
+//       break
+//     case 'brightness':
+//       return convertLinearWithAvailableValues('brightness', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5, 2], backdrop)
+//       break
+//     case 'contrast':
+//       return convertLinearWithAvailableValues('contrast', newValue, [0, 0.5, 0.75, 1, 1.25, 1.5, 2], backdrop)
+//       break
+//     case 'grayscale':
+//       return convertPercentageScaledWithAvailableValues('grayscale', newValue, backdrop)
+//       break
+//     case 'hue-rotate':
+//       return convertRotationWithAvailableValues('hue-rotate', newValue, [0, 15, 30, 60, 90, 180], backdrop)
+//       break
+//     case 'invert':
+//       return convertPercentageScaledWithAvailableValues('invert', newValue, backdrop)
+//       break
+//     case 'saturate':
+//       return convertLinearWithAvailableValues('saturate', newValue, [0, 0.5, 1, 1.5, 2], backdrop)
+//       break
+//     case 'sepia':
+//       return convertPercentageScaledWithAvailableValues('sepia', newValue, backdrop)
+//       break
+//     default:
+//       // createNotification(`(${property}: ${value}) could not be converted`)
+//       return `!(${property}: ${value})`
+//       break
 
+//   }
+// }
+
+function parseFilterRule(property, value) {
+  const filterValues = value.replace(/\)(?=[a-zA-Z])/g, ')) ').split(') ').map(s => s.trim()) // Split the values by the space, after ensuring there are spaces between the functions
+  const backdrop = (property == 'backdrop-filter') ? 'backdrop-' : ''
+  let returnStyles = []
+  for(let i = 0; i < filterValues.length; i++) {
+    if(filterValues[i] == undefined || filterValues[i] == '') {
+      returnStyles.push(`${backdrop}filter-none`)
+      continue
+    }
+
+    let [property, value] = filterValues[i].split('(').map(s => s.trim())
+    value = value.replace(')', '')
+
+    switch(property) {
+      case 'blur':
+        returnStyles.push(`${backdrop}blur-${util.irregularConvertUnits(blurUnitDict, value)}`)
+        break
+      case 'brightness':
+        returnStyles.push(convertLinearWithAvailableValues('brightness', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5, 2], backdrop))
+        break
+      case 'contrast':
+        returnStyles.push(convertLinearWithAvailableValues('contrast', value, [0, 0.5, 0.75, 1, 1.25, 1.5, 2], backdrop))
+        break
+      case 'grayscale':
+        returnStyles.push(convertPercentageScaledWithAvailableValues('grayscale', value, backdrop))
+        break
+      case 'hue-rotate':
+        returnStyles.push(convertRotationWithAvailableValues('hue-rotate', value, [0, 15, 30, 60, 90, 180], backdrop))
+        break
+      case 'invert':
+        returnStyles.push(convertPercentageScaledWithAvailableValues('invert', value, backdrop))
+        break
+      case 'saturate':
+        returnStyles.push(convertLinearWithAvailableValues('saturate', value, [0, 0.5, 1, 1.5, 2], backdrop))
+        break
+      case 'sepia':
+        returnStyles.push(convertPercentageScaledWithAvailableValues('sepia', value, backdrop))
+        break
+      default:
+        // createNotification(`(${property}: ${value}) could not be converted`, 1)
+        returnStyles.push(`!(${property}: ${value})`)
+        break
+    }
   }
+  return returnStyles
 }
 
 
 
-
-function convertShorthandToTailwind(stylesList, property, value) {
+function convertShorthandToTailwind(property, value) {
   const shorthandValues = util.shorthand(value.split(' '), shorthandDict[property]) // Split the values by space and parse the shorthand notation
+  let styles = []
   for (let i = 0; i < shorthandValues.length; i++) {
-    appendToStylesList(stylesList, `${isNegative}shorthandValues[i]`) // Push each value to the stylesList
+    styles.append(`${isNegative}shorthandValues[i]`) // Push each value to the styles array
   }
+  return styles
 }
 
-function convertPropertylessToTailwind(stylesList, property, value) {
+function convertPropertylessToTailwind(property, value) {
   // Edge cases where the value is not the same as the tailwind class
-  if (property == 'display' && value == 'none') appendToStylesList(stylesList, `hidden`)
-  else if (property == 'visibility' && value == 'hidden') appendToStylesList(stylesList, `invisible`)
-  else if (property == 'font-variant-numeric' && value == 'normal') appendToStylesList(stylesList, `normal-nums`)
-  else if (property == 'text-decoration-line' && value == 'none') appendToStylesList(stylesList, `no-underline`)
-  else if (property == 'overflow-wrap' && value == 'break-word') appendToStylesList(stylesList, `break-words`)
-  else if (property == 'text-transform' && value == 'none') appendToStylesList(stylesList, `normal-case`)
-  else appendToStylesList(stylesList, `${value}`) 
+  if (property == 'display' && value == 'none') return `hidden`
+  else if (property == 'visibility' && value == 'hidden') return `invisible`
+  else if (property == 'font-variant-numeric' && value == 'normal') return `normal-nums`
+  else if (property == 'text-decoration-line' && value == 'none') return `no-underline`
+  else if (property == 'overflow-wrap' && value == 'break-word') return `break-words`
+  else if (property == 'text-transform' && value == 'none') return `normal-case`
+  else return `${value}`
 }
 
-function appendToStylesList(stylesList, value) {
-  if(insideCSSRule) {
-    stylesList.push(value)
-  } else {
-    createAlert(`The value ${value} was not inside a CSS rule and was not converted to TailwindCSS`)
-  }
 
-}
-
-let insideCSSRule = false;
 let isNegative = '';
 
 function removeNegative(value) {
   return value.replace('[-', '').replace(']', '')
 }
 
-function parseTransformRule(property, value, stylesList) {
+function parseTransformRule(value) {
   const transformValues = value.replace(/\)(?=[a-zA-Z])/g, ')) ').split(') ').map(s => s.trim()) // Split the values by the space, after ensuring there are spaces between the functions
+  let returnStyles = []
   for(let i = 0; i < transformValues.length; i++) {
     if(transformValues[i] == undefined || transformValues[i] == '') continue
 
     let [property, value] = transformValues[i].split('(').map(s => s.trim())
     value = value.replace(')', '')
 
+
     switch(property) {
       case 'translateX':
         value = util.convertUnits(value)
         if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', ''))
-        appendToStylesList(stylesList, `${isNegative}translate-x-${value}`)
+        returnStyles.push(`${isNegative}translate-x-${value}`)
         break
       case 'translateY':
         value = util.convertUnits(value)
         if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', ''))
-        appendToStylesList(stylesList, `${isNegative}translate-y-${value}`)
+        returnStyles.push(`${isNegative}translate-y-${value}`)
         break
       case 'rotate':
-        convertRotationWithAvailableValues(stylesList, 'rotate', value, [0, 1, 2, 3, 6, 12, 45, 90, 180], '')
+        returnStyles.push(convertRotationWithAvailableValues('rotate', value, [0, 1, 2, 3, 6, 12, 45, 90, 180], ''))
         break
       case 'scale':
-        convertLinearWithAvailableValues(stylesList, 'scale', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
+        returnStyles.push(convertLinearWithAvailableValues('scale', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
         break
       case 'scaleX':
-        convertLinearWithAvailableValues(stylesList, 'scale-x', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
+        returnStyles.push(convertLinearWithAvailableValues('scale-x', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
         break
       case 'scaleY':
-        convertLinearWithAvailableValues(stylesList, 'scale-y', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
+        returnStyles.push(convertLinearWithAvailableValues('scale-y', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
         break
       case 'skewX':
-        convertRotationWithAvailableValues(stylesList, 'skew-x', value, [0, 1, 2, 3, 6, 12], '')
+        returnStyles.push(convertRotationWithAvailableValues('skew-x', value, [0, 1, 2, 3, 6, 12], ''))
         break
       case 'skewY':
-        convertRotationWithAvailableValues(stylesList, 'skew-y', value, [0, 1, 2, 3, 6, 12], '')
+        returnStyles.push(convertRotationWithAvailableValues('skew-y', value, [0, 1, 2, 3, 6, 12], ''))
         break
       case 'translate':
         let split = value.split(', ')
         let [translateX, translateY, translateZ] = [util.convertUnits(split[0]), util.convertUnits(split[1]), split[2]]
+        let returnStylesTranslate = []
 
         if (valueIsNegative(translateX)) translateX = util.convertUnits(translateX.replace('[-', '').replace(']', ''))
-        appendToStylesList(stylesList, `${isNegative}translate-x-${translateX}`)
+        returnStylesTranslate.push(`${isNegative}translate-x-${translateX}`)
 
         if (valueIsNegative(translateY)) translateY = util.convertUnits(translateY.replace('[-', '').replace(']', ''))
-        appendToStylesList(stylesList, `${isNegative}translate-y-${translateY}`)
+        returnStylesTranslate.push(`${isNegative}translate-y-${translateY}`)
 
-        appendToStylesList(stylesList, `transform-[translateZ(${translateZ.replace(/\s/g, '_')})]`)
+        returnStylesTranslate.push(`transform-[translateZ(${translateZ.replace(/\s/g, '_')})]`)
+        returnStyles.push(...returnStylesTranslate) 
         break
       default:
-        appendToStylesList(stylesList, `transform-[${property}(${value.replace(/\s/g, '_')})]`)
-        createNotification(`${property}: ${value} could not be converted cleanly`, '1')
+        // createNotification(`${property}: ${value} could not be converted cleanly`, '1')
+        returnStyles.push(`transform-[${property}(${value.replace(/\s/g, '_')})]`)
         break
       
     }
   }
+  return returnStyles
 }
 
 
@@ -310,40 +355,64 @@ function valueIsNegative(value) {
   
 }
 function convertPVPairToTailwind(stylesList, style) {
+  class ReturnStylesListException {
+    constructor(stylesList) {
+      this.stylesList = stylesList
+    }
+  }
+
+  let insideCSSRule = true
+  let debugStringBuilder = ''
+
+  function appendToStylesList(value) {
+    if(insideCSSRule || (value != undefined && value.includes(`\n} \n`))) {
+      if(value.includes(`\n} \n`)) insideCSSRule = false
+      if (Array.isArray(value)) stylesList.push(...value)
+      else stylesList.push(value)
+
+    } else {
+      createAlert(`The value ${value} was not inside a CSS rule and was not converted to TailwindCSS`)
+    }
+    console.log(`${debugStringBuilder} \n ${stylesList}`)
+    return stylesList
+  }
+
+
   let [property, value] = style.split(':').map(s => s.trim()) // Split up the properties and the styles
+  debugStringBuilder += `property: ${property}, value: ${value}\n`
+  let completeProperty = false
+  
   if(property.includes('/*')) return stylesList // If it is a comment, ignore it
-  if(value != undefined) value = value.replace(';', '') // Get rid of the semicolon
-  else {
+  if(value != undefined) {
+    value = value.replace(';', '') // Get rid of the semicolon
+    completeProperty = true
+  } else {
     if(property.includes('{')) {
       // if(insideCSSRule) createAlert('Error: Nested CSS rules are not supported yet')
+      debugStringBuilder += `${property} was the beginning of a CSS rule\n`
+      // console.log(debugStringBuilder)
       insideCSSRule = true
-      appendToStylesList(stylesList, `${property}\n @apply`) // If its the style declaration: list it out and enter a new line
-      return stylesList
+      return appendToStylesList(`${property}\n @apply`) // If its the style declaration: list it out and enter a new line
     } else if(property.includes('}')) {
-      appendToStylesList(stylesList, `\n} \n`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
-      insideCSSRule = false
-      return stylesList
+      debugStringBuilder += `${property} was the end of a CSS rule\n`
+      return appendToStylesList(`\n} \n`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
     } else {
+      debugStringBuilder += `${property} was not a valid CSS rule\n`
       value = ''
     }
 
   } 
 
 
-  if(property == 'filter' || property == 'backdrop-filter') {
-    convertFilterToTailwind(property, value, stylesList)  // Case #1: The filter and backdrop-filter properties all have many different values based on their functions
-    return stylesList;
-  }
+  if(property == 'filter' || property == 'backdrop-filter') return appendToStylesList(parseFilterRule(property, value))  // Case #1: The filter and backdrop-filter properties all have many different values based on their functions
 
-  if(property == "transform") {
-    parseTransformRule(property, value, stylesList) // Case #2: The transform property has many different values based on their functions
-    return stylesList
-  } 
+  if(property == "transform") return appendToStylesList(parseTransformRule(value)) // Case #2: The transform property has many different values based on their functions
 
   value = util.convertUnits(value)
 
-  console.log(value)
+  // console.log(value)
   if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', '')).replace('[-', '[')
+
 
     // * EDGE CASES
   switch (property) {
@@ -352,171 +421,144 @@ function convertPVPairToTailwind(stylesList, style) {
     // * STYLES THAT NEED REVERTED UNITS
     case 'text-decoration-thickness':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value).replace('px', '')
-      appendToStylesList(stylesList, `${isNegative}decoration-${value}`)
-      break
+      return appendToStylesList(`decoration-${value}`)
     case 'text-underline-offset':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      appendToStylesList(stylesList, `${isNegative}underline-offset-${value}`)
-      break
+      return appendToStylesList(`${isNegative}underline-offset-${value}`)
     case 'outline-width':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      appendToStylesList(stylesList, `${isNegative}outline-${value.replace('px', '')}`)
-      break
+      return appendToStylesList(`outline-${value.replace('px', '')}`)
     case 'outline-offset':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      appendToStylesList(stylesList, `${isNegative}outline-offset-${value.replace('px', '')}`)
-      break
+      return appendToStylesList(`${isNegative}outline-offset-${value.replace('px', '')}`)
     case 'letter-spacing':
       value = value.replace('[', '').replace(']', '')
-      appendToStylesList(stylesList, `${isNegative}tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
-      break
+      return appendToStylesList(`${isNegative}tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
 
     // * SHORTHANDABLE VALUES EDGE CASES
     
     case 'border-radius':
       let borderRadiuses = value.split(' ')
+      let returnStyles = []
       for(let i = 0; i < borderRadiuses.length; i++) {
         borderRadiuses[i] = util.translateConvertedToIrregular(borderRadiusUnitDict, borderRadiuses[i])
       }
       if (borderRadiuses.length === 1) {
-        appendToStylesList(stylesList, `${isNegative}rounded-${borderRadiuses[0]}`.replace('-/', ''))
+        returnStyles.push(`rounded-${borderRadiuses[0]}`.replace('-/', ''))
       } else if (borderRadiuses.length === 2) {
-        appendToStylesList(stylesList, `${isNegative}rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
-        appendToStylesList(stylesList, `${isNegative}rounded-br-${borderRadiuses[0]}`.replace('-/', ''))
-        appendToStylesList(stylesList, `${isNegative}rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
-        appendToStylesList(stylesList, `${isNegative}rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
+        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
+        returnStyles.push(`rounded-br-${borderRadiuses[0]}`.replace('-/', ''))
+        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
+        returnStyles.push(`rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
       } else if (borderRadiuses.length === 3) { 
-        appendToStylesList(stylesList, `${isNegative}rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
-        appendToStylesList(stylesList, `${isNegative}rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
-        appendToStylesList(stylesList, `${isNegative}rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
-        appendToStylesList(stylesList, `${isNegative}rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
+        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
+        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
+        returnStyles.push(`rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
+        returnStyles.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
       } else if (borderRadiuses.length === 4) {
-        appendToStylesList(stylesList, `${isNegative}rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
-        appendToStylesList(stylesList, `${isNegative}rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
-        appendToStylesList(stylesList, `${isNegative}rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
-        appendToStylesList(stylesList, `${isNegative}rounded-bl-${borderRadiuses[3]}`.replace('-/', ''))
+        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
+        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
+        returnStyles.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
+        returnStyles.push(`rounded-bl-${borderRadiuses[3]}`.replace('-/', ''))
       }
-      break
+      returnStyles
 
     case 'inset':
       const values = value.split(' ')
+      returnStyles = []
       if (values.length === 1) {
-        appendToStylesList(stylesList, `${isNegative}inset-${values[0]}`)
+        returnStyles.push(`${isNegative}inset-${values[0]}`)
       } else if (values.length === 2) {
-        appendToStylesList(stylesList, `${isNegative}inset-y-${values[0]}`)
-        appendToStylesList(stylesList, `${isNegative}inset-x-${values[1]}`)
+        returnStyles.push(`${isNegative}inset-y-${values[0]}`)
+        returnStyles.push(`${isNegative}inset-x-${values[1]}`)
       } else if (values.length === 3) {
-        appendToStylesList(stylesList, `${isNegative}top-${values[0]}`)
-        appendToStylesList(stylesList, `${isNegative}inset-x-${values[1]}`)
-        appendToStylesList(stylesList, `${isNegative}bottom-${values[2]}`)
+        returnStyles.push(`${isNegative}top-${values[0]}`)
+        returnStyles.push(`${isNegative}inset-x-${values[1]}`)
+        returnStyles.push(`${isNegative}bottom-${values[2]}`)
       } else if (values.length === 4) {
-        appendToStylesList(stylesList, `${isNegative}top-${values[0]}`)
-        appendToStylesList(stylesList, `${isNegative}right-${values[1]}`)
-        appendToStylesList(stylesList, `${isNegative}bottom-${values[2]}`)
-        appendToStylesList(stylesList, `${isNegative}left-${values[3]}`)
+        returnStyles.push(`${isNegative}top-${values[0]}`)
+        returnStyles.push(`${isNegative}right-${values[1]}`)
+        returnStyles.push(`${isNegative}bottom-${values[2]}`)
+        returnStyles.push(`${isNegative}left-${values[3]}`)
       }
-      break
+      returnStyles
 
     // * NUMBER NO UNIT
     case 'order':
-      if(value == '0') appendToStylesList(stylesList, `${isNegative}order-none`)
-      else appendToStylesList(stylesList, `${isNegative}order-${value}`)
-      break
+      if(value == '0') return appendToStylesList(`order-none`)
+      else return appendToStylesList(`${isNegative}order-${value}`)
     case 'opacity':
-      appendToStylesList(stylesList, `${isNegative}opacity-${value * 100}`)
-      break
+      return appendToStylesList(`opacity-${value * 100}`)
     case 'aspect-ratio':
-      if(value.includes('1 / 1')) appendToStylesList(stylesList, `${isNegative}aspect-square`)
-      if(value.includes('16 / 9')) appendToStylesList(stylesList, `${isNegative}aspect-video`)
-      else appendToStylesList(stylesList, `${isNegative}aspect-${value}`)
-      break
+      if(value.includes('1 / 1')) return appendToStylesList(`aspect-square`)
+      if(value.includes('16 / 9')) return appendToStylesList(`aspect-video`)
+      else return appendToStylesList(`aspect-${value}`)
     case 'font-weight':
-      appendToStylesList(stylesList, `${isNegative}font-${util.irregularConvertUnits(fontWeightUnitDict, value)}`)
-      break
+      return appendToStylesList(`font-${util.irregularConvertUnits(fontWeightUnitDict, value)}`)
     case 'flex-grow':
-      if(value.includes('1')) appendToStylesList(stylesList, `${isNegative}grow`)
-      else appendToStylesList(stylesList, `${isNegative}grow-0`)
-      break
+      if(value.includes('1')) return appendToStylesList(`grow`)
+      else return appendToStylesList(`grow-0`)
     case 'flex-shrink':
-      if(value.includes('1')) appendToStylesList(stylesList, `${isNegative}shrink`)
-      else appendToStylesList(stylesList, `${isNegative}shrink-0`)
-      break
+      if(value.includes('1')) return appendToStylesList(`shrink`)
+      else return appendToStylesList(`${isNegative}shrink-0`)
     
     // * WORDS
     case 'isolate':
-      if(value.includes('isolate')) appendToStylesList(stylesList, `${isNegative}isolate`)
-      else appendToStylesList(stylesList, `${isNegative}isolation-${value}`)
+      if(value.includes('isolate')) return appendToStylesList(`isolate`)
+      else return appendToStylesList(`isolation-${value}`)
       break
-    case 'flex-direction':
-      appendToStylesList(stylesList, `${isNegative}flex-${value}`.replace('column', 'col'))
-      break
+    case 'flex-direction': return appendToStylesList(`${isNegative}flex-${value}`.replace('column', 'col'))
   
     // TODO: Flex
-    case 'grid-auto-flow':
-      appendToStylesList(stylesList, `${isNegative}grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
-      break
-    case 'flex':
-      break
+    case 'grid-auto-flow': return appendToStylesList(`${isNegative}grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
     
-    case 'font-style':
-      if(value.includes('italic')) appendToStylesList(stylesList, `${isNegative}italic`)
-      else if(value.includes('normal')) appendToStylesList(stylesList, `${isNegative}not-italic`)
-      break
+    case 'font-style': 
+      if(value.includes('italic')) return appendToStylesList(`${isNegative}italic`)
+      else if(value.includes('normal')) return appendToStylesList(`${isNegative}not-italic`)
     case 'text-transform':
-      if(value.includes('none')) appendToStylesList(stylesList, `${isNegative}normal-case`)
-      else appendToStylesList(stylesList, `${isNegative}${value}`)
-      break
-    case 'overflow-wrap':
-      if(value.include('break-word')) appendToStylesList(stylesList, `${isNegative}break-words`)
-      else appendToStylesList(stylesList, `${isNegative}${value}`)
-      break
+      if(value.includes('none')) return appendToStylesList(`normal-case`)
+      else return appendToStylesList(`${value}`)
+     case 'overflow-wrap':
+      if(value.include('break-word')) return appendToStylesList(`break-words`)
+      else return appendToStylesList(`${value}`)
     case 'word-break':
-      if(value.includes('keep-all')) appendToStylesList(stylesList, `${isNegative}break-keep`)
-      else appendToStylesList(stylesList, `${isNegative}whitespace-pre-${value}`)
-      break
+      if(value.includes('keep-all')) return appendToStylesList(`break-keep`)
+      else return appendToStylesList(`whitespace-pre-${value}`)
     case 'content':
-      appendToStylesList(stylesList, `${isNegative}content-[${value}]`)
-      break
+      return appendToStylesList(`content-[${value}]`)
     // case 'transform-origin':
-    //   appendToStylesList(stylesList, `${isNegative}origin-${value}`.replace(' ', '-'))
-    //   break
+    //   return appendToStylesList(`origin-${value}`.replace(' ', '-'))
     case 'resize':
-      if(value.includes('vertical')) appendToStylesList(stylesList, `${isNegative}resize-y`)
-      else if(value.includes('horizontal')) appendToStylesList(stylesList, `${isNegative}resize-x`)
-      else if(value.includes('both')) appendToStylesList(stylesList, `${isNegative}resize`)
-      else appendToStylesList(stylesList, `${isNegative}resize-${value}`)
-      break
+      if(value.includes('vertical')) return appendToStylesList(`resize-y`)
+      else if(value.includes('horizontal')) return appendToStylesList(`resize-x`)
+      else if(value.includes('both')) return appendToStylesList(`resize`)
+      else return appendToStylesList(`resize-${value}`)
     case 'scroll-snap-align':
-      if(value.includes('none')) appendToStylesList(stylesList, `${isNegative}snap-align-none`)
-      else appendToStylesList(stylesList, `${isNegative}snap-${value}`)
-      break
+      if(value.includes('none')) return appendToStylesList(`snap-align-none`)
+      else return appendToStylesList(`snap-${value}`)
     case 'scroll-snap-type':
-      break
+      return stylesList
 
-    default:
-      appendToStylesList(stylesList, `[${property}: ${value}]`)
-      break
-  }
+    // default:
+    //   return appendToStylesList(`![${property}: ${value}]`)
+  } 
   
   const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
-  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) {
-    convertShorthandToTailwind(stylesList, property, value)
-    return stylesList
-  }
+  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) return appendToStylesList(convertShorthandToTailwind(property, value));
 
-  if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) appendToStylesList(stylesList, `${isNegative}${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
-
-  if (propertylessDict.hasOwnProperty(property)) convertPropertylessToTailwind(stylesList, property, value) // Applies to display, position, visibility, etc
+  if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) return appendToStylesList(`${isNegative}${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
+  
+  if (propertylessDict.hasOwnProperty(property)) return appendToStylesList(convertPropertylessToTailwind(property, value)) // Applies to display, position, visibility, etc 
  
 
   if (borderRadiusDict.hasOwnProperty(property)) {
     value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
-    appendToStylesList(stylesList, `${isNegative}${borderRadiusDict[property]}-${value}`)
+    return appendToStylesList(`${borderRadiusDict[property]}-${value}`)
   }
 
-
+  if(completeProperty) return appendToStylesList(`![${property}: ${value}]`)
   
-  return stylesList
+  
 }
 
 

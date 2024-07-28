@@ -8,9 +8,6 @@ export const shorthandDict = {
   'border-spacing': 'border-spacing-',
 }
 
-export const opacityUnitDict = {
-}
-
 export const singleValueDict = {
   'margin-top': 'mt', 'margin-left': 'ml', 'margin-bottom': 'mb', 'margin-right': 'mr',
   'padding-top': 'pt', 'padding-left': 'pl', 'padding-bottom': 'pb', 'padding-right': 'pr',
@@ -29,6 +26,7 @@ export const singleValueDict = {
   'box-sizing': 'box',
   'float': 'float',
   'clear': 'clear',
+  'flex': 'flex',
   'object-fit': 'object', 'object-position': 'object', 'overflow': 'overflow', 'overflow-x': 'overflow-x', 'overflow-y': 'overflow-y',
   'overscroll': 'overscroll', 'overscroll-x': 'overscroll-x', 'overscroll-y': 'overscroll-y',
   'flex-wrap': 'flex',
