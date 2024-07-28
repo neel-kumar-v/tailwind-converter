@@ -34,20 +34,17 @@ var inputEditor = CodeMirror.fromTextArea(input, {
   mode: "css", 
   theme: "material-darker",
   lint: false,
+  allowDropFileTypes: ['text/css'],
+  lineWrapping: true,
+  scrollbarStyle: "null",
 })
 let outputTailwind = ''
 inputEditor.on('change', () => {
   const css = inputEditor.getValue()
-  // console.log(css)
   outputTailwind = convertCSSToPVPair(css)
-  // console.log(`tailwind output:
-
-  //   ${outputTailwind}`)
   const jsonOutput = parseOutput(outputTailwind)
   displayOutputWithSelectors(jsonOutput)
-
 })
-
 
 function resetDisplay() {
   const outputElement = document.getElementById('output')
@@ -55,9 +52,13 @@ function resetDisplay() {
 }
 
 function copy(type, text) {
-    navigator.clipboard.writeText(text);
-    const longText = text.length > 40 ? ' ...' : ''
-    createNotification(`Copied ${type}: ${text.slice(0, 40)}${longText}`, 3);
+  if(text == '' || text == undefined) {
+    createNotification(`Nothing to copy here!`, 3);
+    return
+  }
+  navigator.clipboard.writeText(text);
+  const longText = text.length > 40 ? ' ...' : ''
+  createNotification(`Copied ${type}: ${text.slice(0, 40)}${longText}`, 3);
 }
 
 
@@ -146,7 +147,7 @@ function parseOutput(cssString) {
 }
 
 function convertLinearWithAvailableValues(stylesList, propertyName, value, availableValues, backdrop) {
-  // console.log(backdrop)
+  console.log(availableValues.includes(Number(value)))
   if(availableValues.includes(Number(value))) appendToStylesList(stylesList, `${isNegative}${backdrop}${propertyName}-${value * 100}`) // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
   else appendToStylesList(stylesList, `${isNegative}${backdrop}${property}-[${value}]`) // Else use a arbitrary value
 }
@@ -194,101 +195,13 @@ function convertFilterToTailwind(property, value, stylesList) {
       break
     default:
       appendToStylesList(stylesList, `${isNegative}!(${property}: ${value})`)
-      createNotification(`(${property}: ${value}) could not be converted`)
+      createNotification(`(${property}: ${value}) could not be converted`, 1)
       break
 
   }
 }
 
-function convertTransformToTailwind(property, value, stylesList) {
-  console.log(value)
-  let [newProperty, newValue, newValue2] = value.split('(').map(s => s.trim()) // EX: filter: blur(4px) treated as blur: 4px
-  newValue = newValue.replace(')', '')
-  if(newValue2 != undefined) newValue2 = newValue2.replace(')', '')
 
-  switch(newProperty) {
-    case 'scale':
-      convertLinearWithAvailableValues(stylesList, 'scale', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
-      break
-    case 'scaleX':
-      convertLinearWithAvailableValues(stylesList, 'scale-x', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
-      break
-    case 'scaleY':
-      convertLinearWithAvailableValues(stylesList, 'scale-y', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
-      break
-    case 'rotate':
-      convertRotationWithAvailableValues(stylesList, 'rotate', newValue, [0, 1, 2, 3, 6, 12, 45, 90, 180], '')
-      break
-    case 'translateX':
-      // console.log(newValue)
-      newValue = newValue.split(' ')
-      // console.log(newValue + "translateX")
-      // console.log(newValue)
-      if(newValue.length == 1) {
-        console.log(newValue[0])
-        newValue = util.convertUnits(String(newValue[0]))
-        if (valueIsNegative(newValue)) newValue = util.convertUnits(newValue.replace('[-', '').replace(']', ''))
-        appendToStylesList(stylesList, `${isNegative}translate-x-${newValue}`)
-      } else if(newValue.length == 2) {
-        console.table(newValue)
-
-        newValue[0] = util.convertUnits(String(newValue[0]))
-        if (valueIsNegative(newValue[0])) newValue = util.convertUnits(newValue[0].replace('[-', '').replace(']', ''))
-
-        newValue2 = util.convertUnits(String(newValue2))
-        if (valueIsNegative(newValue2)) newValue = util.convertUnits(newValue2.replace('[-', '').replace(']', ''))
-
-        appendToStylesList(stylesList, `${isNegative}translate-x-${newValue[0]}`)
-        appendToStylesList(stylesList, `${isNegative}translate-y-${newValue2}`)
-      } 
-      break
-    case 'translateY':
-      // console.log(newValue)
-      newValue = newValue.split(' ')
-      // console.log(newValue)
-      if(newValue.length == 1) {
-        console.log(newValue[0])
-        newValue = util.convertUnits(String(newValue[0]))
-        if (valueIsNegative(newValue)) newValue = util.convertUnits(newValue.replace('[-', '').replace(']', ''))
-        appendToStylesList(stylesList, `${isNegative}translate-y-${newValue}`)
-      } else if(newValue.length == 2) {
-        console.table(newValue)
-        
-        newValue[0] = util.convertUnits(String(newValue[0]))
-        if (valueIsNegative(newValue[0])) newValue = util.convertUnits(newValue[0].replace('[-', '').replace(']', ''))
-
-        newValue2 = util.convertUnits(String(newValue[0]))
-        if (valueIsNegative(newValue2)) newValue = util.convertUnits(newValue2.replace('[-', '').replace(']', ''))
-
-        appendToStylesList(stylesList, `${isNegative}translate-y-${newValue[0]}`)
-        appendToStylesList(stylesList, `${isNegative}translate-x-${newValue2}`)
-      } 
-      break
-    case 'skewX':
-      convertRotationWithAvailableValues(stylesList, 'skew-x', newValue, [0, 1, 2, 3, 6, 12])
-      // break
-      break
-    case 'skewY':
-      convertRotationWithAvailableValues(stylesList, 'skew-y', newValue, [0, 1, 2, 3, 6, 12])
-      break
-    default:
-      appendToStylesList(stylesList, `${isNegative}!(${property}: ${value})`)
-      createNotification(`(${property}: ${value}) could not be converted`)
-      break
-  }
-}
-
-function parseTransformRule(property, value, stylesList) {
-  const transformValues = value.replace(/\)(?=[a-zA-Z])/g, ') ').split(' ').map(s => s.trim()) // Split the values by the space, after ensuring there are spaces between the functions
-  for(let i = 0; i < transformValues.length; i++) {
-    if(transformValues[i] == undefined || transformValues[i] == '') continue
-
-    [property, value] = transformValues[i].split('(').map(s => s.trim())
-    value = value.replace(')', '')
-    console.log(property, value) 
-  }
-}
-parseTransformRule('transform', 'translateX(50px)rotate(45deg)scale(1.5)skewX(10deg)', [])
 
 
 function convertShorthandToTailwind(stylesList, property, value) {
@@ -300,10 +213,13 @@ function convertShorthandToTailwind(stylesList, property, value) {
 
 function convertPropertylessToTailwind(stylesList, property, value) {
   // Edge cases where the value is not the same as the tailwind class
-  if (property == 'display' && value == 'none') appendToStylesList(stylesList, `${isNegative}hidden`)
-  else if (property == 'visibility' && value == 'hidden') appendToStylesList(stylesList, `${isNegative}invisible`)
-  else if (property == 'font-variant-numeric' && value == 'normal') appendToStylesList(stylesList, `${isNegative}normal-nums`)
-  else appendToStylesList(stylesList, `${isNegative}${value}`) 
+  if (property == 'display' && value == 'none') appendToStylesList(stylesList, `hidden`)
+  else if (property == 'visibility' && value == 'hidden') appendToStylesList(stylesList, `invisible`)
+  else if (property == 'font-variant-numeric' && value == 'normal') appendToStylesList(stylesList, `normal-nums`)
+  else if (property == 'text-decoration-line' && value == 'none') appendToStylesList(stylesList, `no-underline`)
+  else if (property == 'overflow-wrap' && value == 'break-word') appendToStylesList(stylesList, `break-words`)
+  else if (property == 'text-transform' && value == 'none') appendToStylesList(stylesList, `normal-case`)
+  else appendToStylesList(stylesList, `${value}`) 
 }
 
 function appendToStylesList(stylesList, value) {
@@ -312,18 +228,82 @@ function appendToStylesList(stylesList, value) {
   } else {
     createAlert(`The value ${value} was not inside a CSS rule and was not converted to TailwindCSS`)
   }
+
 }
 
 let insideCSSRule = false;
 let isNegative = '';
 
+function removeNegative(value) {
+  return value.replace('[-', '').replace(']', '')
+}
+
+function parseTransformRule(property, value, stylesList) {
+  const transformValues = value.replace(/\)(?=[a-zA-Z])/g, ')) ').split(') ').map(s => s.trim()) // Split the values by the space, after ensuring there are spaces between the functions
+  for(let i = 0; i < transformValues.length; i++) {
+    if(transformValues[i] == undefined || transformValues[i] == '') continue
+
+    let [property, value] = transformValues[i].split('(').map(s => s.trim())
+    value = value.replace(')', '')
+
+    switch(property) {
+      case 'translateX':
+        value = util.convertUnits(value)
+        if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', ''))
+        appendToStylesList(stylesList, `${isNegative}translate-x-${value}`)
+        break
+      case 'translateY':
+        value = util.convertUnits(value)
+        if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', ''))
+        appendToStylesList(stylesList, `${isNegative}translate-y-${value}`)
+        break
+      case 'rotate':
+        convertRotationWithAvailableValues(stylesList, 'rotate', value, [0, 1, 2, 3, 6, 12, 45, 90, 180], '')
+        break
+      case 'scale':
+        convertLinearWithAvailableValues(stylesList, 'scale', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
+        break
+      case 'scaleX':
+        convertLinearWithAvailableValues(stylesList, 'scale-x', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
+        break
+      case 'scaleY':
+        convertLinearWithAvailableValues(stylesList, 'scale-y', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], '')
+        break
+      case 'skewX':
+        convertRotationWithAvailableValues(stylesList, 'skew-x', value, [0, 1, 2, 3, 6, 12], '')
+        break
+      case 'skewY':
+        convertRotationWithAvailableValues(stylesList, 'skew-y', value, [0, 1, 2, 3, 6, 12], '')
+        break
+      case 'translate':
+        let split = value.split(', ')
+        let [translateX, translateY, translateZ] = [util.convertUnits(split[0]), util.convertUnits(split[1]), split[2]]
+
+        if (valueIsNegative(translateX)) translateX = util.convertUnits(translateX.replace('[-', '').replace(']', ''))
+        appendToStylesList(stylesList, `${isNegative}translate-x-${translateX}`)
+
+        if (valueIsNegative(translateY)) translateY = util.convertUnits(translateY.replace('[-', '').replace(']', ''))
+        appendToStylesList(stylesList, `${isNegative}translate-y-${translateY}`)
+
+        appendToStylesList(stylesList, `transform-[translateZ(${translateZ.replace(/\s/g, '_')})]`)
+        break
+      default:
+        appendToStylesList(stylesList, `transform-[${property}(${value.replace(/\s/g, '_')})]`)
+        createNotification(`${property}: ${value} could not be converted cleanly`, '1')
+        break
+      
+    }
+  }
+}
+
+
 function valueIsNegative(value) {
   if(value != undefined && value.startsWith('[-')) {
-    console.log(`value ${value} is negative`)
+    // console.log(`value ${value} is negative`)
     isNegative = '-'
     return true
   } else {
-    console.log(`value ${value} is positive`)
+    // console.log(`value ${value} is positive`)
     isNegative = ''
     return false
   }
@@ -331,7 +311,7 @@ function valueIsNegative(value) {
 }
 function convertPVPairToTailwind(stylesList, style) {
   let [property, value] = style.split(':').map(s => s.trim()) // Split up the properties and the styles
-  
+  if(property.includes('/*')) return stylesList // If it is a comment, ignore it
   if(value != undefined) value = value.replace(';', '') // Get rid of the semicolon
   else {
     if(property.includes('{')) {
@@ -356,7 +336,7 @@ function convertPVPairToTailwind(stylesList, style) {
   }
 
   if(property == "transform") {
-    convertTransformToTailwind(property, value, stylesList) // Case #2: The transform property has many different values based on their functions
+    parseTransformRule(property, value, stylesList) // Case #2: The transform property has many different values based on their functions
     return stylesList
   } 
 
@@ -364,25 +344,8 @@ function convertPVPairToTailwind(stylesList, style) {
 
   console.log(value)
   if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', '')).replace('[-', '[')
-  
-  const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
-  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) {
-    convertShorthandToTailwind(stylesList, property, value)
-    return stylesList
-  }
 
-  if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) appendToStylesList(stylesList, `${isNegative}${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
-
-  if (propertylessDict.hasOwnProperty(property)) convertPropertylessToTailwind(stylesList, property, value) // Applies to display, position, visibility, etc
- 
-
-  if (borderRadiusDict.hasOwnProperty(property)) {
-    value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
-    appendToStylesList(stylesList, `${isNegative}${borderRadiusDict[property]}-${value}`)
-  }
-
-
-  // * EDGE CASES
+    // * EDGE CASES
   switch (property) {
     // * SINGLE VALUES WITH UNITS
     // * BORDER CORNER RADIUS
@@ -408,7 +371,7 @@ function convertPVPairToTailwind(stylesList, style) {
       appendToStylesList(stylesList, `${isNegative}tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
       break
 
-    // * SHORTHANDABLE VALUES
+    // * SHORTHANDABLE VALUES EDGE CASES
     
     case 'border-radius':
       let borderRadiuses = value.split(' ')
@@ -492,18 +455,12 @@ function convertPVPairToTailwind(stylesList, style) {
     case 'grid-auto-flow':
       appendToStylesList(stylesList, `${isNegative}grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
       break
-    case 'grid-row':
-      break
-    case 'grid-column':
+    case 'flex':
       break
     
     case 'font-style':
       if(value.includes('italic')) appendToStylesList(stylesList, `${isNegative}italic`)
       else if(value.includes('normal')) appendToStylesList(stylesList, `${isNegative}not-italic`)
-      break
-    case 'text-decoration-line':
-      if(value.includes('none')) appendToStylesList(stylesList, `${isNegative}no-underline`)
-      else appendToStylesList(stylesList, `${isNegative}${value}`)
       break
     case 'text-transform':
       if(value.includes('none')) appendToStylesList(stylesList, `${isNegative}normal-case`)
@@ -520,9 +477,9 @@ function convertPVPairToTailwind(stylesList, style) {
     case 'content':
       appendToStylesList(stylesList, `${isNegative}content-[${value}]`)
       break
-    case 'transform-origin':
-      appendToStylesList(stylesList, `${isNegative}origin-${value}`.replace(' ', '-'))
-      break
+    // case 'transform-origin':
+    //   appendToStylesList(stylesList, `${isNegative}origin-${value}`.replace(' ', '-'))
+    //   break
     case 'resize':
       if(value.includes('vertical')) appendToStylesList(stylesList, `${isNegative}resize-y`)
       else if(value.includes('horizontal')) appendToStylesList(stylesList, `${isNegative}resize-x`)
@@ -533,10 +490,32 @@ function convertPVPairToTailwind(stylesList, style) {
       if(value.includes('none')) appendToStylesList(stylesList, `${isNegative}snap-align-none`)
       else appendToStylesList(stylesList, `${isNegative}snap-${value}`)
       break
+    case 'scroll-snap-type':
+      break
 
     default:
+      appendToStylesList(stylesList, `[${property}: ${value}]`)
       break
   }
+  
+  const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
+  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) {
+    convertShorthandToTailwind(stylesList, property, value)
+    return stylesList
+  }
+
+  if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) appendToStylesList(stylesList, `${isNegative}${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
+
+  if (propertylessDict.hasOwnProperty(property)) convertPropertylessToTailwind(stylesList, property, value) // Applies to display, position, visibility, etc
+ 
+
+  if (borderRadiusDict.hasOwnProperty(property)) {
+    value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
+    appendToStylesList(stylesList, `${isNegative}${borderRadiusDict[property]}-${value}`)
+  }
+
+
+  
   return stylesList
 }
 
@@ -548,4 +527,7 @@ function convertCSSToPVPair(css) {
     .reduce((stylesList, style) => convertPVPairToTailwind(stylesList, style), [])
   return styles.join(' ')
 }
+
+
+
 
