@@ -7,6 +7,7 @@ import * as util from './utilities'
 import { inject } from '@vercel/analytics'
 import { createAlert } from "./alerts"
 import { createNotification } from "./notification"
+import { color } from "@codemirror/theme-one-dark"
 
 inject() // 
 
@@ -60,6 +61,21 @@ function copy(type, text) {
   const longText = text.length > 40 ? ' ...' : ''
   createNotification(`Copied ${type}: ${text.slice(0, 40)}${longText}`, 3);
 }
+function createCustomizableButton(text, color, outlineStyles) {
+  const button = document.createElement('button')
+    button.className = `inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline w-fit mr-2 p-1 px-3 hover:px-1.5 h-fit group rounded-lg ${color} my-1  class-copybutton`
+    button.style = outlineStyles
+    button.innerHTML = `
+      <p class="group-hover:mr-1 duration-200 text-sm xl:text-md text-white font-normal class-name">${text}</p>
+      <svg class="w-0 group-hover:w-4 opacity-0 group-hover:opacity-100 duration-200 aspect-square stroke-1 fill-white" viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
+        <rect class="w-6 aspect-square stroke-none fill-white opacity-0"/>
+        <g transform="matrix(1.43 0 0 1.43 12 12)" >
+          <path style="stroke: none stroke-width: 1 stroke-dasharray: none stroke-linecap: butt stroke-dashoffset: 0 stroke-linejoin: miter stroke-miterlimit: 4  fill-rule: nonzero opacity: 1" transform=" translate(-8, -7.5)" d="M 2.5 1 C 1.675781 1 1 1.675781 1 2.5 L 1 10.5 C 1 11.324219 1.675781 12 2.5 12 L 4 12 L 4 12.5 C 4 13.324219 4.675781 14 5.5 14 L 13.5 14 C 14.324219 14 15 13.324219 15 12.5 L 15 4.5 C 15 3.675781 14.324219 3 13.5 3 L 12 3 L 12 2.5 C 12 1.675781 11.324219 1 10.5 1 Z M 2.5 2 L 10.5 2 C 10.78125 2 11 2.21875 11 2.5 L 11 10.5 C 11 10.78125 10.78125 11 10.5 11 L 2.5 11 C 2.21875 11 2 10.78125 2 10.5 L 2 2.5 C 2 2.21875 2.21875 2 2.5 2 Z M 12 4 L 13.5 4 C 13.78125 4 14 4.21875 14 4.5 L 14 12.5 C 14 12.78125 13.78125 13 13.5 13 L 5.5 13 C 5.21875 13 5 12.78125 5 12.5 L 5 12 L 10.5 12 C 11.324219 12 12 11.324219 12 10.5 Z" stroke-linecap="round" />
+        </g>
+      </svg>
+    `
+    return button
+}
 
 function createOutputSelectorDiv(selector, json) {
   const outputSelectorDiv = document.createElement('div')
@@ -96,17 +112,33 @@ function createOutputSelectorDiv(selector, json) {
   classesFlexContainer.className = 'classes flex flex-wrap justify-start'
   
   json[selector].forEach(className => {
-    const classButton = document.createElement('button')
-    classButton.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline w-fit mr-2 p-1 px-3 hover:px-1.5 h-fit group rounded-lg bg-white/[0.1] my-1 class-copybutton'
-    classButton.innerHTML = `
-      <p class="group-hover:mr-1 duration-200 text-sm xl:text-md text-white font-normal class-name">${className}</p>
-      <svg class="w-0 group-hover:w-4 opacity-0 group-hover:opacity-100 duration-200 aspect-square stroke-1 fill-white" viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
-        <rect class="w-6 aspect-square stroke-none fill-white opacity-0"/>
-        <g transform="matrix(1.43 0 0 1.43 12 12)" >
-          <path style="stroke: none stroke-width: 1 stroke-dasharray: none stroke-linecap: butt stroke-dashoffset: 0 stroke-linejoin: miter stroke-miterlimit: 4  fill-rule: nonzero opacity: 1" transform=" translate(-8, -7.5)" d="M 2.5 1 C 1.675781 1 1 1.675781 1 2.5 L 1 10.5 C 1 11.324219 1.675781 12 2.5 12 L 4 12 L 4 12.5 C 4 13.324219 4.675781 14 5.5 14 L 13.5 14 C 14.324219 14 15 13.324219 15 12.5 L 15 4.5 C 15 3.675781 14.324219 3 13.5 3 L 12 3 L 12 2.5 C 12 1.675781 11.324219 1 10.5 1 Z M 2.5 2 L 10.5 2 C 10.78125 2 11 2.21875 11 2.5 L 11 10.5 C 11 10.78125 10.78125 11 10.5 11 L 2.5 11 C 2.21875 11 2 10.78125 2 10.5 L 2 2.5 C 2 2.21875 2.21875 2 2.5 2 Z M 12 4 L 13.5 4 C 13.78125 4 14 4.21875 14 4.5 L 14 12.5 C 14 12.78125 13.78125 13 13.5 13 L 5.5 13 C 5.21875 13 5 12.78125 5 12.5 L 5 12 L 10.5 12 C 11.324219 12 12 11.324219 12 10.5 Z" stroke-linecap="round" />
-        </g>
-      </svg>
-    `
+    let classButton = createCustomizableButton(className, 'bg-white/[0.1]', '')
+    if(className.includes('!')) {
+      classButton = createCustomizableButton(className.substring(1), 'bg-red-500/[0.5]', '')
+      // classButton.classList.replace('bg-white/[0.1]', 'bg-red-500/[0.5]')
+      // classButton.querySelector('.class-name').textContent = className.substring(1)
+    }
+    if (className.includes('?')) {
+      let colorDict = {
+        "0": "59, 130, 246",
+        "1": "34, 197, 94",
+        "2": "234, 179, 8",
+        "3": "139, 92, 246",
+        "4": "249, 115, 22",
+        "5": "236, 72, 153",
+        "6": "20, 184, 166",
+        "7": "6, 182, 212",
+        "8": "99, 102, 241",
+        "9": "132, 204, 22"
+      }
+
+      let split = className.split('?')
+      let colorKey = split[0]
+      classButton = createCustomizableButton(split[1], 'bg-transparent', `outline: 2px solid rgba(${colorDict[colorKey]}, 0.5); background-color: rgba(${colorDict[colorKey]}, 0.24);`)
+      // classButton.classList.replace('bg-white/[0.1]', 'bg-transparent')
+      // classButton.classList.add(`outline-2 outline-solid outline-${colorDict[colorKey]}/[0.5]`)
+      // classButton.querySelector('.class-name').textContent = split[1]
+    }
     classButton.addEventListener('click', () => copy('the tailwind class', className))
     classesFlexContainer.appendChild(classButton)
   })
@@ -114,6 +146,8 @@ function createOutputSelectorDiv(selector, json) {
   outputSelectorDiv.appendChild(classesFlexContainer)
   outputElement.appendChild(outputSelectorDiv)
 }
+
+
 function displayOutputWithSelectors(json) {
   resetDisplay();
   Object.keys(json).forEach(selector => createOutputSelectorDiv(selector, json));
@@ -145,15 +179,59 @@ function parseOutput(cssString) {
       }
 
     });
+  jsonResult = resolveDuplicates(jsonResult)
   // console.log(jsonResult)
   return jsonResult;
 }
 
-function resolveDuplicates(json) {
-  Object.keys(json).forEach(selector => {
-    // find any duplicate keys in the json and merge their classes
-    const duplicates = Object.keys(json).filter(key => key == selector && key.includes(selector))
+function markDuplicates(arr) {
+  let prefixMap = {}
+  let result = []
+  let duplicateCount = 0
 
+  // Build the prefix map
+  let index = 0
+  arr.forEach((item, index) => {
+    let prefix = item.slice(0, item.lastIndexOf('-'))
+    if(prefix.indexOf('-') == 0) {
+        prefix = prefix.substring(prefix.indexOf('-') + 1)
+      }
+    if (prefixMap[prefix]) {
+      prefixMap[prefix].push(index)
+    } else {
+      prefixMap[prefix] = [index]
+      index++
+    }
+  })
+  console.table(prefixMap)
+
+  result = Object.keys(prefixMap).forEach((prefix) => {
+    if(prefixMap[prefix].length > 1) {
+      for(let i = 0; i < prefixMap[prefix].length; i++) {
+        
+        let arrIndex = prefixMap[prefix][i]
+        arr[prefixMap[prefix][i]] = `${duplicateCount}?${arr[prefixMap[prefix][i]]}`
+      }
+      duplicateCount++
+    } 
+  })
+
+
+  return arr
+}
+
+
+function resolveDuplicates(json) {
+  Object.keys(json).forEach((selector) => {
+    const classes = json[selector]
+
+    // Resolving direct duplicates
+    const uniqueClasses = [...new Set(classes)]
+    json[selector] = uniqueClasses
+
+    
+    json[selector] = markDuplicates(json[selector])
+    console.log(json[selector])
   })
   return json
 }
