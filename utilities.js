@@ -93,7 +93,6 @@ function parseRGBA(input) {
 
 function handleColors(value) {
     if(colorsDict[value] != undefined) value = colorsDict[value]
-    console.log(value, typeof value)
 
     let hexColor = ''
     let opacity = ''
@@ -101,8 +100,7 @@ function handleColors(value) {
     let rgbaValues
     if(value.includes('rgba')) rgbaValues = parseRGBA(value)
 
-    if (rgbaValues != value) {
-        console.log((Number(rgbaValues[3]) * 100) % 5 == 0) 
+    if (rgbaValues != value && rgbaValues != undefined) {
         hexColor = tinycolor({r: rgbaValues[0], g: rgbaValues[1], b: rgbaValues[2]}).toHexString() 
         if(rgbaValues[3] == 1) opacity = ''
         else if((Number(rgbaValues[3]) * 100) % 5 == 0) opacity = `/${Number(rgbaValues[3]) * 100}`
@@ -110,11 +108,8 @@ function handleColors(value) {
     } else {
         hexColor = tinycolor(value).toHexString()
     }
-    console.log(hexColor)
-    if(tailwindColors.hasOwnProperty(hexColor)) {
-        console.log(tailwindColors[hexColor] + opacity)
-        return tailwindColors[hexColor] + opacity
-    }
+    // console.log(hexColor)
+    if(tailwindColors.hasOwnProperty(hexColor)) return tailwindColors[hexColor] + opacity
     else return '[' + hexColor + ']' + opacity
 }
 export function revertUnits(object, value) { // This function is used to convert the shorthand values back to their original values

@@ -50,7 +50,7 @@ function resetDisplay() {
   const outputElement = document.getElementById('output')
   outputElement.innerHTML = '';
 }
-
+// TODO: Fix copycss function
 function copy(type, text) {
   if(text == '' || text == undefined) {
     createNotification(`Nothing to copy here!`, 3);
@@ -60,8 +60,6 @@ function copy(type, text) {
   const longText = text.length > 40 ? ' ...' : ''
   createNotification(`Copied ${type}: ${text.slice(0, 40)}${longText}`, 3);
 }
-
-
 
 function createOutputSelectorDiv(selector, json) {
   const outputSelectorDiv = document.createElement('div')
@@ -123,32 +121,44 @@ function displayOutputWithSelectors(json) {
 
 function parseOutput(cssString) {
     // Remove @apply and extra spaces
-    console.log(cssString)
     const cleanedCss = cssString.replace(/@apply\s+/g, '').trim() // Remove the @apply and any extra spaces
   
-    // Split by selector and braces
     let jsonResult = {};
     
-    const cssRules = cleanedCss.split('}').filter(rule => rule.trim().length > 0)
+    
+    const cssRules = cleanedCss.trim().split('}').filter(rule => rule.trim().length > 0).map(str => str.trim()) // cssrules is an
     
     cssRules.forEach(rule => {
-        // Extract the selector and the class definitions
-        const [selector, classes] = rule.split('{').map(part => part.trim())
-        // console.log(`selector, classes :
-        //   ${selector}, ${classes}`)
-        // Split the classes into an array
-        const classArray = classes.split(/\s+/).filter(className => className.length > 0)
-        // console.log(`class array:
-        //   ${classArray}`)
-        // Add to the result object
+      // find duplicate rules
+      
+      // Extract the selector and the class definitions
+      const [selector, classes] = rule.split('{').map(part => part.trim())
+      
+      const classArray = classes.split(/(?<!:)\s+/).filter(className => className.length > 0);
+      if(jsonResult[selector] != undefined) {
+        console.log(`Old classes: ${jsonResult[selector]}`)
+        // add the new classes to the old classes, do not remove the old classes
+        jsonResult[selector].push(...classArray)
+        console.log(`New classes: ${jsonResult[selector][50]}`)
+      } else {
         jsonResult[selector] = classArray
+      }
+
     });
-  console.log(jsonResult)
+  // console.log(jsonResult)
   return jsonResult;
 }
 
+function resolveDuplicates(json) {
+  Object.keys(json).forEach(selector => {
+    // find any duplicate keys in the json and merge their classes
+    const duplicates = Object.keys(json).filter(key => key == selector && key.includes(selector))
+
+  })
+  return json
+}
+
 function convertLinearWithAvailableValues(propertyName, value, availableValues, backdrop) {
-  console.log(availableValues.includes(Number(value)))
   if(availableValues.includes(Number(value))) return `${isNegative}${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
   else return `${isNegative}${backdrop}${property}-[${value}]` // Else use a arbitrary value
 }
@@ -164,43 +174,6 @@ function convertPercentageScaledWithAvailableValues(propertyName, value, backdro
   else if(zeroRegex.test(value)) return `${isNegative}${backdrop}${propertyName}-0` // If the value is 0, then just use the property name with a 0
   else return `${isNegative}${backdrop}${propertyName}-[${value}]` // Else use the property name with the value in brackets
 }
-
-// function convertFilterToTailwind(property, value) {
-//   let [newProperty, newValue] = value.split('(').map(s => s.trim()) // EX: filter: blur(4px); treated as blur: 4px
-//   newValue = newValue.replace(')', '')
-//   const backdrop = (property == 'backdrop-filter') ? 'backdrop-' : '' // Filter and backdrop-filter are grouped so the backdrop prefix can be added concisely
-//   switch(newProperty) {
-//     case 'blur':
-//       return `${backdrop}blur-${util.irregularConvertUnits(blurUnitDict, newValue)}`
-//       break
-//     case 'brightness':
-//       return convertLinearWithAvailableValues('brightness', newValue, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5, 2], backdrop)
-//       break
-//     case 'contrast':
-//       return convertLinearWithAvailableValues('contrast', newValue, [0, 0.5, 0.75, 1, 1.25, 1.5, 2], backdrop)
-//       break
-//     case 'grayscale':
-//       return convertPercentageScaledWithAvailableValues('grayscale', newValue, backdrop)
-//       break
-//     case 'hue-rotate':
-//       return convertRotationWithAvailableValues('hue-rotate', newValue, [0, 15, 30, 60, 90, 180], backdrop)
-//       break
-//     case 'invert':
-//       return convertPercentageScaledWithAvailableValues('invert', newValue, backdrop)
-//       break
-//     case 'saturate':
-//       return convertLinearWithAvailableValues('saturate', newValue, [0, 0.5, 1, 1.5, 2], backdrop)
-//       break
-//     case 'sepia':
-//       return convertPercentageScaledWithAvailableValues('sepia', newValue, backdrop)
-//       break
-//     default:
-//       // createNotification(`(${property}: ${value}) could not be converted`)
-//       return `!(${property}: ${value})`
-//       break
-
-//   }
-// }
 
 function parseFilterRule(property, value) {
   const filterValues = value.replace(/\)(?=[a-zA-Z])/g, ')) ').split(') ').map(s => s.trim()) // Split the values by the space, after ensuring there are spaces between the functions
@@ -249,13 +222,11 @@ function parseFilterRule(property, value) {
   return returnStyles
 }
 
-
-
 function convertShorthandToTailwind(property, value) {
   const shorthandValues = util.shorthand(value.split(' '), shorthandDict[property]) // Split the values by space and parse the shorthand notation
   let styles = []
   for (let i = 0; i < shorthandValues.length; i++) {
-    styles.append(`${isNegative}shorthandValues[i]`) // Push each value to the styles array
+    styles.push(`${isNegative}${shorthandValues[i]}`) // Push each value to the styles array
   }
   return styles
 }
@@ -270,7 +241,6 @@ function convertPropertylessToTailwind(property, value) {
   else if (property == 'text-transform' && value == 'none') return `normal-case`
   else return `${value}`
 }
-
 
 let isNegative = '';
 
@@ -341,7 +311,6 @@ function parseTransformRule(value) {
   return returnStyles
 }
 
-
 function valueIsNegative(value) {
   if(value != undefined && value.startsWith('[-')) {
     // console.log(`value ${value} is negative`)
@@ -354,6 +323,7 @@ function valueIsNegative(value) {
   }
   
 }
+
 function convertPVPairToTailwind(stylesList, style) {
   class ReturnStylesListException {
     constructor(stylesList) {
@@ -365,15 +335,16 @@ function convertPVPairToTailwind(stylesList, style) {
   let debugStringBuilder = ''
 
   function appendToStylesList(value) {
-    if(insideCSSRule || (value != undefined && value.includes(`\n} \n`))) {
-      if(value.includes(`\n} \n`)) insideCSSRule = false
+    if(insideCSSRule || (value != undefined && value.includes(`}`))) {
+      if(value.includes(`} `)) insideCSSRule = false
       if (Array.isArray(value)) stylesList.push(...value)
       else stylesList.push(value)
 
     } else {
       createAlert(`The value ${value} was not inside a CSS rule and was not converted to TailwindCSS`)
     }
-    console.log(`${debugStringBuilder} \n ${stylesList}`)
+    // console.log(`${debugStringBuilder}`)
+    // console.table(stylesList)
     return stylesList
   }
 
@@ -392,10 +363,10 @@ function convertPVPairToTailwind(stylesList, style) {
       debugStringBuilder += `${property} was the beginning of a CSS rule\n`
       // console.log(debugStringBuilder)
       insideCSSRule = true
-      return appendToStylesList(`${property}\n @apply`) // If its the style declaration: list it out and enter a new line
+      return appendToStylesList(`${property} @apply`) // If its the style declaration: list it out and enter a new line
     } else if(property.includes('}')) {
       debugStringBuilder += `${property} was the end of a CSS rule\n`
-      return appendToStylesList(`\n} \n`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
+      return appendToStylesList(`}`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
     } else {
       debugStringBuilder += `${property} was not a valid CSS rule\n`
       value = ''
@@ -403,17 +374,18 @@ function convertPVPairToTailwind(stylesList, style) {
 
   } 
 
-
+  
   if(property == 'filter' || property == 'backdrop-filter') return appendToStylesList(parseFilterRule(property, value))  // Case #1: The filter and backdrop-filter properties all have many different values based on their functions
-
+  
   if(property == "transform") return appendToStylesList(parseTransformRule(value)) // Case #2: The transform property has many different values based on their functions
-
+  
   value = util.convertUnits(value)
-
+  
   // console.log(value)
   if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', '')).replace('[-', '[')
-
-
+    
+    
+  let returnStyles = []
     // * EDGE CASES
   switch (property) {
     // * SINGLE VALUES WITH UNITS
@@ -439,7 +411,7 @@ function convertPVPairToTailwind(stylesList, style) {
     
     case 'border-radius':
       let borderRadiuses = value.split(' ')
-      let returnStyles = []
+      returnStyles = []
       for(let i = 0; i < borderRadiuses.length; i++) {
         borderRadiuses[i] = util.translateConvertedToIrregular(borderRadiusUnitDict, borderRadiuses[i])
       }
@@ -461,7 +433,7 @@ function convertPVPairToTailwind(stylesList, style) {
         returnStyles.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
         returnStyles.push(`rounded-bl-${borderRadiuses[3]}`.replace('-/', ''))
       }
-      returnStyles
+      return appendToStylesList(returnStyles)
 
     case 'inset':
       const values = value.split(' ')
@@ -481,7 +453,7 @@ function convertPVPairToTailwind(stylesList, style) {
         returnStyles.push(`${isNegative}bottom-${values[2]}`)
         returnStyles.push(`${isNegative}left-${values[3]}`)
       }
-      returnStyles
+      return appendToStylesList(returnStyles)
 
     // * NUMBER NO UNIT
     case 'order':

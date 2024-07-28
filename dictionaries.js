@@ -9,6 +9,7 @@ export const shorthandDict = {
 }
 
 export const singleValueDict = {
+  'aspect-ratio': 'aspect',
   'margin-top': 'mt', 'margin-left': 'ml', 'margin-bottom': 'mb', 'margin-right': 'mr',
   'padding-top': 'pt', 'padding-left': 'pl', 'padding-bottom': 'pb', 'padding-right': 'pr',
   'border-top-width': 'border-t', 'border-left-width': 'border-l', 'border-bottom-width': 'border-b', 'border-right-width': 'border-r',
@@ -71,6 +72,7 @@ export const singleValueDict = {
   'caption-side': 'caption',
   'forced-color-adjust': 'forced-color-adjust',
   'overflow-wrap': 'break', 'word-break': 'break', 
+  'column-reverse': 'col-reverse', 'row-reverse': 'row-reverse'
 }
 
 export const propertylessDict = {
@@ -142,7 +144,12 @@ export const unitDict = {
   '0 1px 2px 0 rgb(0 0 0 / 0.05)': 'sm', '0 1px 3px 0 rgb(0 0 0 / 0.1)': '', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)': 'md', '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)': 'lg', '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)': 'xl', '0 25px 50px -12px rgb(0 0 0 / 0.25)': '2xl', 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)': 'inset', '0 0 #000000': 'none',
   'cubic-bezier(0.4, 0, 1, 1)': 'ease-in', 'cubic-bezier(0, 0, 0.2, 1)': 'ease-out', 'cubic-bezier(0.4, 0, 0.2, 1)': 'ease-in-out', 
   'break-word': 'break-words', 'break-all': 'all', 'keep-all': 'keep',
+  '1 / 1': 'square', '16 / 9': 'video',
 };
+// TODO: Add more values to the non translate values
+export const nonTranslateValues = [
+  'auto', 'avoid', 'all', 'avoid-page', 'page', 'left', 'right', 'column', 'clone', 'slice', 'block', 'inline-block', 'inline', 'flex', 'inline-flex', 'table', 'inline-table', 'table-caption', 'table-cell', 'table-column', 'table-column-group', 'table-footer-group', 'table-header-group', 'table-row-group', 'table-row', 'flow-root', 'grid', 'inline-grid', 'contents', 'list-item', 'start', 'end', 'right', 'left', 'none', 'start', 'end', 'both', 'contain', 'cover', 'fill', 'scale-down', 'bottom', 'center', 'left-bottom', 'left-top', 'right-bottom', 'right-top', 'top', 'auto', 'clip', 'visible', 'scroll', 'static', 'fixed', 'absolute', 'relative', 'sticky', 'row', 'wrap', 'wrap-reverse', 'nowrap', 'dense', 'normal', 'flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly', 'stretch', 'baseline', 'ordinal', 'slashed-zero', 'lining-nums', 'oldstyle-nums', 'proportional-nums', 'tabular-nums', 'diagonal-fractions', 'stacked-fractions', 'inside', 'outside', 'disc', 'decimal', 'justify', 'underline', 'overline', 'line-through', 'solid', 'double', 'dotted', 'dashed', 'wavy', 'from-font', 'uppercase', 'lowercase', 'capitalize', 'ellipsis', 'wrap', 'nowrap', 'balance', 'pretty', 'text-top', 'text-bottom', 'sub', 'super', 'pre', 'pre-line', 'pre-wrap', 'break-spaces', 'manual', 'fixed', 'local', 'scroll', 'text'
+]
 
 export const colorsDict = { 'black': '#000000',
   'silver': '#c0c0c0',
