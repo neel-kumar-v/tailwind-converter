@@ -23,8 +23,8 @@
     <div class="hidden bg-cyan-500/[0.2]"></div>
     <div class="hidden bg-indigo-500/[0.2]"></div>
     <div class="hidden bg-lime-500/[0.2]"></div>
-    <div class="hidden bg-blue-500/[0.2] flex flex-wrap justify-start mb-3 has-[:hover]:flex-nowrap"></div>
-    <div class="grid grid-cols-3 xl:grid-cols-4 w-screen h-screen "> 
+    <div class="hidden bg-blue-500/[0.2] flex-wrap justify-start mb-3 has-[:hover]:flex-nowrap"></div>
+    <div class="grid grid-cols-3 xl:grid-cols-4 w-screen h-screen overflow-x-hidden "> 
 
       <div class="w-full pt-12 px-12 row-start-1 h-screen mx-auto bg-[#212121]  ">
         <div class="flex flex-nowrap justify-between">
@@ -62,13 +62,14 @@
           </div>
         </div>
 
-        <div id="output" class="w-full h-full overflow-y-scroll">
+        <div id="output" class="w-full h-full overflow-y-auto">
           
 
         </div>
 
     </div>
     <script type="module" src="/main.js"></script>
+    <script type="module" src="/tokenize.js"></script>
   </body>
 </html>
 <!-- 

@@ -1,6 +1,6 @@
 const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
 const otherColorRegex = /^(rgb|rgba|hsl|hsla|hsv|cmyk)\(\s*(-?\d+%?\s*([,\s]+|$)){2,3}(-?\d+%?\s*,?\s*[\d.]*%?\s*)?\)$/
-const numberRegex = /\d/
+export const numberRegex = /\d/
 const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|vmax|vmin|vw|%)/
 import { unitDict, colorsDict, tailwindColors } from './dictionaries'
 import tinycolor from 'tinycolor2'
@@ -34,7 +34,6 @@ export function shorthand(values, property) {
   
   
 export function convertUnits(value) {
-    // TODO: Add support for things like calc(), minmax() etc.
     if(value != undefined) {
         const coveredByDictionary = unitDict != undefined && unitDict[value] != undefined
         // console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
@@ -63,9 +62,9 @@ export function convertUnits(value) {
                 returnValues += `${values[i]} `
             }
             returnValue = returnValues.substring(0, returnValues.length - 1)
-        } else if(value.includes('/')) returnValue = '[' + value + ']'
+        } else if(value.includes('/')) returnValue = '[' + value.replace(/\s+/g, '_') + ']'
         else if(!isDigitWithUnits) returnValue = value // if it is not a digit or it is a digit without a unit
-        else returnValue = '[' + value.replace(/ /g, '_') + ']'
+        else returnValue = '[' + value.replace(/\s+/g, '_') + ']'
         // console.log(`returned value: ${returnValue}`)
         return returnValue
     }

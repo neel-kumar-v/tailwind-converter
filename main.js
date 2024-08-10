@@ -1,13 +1,10 @@
-import { EditorView } from "@codemirror/view"
-import { basicSetup } from "codemirror"
-import { EditorState } from "@codemirror/state"
 import './style.css'
-import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict } from './dictionaries'
+import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, cssAtRules, mediaQueryDict, viewportBreakpoints } from './dictionaries'
 import * as util from './utilities'
 import { inject } from '@vercel/analytics'
 import { createAlert } from "./alerts"
 import { createNotification } from "./notification"
-import { color } from "@codemirror/theme-one-dark"
+// import { tokenize } from  '@csstools/tokenizer'
 
 inject() // 
 
@@ -38,14 +35,35 @@ var inputEditor = CodeMirror.fromTextArea(input, {
   allowDropFileTypes: ['text/css'],
   lineWrapping: true,
   scrollbarStyle: "null",
+  placeholder: 'Paste your CSS here',
 })
 let outputTailwind = ''
 inputEditor.on('change', () => {
-  const css = inputEditor.getValue()
-  outputTailwind = convertCSSToPVPair(css)
-  const jsonOutput = parseOutput(outputTailwind)
-  displayOutputWithSelectors(jsonOutput)
+  // const css = inputEditor.getValue()
+  // console.log(css)
+  // for (const token of tokenize(css)) {
+  //   if (token.type != 3) {
+
+  //     console.log(token) // logs an individual CSSToken
+  //   }
+  // }
+  // outputTailwind = convertCSSToPVPair(css)
+  // const jsonOutput = parseOutput(outputTailwind)
+  // displayOutputWithSelectors(jsonOutput)
 })
+
+
+
+
+
+
+
+
+
+
+// ! Old Code
+// ! Old Code
+// ! Old Code
 
 function resetDisplay() {
   const outputElement = document.getElementById('output')
@@ -75,6 +93,31 @@ function createCustomizableButton(text, color, outlineStyles) {
       </svg>
     `
     return button
+}
+
+function findParentBySelector(element, tagname) {
+  if (element.tagName == tagname) return element
+  else return findParentBySelector(element.parentElement, tagname)
+}
+
+function handleHoverOnConflictingClasses(event, isHovering) {
+  let element = findParentBySelector(event.target, 'BUTTON')
+  let colorKey = element.getAttribute('data-colorMatch')
+  // find all other peer buttons that have the same colorKey
+  let buttons = Array.from(element.parentElement.getElementsByClassName('class-copybutton'))
+  if(isHovering) {
+    // console.log('mouse over')
+    buttons.forEach(button => {
+      if(button.getAttribute('data-colorMatch') == null || button.getAttribute('data-colorMatch') != colorKey) {
+        button.style.opacity =  '0.2'
+      }
+    })
+  } else {
+    console.log('mouse out')
+    buttons.forEach(button => {
+      button.style.opacity = '1'
+    })
+  }
 }
 
 function createOutputSelectorDiv(selector, json) {
@@ -120,6 +163,14 @@ function createOutputSelectorDiv(selector, json) {
       tooltip.className = 'tooltip tooltip-error'
       tooltip.setAttribute('data-tooltip', 'No TailwindCSS equivalent: not recommended')
       tooltip.appendChild(classButton)
+      // tooltip.addEventListener('mouseover', (event) => {
+      //   let element = findParentBySelector(event.target, 'DIV')
+      //   element.classList.add('tooltip-open')
+      // })
+      // tooltip.addEventListener('mouseleave', (event) => {
+      //   let element = findParentBySelector(event.target, 'DIV')
+      //   element.classList.remove('tooltip-open')
+      // })
       classesFlexContainer.appendChild(tooltip)
     }
     else if (className.includes('?')) {
@@ -139,7 +190,10 @@ function createOutputSelectorDiv(selector, json) {
       let split = className.split('?')
       let colorKey = split[0]
       classButton = createCustomizableButton(split[1], `bg-transparent`, `outline: 2px solid rgba(${colorDict[colorKey]}, 0.5); background-color: rgba(${colorDict[colorKey]}, 0.24);`)
+      classButton.setAttribute('data-colorMatch', colorKey)
       classesFlexContainer.appendChild(classButton)
+      classButton.addEventListener('mouseover', (event) => handleHoverOnConflictingClasses(event, true))
+      classButton.addEventListener('mouseleave', (event) => handleHoverOnConflictingClasses(event, false))
     }
     else {
       classesFlexContainer.appendChild(classButton)
@@ -169,6 +223,7 @@ function parseOutput(cssString) {
     
     
     const cssRules = cleanedCss.trim().split('}').filter(rule => rule.trim().length > 0).map(str => str.trim()) // cssrules is an
+    console.log(cleanedCss)
     
     cssRules.forEach(rule => {
       // find duplicate rules
@@ -176,12 +231,12 @@ function parseOutput(cssString) {
       // Extract the selector and the class definitions
       const [selector, classes] = rule.split('{').map(part => part.trim())
       
-      const classArray = classes.split(/(?<!:)\s+/).filter(className => className.length > 0);
+      let classArray = classes.split(/(?<!:)\s+/)
+      if (classArray == undefined) classArray = [classes]
+      classArray = classArray.filter(className => className.length > 0);
       if(jsonResult[selector] != undefined) {
-        console.log(`Old classes: ${jsonResult[selector]}`)
         // add the new classes to the old classes, do not remove the old classes
         jsonResult[selector].push(...classArray)
-        console.log(`New classes: ${jsonResult[selector][50]}`)
       } else {
         jsonResult[selector] = classArray
       }
@@ -211,7 +266,7 @@ function markDuplicates(arr) {
       index++
     }
   })
-  console.table(prefixMap)
+  // console.table(prefixMap)
 
   result = Object.keys(prefixMap).forEach((prefix) => {
     if(prefixMap[prefix].length > 1) {
@@ -239,26 +294,26 @@ function resolveDuplicates(json) {
 
     
     json[selector] = markDuplicates(json[selector])
-    console.log(json[selector])
+    // console.log(json[selector])
   })
   return json
 }
 
 function convertLinearWithAvailableValues(propertyName, value, availableValues, backdrop) {
-  if(availableValues.includes(Number(value))) return `${isNegative}${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
-  else return `${isNegative}${backdrop}${property}-[${value}]` // Else use a arbitrary value
+  if(availableValues.includes(Number(value))) return `${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
+  else return `${backdrop}${property}-[${value}]` // Else use a arbitrary value
 }
 
 function convertRotationWithAvailableValues(propertyName, value, availableValues, backdrop) {
   value = value.replace('deg', '')  // Remove the deg from the value for parsing
-  if(availableValues.includes(Number(value))) return `${isNegative}${backdrop}${propertyName}-${value}` // If the newValue is a number tailwind has a builtin number for, then use it
-  else return `${isNegative}${backdrop}${propertyName}-[${value}deg]` // Else use a arbitrary value and add deg back to it 
+  if(availableValues.includes(Number(value))) return `${backdrop}${propertyName}-${value}` // If the newValue is a number tailwind has a builtin number for, then use it
+  else return `${backdrop}${propertyName}-[${value}deg]` // Else use a arbitrary value and add deg back to it 
 }
 
 function convertPercentageScaledWithAvailableValues(propertyName, value, backdrop) {
-  if(value.includes('100%')) return `${isNegative}${backdrop}${propertyName}` // If the value is 100%, then just use the property name
-  else if(zeroRegex.test(value)) return `${isNegative}${backdrop}${propertyName}-0` // If the value is 0, then just use the property name with a 0
-  else return `${isNegative}${backdrop}${propertyName}-[${value}]` // Else use the property name with the value in brackets
+  if(value.includes('100%')) return `${backdrop}${propertyName}` // If the value is 100%, then just use the property name
+  else if(zeroRegex.test(value)) return `${backdrop}${propertyName}-0` // If the value is 0, then just use the property name with a 0
+  else return `${backdrop}${propertyName}-[${value}]` // Else use the property name with the value in brackets
 }
 
 function parseFilterRule(property, value) {
@@ -312,7 +367,7 @@ function convertShorthandToTailwind(property, value) {
   const shorthandValues = util.shorthand(value.split(' '), shorthandDict[property]) // Split the values by space and parse the shorthand notation
   let styles = []
   for (let i = 0; i < shorthandValues.length; i++) {
-    styles.push(`${isNegative}${shorthandValues[i]}`) // Push each value to the styles array
+    styles.push(`${shorthandValues[i]}`) // Push each value to the styles array
   }
   return styles
 }
@@ -348,12 +403,12 @@ function parseTransformRule(value) {
       case 'translateX':
         value = util.convertUnits(value)
         if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', ''))
-        returnStyles.push(`${isNegative}translate-x-${value}`)
+        returnStyles.push(`insideAtRuletranslate-x-${value}`)
         break
       case 'translateY':
         value = util.convertUnits(value)
         if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', ''))
-        returnStyles.push(`${isNegative}translate-y-${value}`)
+        returnStyles.push(`insideAtRuletranslate-y-${value}`)
         break
       case 'rotate':
         returnStyles.push(convertRotationWithAvailableValues('rotate', value, [0, 1, 2, 3, 6, 12, 45, 90, 180], ''))
@@ -379,10 +434,10 @@ function parseTransformRule(value) {
         let returnStylesTranslate = []
 
         if (valueIsNegative(translateX)) translateX = util.convertUnits(translateX.replace('[-', '').replace(']', ''))
-        returnStylesTranslate.push(`${isNegative}translate-x-${translateX}`)
+        returnStylesTranslate.push(`insideAtRuletranslate-x-${translateX}`)
 
         if (valueIsNegative(translateY)) translateY = util.convertUnits(translateY.replace('[-', '').replace(']', ''))
-        returnStylesTranslate.push(`${isNegative}translate-y-${translateY}`)
+        returnStylesTranslate.push(`insideAtRuletranslate-y-${translateY}`)
 
         returnStylesTranslate.push(`transform-[translateZ(${translateZ.replace(/\s/g, '_')})]`)
         returnStyles.push(...returnStylesTranslate) 
@@ -409,29 +464,122 @@ function valueIsNegative(value) {
   }
   
 }
-
-function convertPVPairToTailwind(stylesList, style) {
-  class ReturnStylesListException {
-    constructor(stylesList) {
-      this.stylesList = stylesList
+function handleMediaQueries(mediaQuery) {
+  mediaQuery = mediaQuery.replace('media', '').trim()
+  console.log(mediaQuery)
+  let mediaQueryValues = mediaQuery.split(',').map(s => s.trim())
+  if(mediaQueryValues == undefined) mediaQueryValues = [mediaQuery]
+  let returnPrefixes = ''
+  for(let i = 0; i < mediaQueryValues.length; i++) {
+    mediaQueryValues[i] = mediaQueryValues[i].replace('(', '').replace(')', '')
+    let [prefix, value] = mediaQueryValues[i].split(':').map(s => s.trim())
+    if(mediaQueryDict.hasOwnProperty(prefix)) {
+      returnPrefixes += `${mediaQueryDict[prefix]}`
     }
+    if(value == undefined) continue
+    if(viewportBreakpoints.hasOwnProperty(value)) {
+      returnPrefixes += `${viewportBreakpoints[value]}`
+    } else if (numberRegex.test(value)) {
+      console.log(prefix, value)
+      if(prefix.includes('min')) returnPrefixes += `min-w-[${value}]`
+      else returnPrefixes += `[${value}]`
+    } else {
+      returnPrefixes += `${value}`
+    }
+    returnPrefixes = returnPrefixes.replace(' ', '') 
+
+    returnPrefixes += ':'
   }
+  return returnPrefixes
+}
 
-  let insideCSSRule = true
-  let debugStringBuilder = ''
+function handleSupportQueries(supportQuery) {
+  supportQuery = supportQuery.replace('supports', '').trim()
+  let supportQueryValues = supportQuery.split('and').map(s => s.trim())
+  let returnPrefixes = ''
+  for(let i = 0; i < supportQueryValues.length; i++) {
+    supportQueryValues[i] = supportQueryValues[i].replace('(', '').replace(')', '')
+    // let [prefix, value] = supportQueryValues[i].split(':').map(s => s.trim())
+    // console.log(prefix, value)
+    returnPrefixes += `supports-[${supportQueryValues[i].replace(/\s+/g, '')}]:`
+  
+  }
+  return returnPrefixes
+}
+let insideAtRule = false
+let insideCSSRule = false
+let prefixes = ''
+let line = 0;
+function convertPVPairToTailwind(stylesList, style) {
+  line++
+  let debugStringBuilder = `Line ${line}: \n`
 
-  function appendToStylesList(value) {
-    if(insideCSSRule || (value != undefined && value.includes(`}`))) {
-      if(value.includes(`} `)) insideCSSRule = false
-      if (Array.isArray(value)) stylesList.push(...value)
-      else stylesList.push(value)
+  function appendToStylesList(value, forChip=true) {
+    if(insideCSSRule || insideAtRule || (value != undefined && value.includes(`}`))) {
+      let insideCSSRuleInsideAtRule = insideAtRule && insideCSSRule
+      if(value.includes(`}`)) {
+        if(insideCSSRuleInsideAtRule) insideCSSRule = false
+        else if (insideAtRule) {
+          insideAtRule = false
+          prefixes = ''
+        }
+        else if (insideCSSRule) insideCSSRule = false
+        else prefixes = ''
+      }
+      else if (Array.isArray(value)) {
+        for(let i = 0; i < value.length; i++) {
+          stylesList.push(`${prefixes}${isNegative}${value[i]}`)
+        }
+      }
+      else {
+        if(forChip) stylesList.push(`${prefixes}${isNegative}${value}`)
+        else stylesList.push(`${value}`)
+      }
 
     } else {
-      createAlert(`The value ${value} was not inside a CSS rule and was not converted to TailwindCSS`)
+      // createAlert(`The value ${value} was not inside a CSS rule and was not converted to TailwindCSS`)
     }
-    // console.log(`${debugStringBuilder}`)
-    // console.table(stylesList)
+    console.log(`${debugStringBuilder}`)
+    
     return stylesList
+  }
+
+  if(style.includes('{') || style.includes('@')) {
+    // if(insideCSSRule) createAlert('Error: Nested CSS rules are not supported yet')
+    debugStringBuilder += `${style} was the beginning of a CSS rule\n`
+    // console.log(debugStringBuilder)
+    insideCSSRule = true
+    if(style.includes('@')) {
+      debugStringBuilder += `${style} was specifically the beginning of a CSS at-rule\n`
+      style = style.replace('@', '').replace('(', '').replace(')', '').replace('{', '').replace('}', '').trim()
+      if(cssAtRules.includes(style)) {
+        createAlert(`Error: TailwindCSS does not support the @${style.replace('{', '')} at-rule. This rule will not be converted`)
+      }
+      if (style.includes('media')) {
+        insideCSSRule = false
+        insideAtRule = true
+        // createAlert('Error: media queries are not supported yet')
+        prefixes += handleMediaQueries(style)
+      } 
+      if (style.includes('supports')) {
+        prefixes += handleSupportQueries(style)
+      }
+      // TODO: Add support for other at-rules
+      if (style.includes('keyframes')) {
+        createAlert('Error: keyframes are not supported yet')
+      } 
+      if (style.includes('font-face')) {
+        createAlert('Error: font-face is not supported yet')
+      }
+      console.log(debugStringBuilder)
+      return stylesList
+    }
+    return appendToStylesList(`${style} @apply`, false) // If its the style declaration: list it out and enter a new line
+  } else if(style.includes('}')) {
+    debugStringBuilder += `${style} was the end of a CSS rule\n`
+    return appendToStylesList(`}`, false) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
+  } else {
+    debugStringBuilder += `${style} was not a special line \n`
   }
 
 
@@ -443,22 +591,7 @@ function convertPVPairToTailwind(stylesList, style) {
   if(value != undefined) {
     value = value.replace(';', '') // Get rid of the semicolon
     completeProperty = true
-  } else {
-    if(property.includes('{')) {
-      // if(insideCSSRule) createAlert('Error: Nested CSS rules are not supported yet')
-      debugStringBuilder += `${property} was the beginning of a CSS rule\n`
-      // console.log(debugStringBuilder)
-      insideCSSRule = true
-      return appendToStylesList(`${property} @apply`) // If its the style declaration: list it out and enter a new line
-    } else if(property.includes('}')) {
-      debugStringBuilder += `${property} was the end of a CSS rule\n`
-      return appendToStylesList(`}`) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
-    } else {
-      debugStringBuilder += `${property} was not a valid CSS rule\n`
-      value = ''
-    }
-
-  } 
+  }
 
   
   if(property == 'filter' || property == 'backdrop-filter') return appendToStylesList(parseFilterRule(property, value))  // Case #1: The filter and backdrop-filter properties all have many different values based on their functions
@@ -482,16 +615,16 @@ function convertPVPairToTailwind(stylesList, style) {
       return appendToStylesList(`decoration-${value}`)
     case 'text-underline-offset':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      return appendToStylesList(`${isNegative}underline-offset-${value}`)
+      return appendToStylesList(`insideAtRuleunderline-offset-${value}`)
     case 'outline-width':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
       return appendToStylesList(`outline-${value.replace('px', '')}`)
     case 'outline-offset':
       if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      return appendToStylesList(`${isNegative}outline-offset-${value.replace('px', '')}`)
+      return appendToStylesList(`insideAtRuleoutline-offset-${value.replace('px', '')}`)
     case 'letter-spacing':
       value = value.replace('[', '').replace(']', '')
-      return appendToStylesList(`${isNegative}tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
+      return appendToStylesList(`insideAtRuletracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
 
     // * SHORTHANDABLE VALUES EDGE CASES
     
@@ -525,26 +658,26 @@ function convertPVPairToTailwind(stylesList, style) {
       const values = value.split(' ')
       returnStyles = []
       if (values.length === 1) {
-        returnStyles.push(`${isNegative}inset-${values[0]}`)
+        returnStyles.push(`insideAtRuleinset-${values[0]}`)
       } else if (values.length === 2) {
-        returnStyles.push(`${isNegative}inset-y-${values[0]}`)
-        returnStyles.push(`${isNegative}inset-x-${values[1]}`)
+        returnStyles.push(`insideAtRuleinset-y-${values[0]}`)
+        returnStyles.push(`insideAtRuleinset-x-${values[1]}`)
       } else if (values.length === 3) {
-        returnStyles.push(`${isNegative}top-${values[0]}`)
-        returnStyles.push(`${isNegative}inset-x-${values[1]}`)
-        returnStyles.push(`${isNegative}bottom-${values[2]}`)
+        returnStyles.push(`insideAtRuletop-${values[0]}`)
+        returnStyles.push(`insideAtRuleinset-x-${values[1]}`)
+        returnStyles.push(`insideAtRulebottom-${values[2]}`)
       } else if (values.length === 4) {
-        returnStyles.push(`${isNegative}top-${values[0]}`)
-        returnStyles.push(`${isNegative}right-${values[1]}`)
-        returnStyles.push(`${isNegative}bottom-${values[2]}`)
-        returnStyles.push(`${isNegative}left-${values[3]}`)
+        returnStyles.push(`insideAtRuletop-${values[0]}`)
+        returnStyles.push(`insideAtRuleright-${values[1]}`)
+        returnStyles.push(`insideAtRulebottom-${values[2]}`)
+        returnStyles.push(`insideAtRuleleft-${values[3]}`)
       }
       return appendToStylesList(returnStyles)
 
     // * NUMBER NO UNIT
     case 'order':
       if(value == '0') return appendToStylesList(`order-none`)
-      else return appendToStylesList(`${isNegative}order-${value}`)
+      else return appendToStylesList(`insideAtRuleorder-${value}`)
     case 'opacity':
       return appendToStylesList(`opacity-${value * 100}`)
     case 'aspect-ratio':
@@ -558,21 +691,21 @@ function convertPVPairToTailwind(stylesList, style) {
       else return appendToStylesList(`grow-0`)
     case 'flex-shrink':
       if(value.includes('1')) return appendToStylesList(`shrink`)
-      else return appendToStylesList(`${isNegative}shrink-0`)
+      else return appendToStylesList(`insideAtRuleshrink-0`)
     
     // * WORDS
     case 'isolate':
       if(value.includes('isolate')) return appendToStylesList(`isolate`)
       else return appendToStylesList(`isolation-${value}`)
       break
-    case 'flex-direction': return appendToStylesList(`${isNegative}flex-${value}`.replace('column', 'col'))
+    case 'flex-direction': return appendToStylesList(`insideAtRuleflex-${value}`.replace('column', 'col'))
   
     // TODO: Flex
-    case 'grid-auto-flow': return appendToStylesList(`${isNegative}grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
+    case 'grid-auto-flow': return appendToStylesList(`insideAtRulegrid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
     
     case 'font-style': 
-      if(value.includes('italic')) return appendToStylesList(`${isNegative}italic`)
-      else if(value.includes('normal')) return appendToStylesList(`${isNegative}not-italic`)
+      if(value.includes('italic')) return appendToStylesList(`insideAtRuleitalic`)
+      else if(value.includes('normal')) return appendToStylesList(`insideAtRulenot-italic`)
     case 'text-transform':
       if(value.includes('none')) return appendToStylesList(`normal-case`)
       else return appendToStylesList(`${value}`)
@@ -604,7 +737,10 @@ function convertPVPairToTailwind(stylesList, style) {
   const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
   if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) return appendToStylesList(convertShorthandToTailwind(property, value));
 
-  if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) return appendToStylesList(`${isNegative}${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
+  if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) {
+    if (value == '') return appendToStylesList(`${singleValueDict[property]}`)
+    else return appendToStylesList(`${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
+  }
   
   if (propertylessDict.hasOwnProperty(property)) return appendToStylesList(convertPropertylessToTailwind(property, value)) // Applies to display, position, visibility, etc 
  
@@ -621,10 +757,12 @@ function convertPVPairToTailwind(stylesList, style) {
 
 
 function convertCSSToPVPair(css) {
+  line = 0
   const styles = css.split('\n') // Split styles by line
     .filter(style => style.trim() !== '') // Remove empty lines
     .map(style => style.trim()) // Trim leading/trailing spaces
     .reduce((stylesList, style) => convertPVPairToTailwind(stylesList, style), [])
+  console.table(styles)
   return styles.join(' ')
 }
 
