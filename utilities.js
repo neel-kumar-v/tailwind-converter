@@ -51,6 +51,7 @@ export function convertUnits(value) {
         let returnValue = ''
 
         // console.log(coveredByDictionary, isColor, includesMultipleValues, !isDigitWithUnits, value.includes('/'))
+        if (value.includes(`'`) || value.includes(`"`)) return value
 
         if(coveredByDictionary) returnValue = unitDict[value]
         else if(isColor) returnValue = handleColors(value)
@@ -125,8 +126,14 @@ export function translateConvertedToIrregular (irregularUnitDict, value) {
     else value = `[${value.replace(/ /g, '_')}]`.replace('[[', '[').replace(']]', ']')
     return value
 }
-function copy(text) {
-    navigator.clipboard.writeText(text)
-    createNotification("Copied the text: " + elementToCopyFrom.value.slice(0, 40) + "...")
+// TODO: Fix copycss function
+export function copy(type, text) {
+  if(text == '' || text == undefined) {
+    createNotification(`Nothing to copy here!`, 3);
+    return
+  }
+  navigator.clipboard.writeText(text);
+  const longText = text.length > 40 ? ' ...' : ''
+  createNotification(`Copied ${type}: ${text.slice(0, 40)}${longText}`, 3);
 }
 

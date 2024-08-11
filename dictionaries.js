@@ -147,6 +147,7 @@ export const unitDict = {
   'break-word': 'break-words', 'break-all': 'all', 'keep-all': 'keep',
   '1 / 1': 'square', '16 / 9': 'video',
   '9999px': 'full', 
+  'bold': '700',  'normal': '400', 'light': '300', 'extrabold': '800', 'black': '900',
 };
 // TODO: Add more values to the non translate values
 export const nonTranslateValues = [
@@ -154,7 +155,7 @@ export const nonTranslateValues = [
 ]
 
 export const cssAtRules = [
-  'import', 'charset', 'namespace', 'document', 'page', 'counter-style', 'property', 'viewport', 'region', 'color-profile', 'font-feature-values', 'font-palette-values', 
+  'import', 'charset', 'namespace', 'document', 'page', 'counter-style', 'property', 'viewport', 'region', 'color-profile', 'font-feature-values', 'font-palette-values', 'media', 'supports'
 ]
 
 export const viewportBreakpoints = {
@@ -164,6 +165,67 @@ export const viewportBreakpoints = {
 export const mediaQueryDict = {
   'min-width': '', 'not all and min-width': 'max-', 'max-width': 'max-', 'prefers-color-scheme': '', 'prefers-reduced-motion': 'motion-', 'prefers-contrast': 'contrast-', 'print': 'print:', 'orientation': '', 
 }
+// css_dict = {
+//   "&[aria-…]": "aria-[…]",
+//   "&[data-…]": "data-[…]",
+//   "[dir=“rtl”] &": "rtl",
+//   "[dir=“ltr”] &": "ltr",
+//   "&[open]": "open"
+// }
+export const pseudoClassesDict =  {
+  'hover': 'hover',
+  'focus': 'focus',
+  'focus-within': 'focus-within',
+  'focus-visible': 'focus-visible',
+  'active': 'active',
+  'visited': 'visited',
+  'target': 'target',
+  'first-child': 'first',
+  'last-child': 'last',
+  'only-child': 'only',
+  'nth-child(odd)': 'odd',
+  'nth-child(even)': 'even',
+  'first-of-type': 'first-of-type',
+  'last-of-type': 'last-of-type',
+  'only-of-type': 'only-of-type',
+  'empty': 'empty',
+  'disabled': 'disabled',
+  'enabled': 'enabled',
+  'checked': 'checked',
+  'indeterminate': 'indeterminate',
+  'default': 'default',
+  'required': 'required',
+  'valid': 'valid',
+  'invalid': 'invalid',
+  'in-range': 'in-range',
+  'out-of-range': 'out-of-range',
+  'placeholder-shown': 'placeholder-shown',
+  'autofill': 'autofill',
+  'read-only': 'read-only',
+}
+
+export const pseudoElementsArray = [
+  'before',
+  'after',
+  'first-letter',
+  'first-line',
+  'marker',
+  'selection',
+  'file',
+  'backdrop',
+  'placeholder',
+]
+
+const ariaAttributesArray = [
+  'aria-checked',
+  'aria-disabled',
+  'aria-expanded',
+  'aria-hidden',
+  'aria-pressed',
+  'aria-readonly', 
+  'aria-required',
+  'aria-selected',
+]
 
 export const colorsDict = { 'black': '#000000',
   'silver': '#c0c0c0',
