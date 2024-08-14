@@ -1,5 +1,5 @@
 import './style.css'
-import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, cssAtRules, mediaQueryDict, viewportBreakpoints } from './dictionaries'
+import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, cssAtRules, mediaQueryDict, viewportBreakpoints, pseudoElementsArray, pseudoClassesDict, ariaAttributesDict } from './dictionaries'
 import * as util from './utilities'
 import { inject } from '@vercel/analytics'
 import { createAlert } from "./alerts"
@@ -46,54 +46,192 @@ inputEditor.on('change', () => {
   const cssJSON = tokenize(css)
   // console.log(cssJSON)
   outputTailwindJSON = formatTailwindArrayToDict(convertCSSJSONToTailwind(cssJSON))
-  console.log(outputTailwindJSON)
-  console.log(parseSelectors(outputTailwindJSON));
+  console.log("Flattened CSS Tree JSON: ", outputTailwindJSON)
+  const outputTailwindSelectorPrefixes = parseSelectors(outputTailwindJSON);
+  console.log("Flattened CSS Selector-Prefix: ", outputTailwindSelectorPrefixes)
+  combineSelectorPrefixes(outputTailwindJSON, outputTailwindSelectorPrefixes);
   displayOutputWithSelectors(outputTailwindJSON)
 })
 function parseSelectors(cssObject) {
     const parsedSelectors = {};
 
+    function formatKeyToSelector(selector) {
+      selector = selector.trim().replace(": ", ":");
+      const unsupportedKeywords = ['not', 'or']
+      unsupportedKeywords.forEach(keyword => {
+        // if(selector.includes(`${keyword} `)) createAlert(`The keyword ${keyword}  is not supported yet`, 1)
+      })
+      const matches = selector.match(/\(.*?\)/g);
+      if (matches) {
+        matches.forEach(match => {
+          selector = selector.replace(match, match.replace(/\s/g, ""));
+        });
+      }
+      return selector
+    }
+
     Object.keys(cssObject).forEach(key => {
-        let selector = key.trim();
-        let prefix = "";
+      let selector = formatKeyToSelector(key);
+      // find all the substrings of selector that are inside parentheses, and replace all the spaces in them with nothing
+      
 
-        // Check for @media and @supports rules
-        const atRuleMatch = selector.match(/^(@media|@supports)\s*\(.*?\)\s+(.*)$/);
-        if (atRuleMatch) {
-            prefix = atRuleMatch[1] + selector.match(/\(.*?\)/)[0];
-            selector = atRuleMatch[2].trim();
-        }
+      let prefix = "";
+      
+      const atRuleMatch = selector.match(/^(@media|@supports)/);
+      // \s*\(.*?\)\s+(.*)$
+      const pseudoMatch = selector.match(/:{1,2}[a-zA-Z-]+(?:\s*>\s*\*)?$/);
+      const attributeMatch = selector.match(/(\[.*?\])$/);
+      const pseudoFunctionMatch = selector.match(/:{1,2}[a-zA-Z-]+(\([^)]*\))?$/)
 
-        // Check for pseudo-elements (::) and pseudo-classes (:), remove them from selector
-        const pseudoMatch = selector.match(/(:{1,2}[a-zA-Z-]+)$/);
-        if (pseudoMatch) {
-            prefix += (prefix ? " " : "") + pseudoMatch[0];
-            selector = selector.replace(pseudoMatch[0], "").trim();
-        }
+      // console.log(pseudoMatch)
+      if (atRuleMatch) {
+        const selectorMatch = selector.match(/(?:\([^)]*\)|\b(?:and|not|only|or|all|print|screen)\b|\s)+([\w\s.]+)/)
+        prefix = atRuleMatch[1] + selector.match(/(\(.*?\)|print)/g).join(',');
+        selector = selectorMatch[1].trim();
+        console.log([selector, prefix])
+      }
 
-        // Check for any attribute selectors in []
-        const attributeMatch = selector.match(/(\[.*?\])$/);
-        if (attributeMatch) {
-            prefix += (prefix ? " " : "") + attributeMatch[0];
-            selector = selector.replace(attributeMatch[0], "").trim();
-        }
 
-        // Add the parsed result to the new object
-        parsedSelectors[key] = [selector, prefix];
+      if (pseudoMatch) {
+        prefix += (prefix ? " " : "") + pseudoMatch[0];
+        selector = selector.replace(pseudoMatch[0], "").trim();
+      }
+
+
+      if (attributeMatch) {
+        prefix += (prefix ? " " : "") + attributeMatch[0];
+        selector = selector.replace(attributeMatch[0], "").trim();
+      }
+
+      if (selector.includes("> *")) {
+        prefix += "*";
+        selector = selector.replace("> *", "").trim();
+      }
+
+      prefix = prefix.replace("> *", '*').trim()
+
+
+      parsedSelectors[key] = [selector, prefix];
+      // console.log(`parsed selector: [${parsedSelectors[key]}]`)
     });
 
     return parsedSelectors;
 }
 
+function combineSelectorPrefixes(json, prefixes) {
+  Object.keys(json).forEach(key => {
+      // console.log(key)
+      if (prefixes[key][1] != "") {
+        const prefix = computePrefixes(prefixes[key][1]);
+        const selector = prefixes[key][0];
+        const classes = json[key];
+        classes.forEach((item, index) => {
+          classes[index] = prefix + item;
+        })
 
+        if (json[selector] == undefined) {
+          json[selector] = classes;
+        } else {
+          json[selector].push(...classes);
+        }
+        // console.log("selector: ", `(${selector})`, "\nclasses: ", json[selector])
+        delete json[key];
+      }
+  });
+  console.log(json)
+  return json;
+}
 
+function computePrefixes(prefixes) {
+  let returnPrefixes = ''
+  const splitPrefixes = prefixes.split(' ')
+
+  splitPrefixes.forEach(prefix => {
+    returnPrefixes += computePrefix(prefix)
+  })
+  return returnPrefixes
+}
+
+function computePrefix(prefix) {
+  let returnPrefix = ''
+  if (prefix.includes('*')) {
+    returnPrefix += '*:'
+    prefix = prefix.replace('*', '').trim();
+  }
+  if (prefix.includes('@media')) {
+    prefix = prefix.replace('@media', '').replace('(', '').replace(')', '').trim()
+    const mediaQueries = prefix.split(',').map(query => query.trim())
+    let returnQueryPrefixes = ''
+    mediaQueries.forEach(query => {
+      const [queryPrefix, value] = query.split(':').map(item => item.trim())
+      if (mediaQueryDict.hasOwnProperty(queryPrefix)) {
+        returnQueryPrefixes += `${mediaQueryDict[queryPrefix]}`
+      }
+      if (value != undefined) {
+        if(viewportBreakpoints.hasOwnProperty(value)) {
+          returnQueryPrefixes += `${viewportBreakpoints[value]}`
+        } else if (numberRegex.test(value)) {
+          // console.log(prefix, value)
+          if(prefix.includes('min')) returnQueryPrefixes += `min-w-[${value}]`
+          else returnQueryPrefixes += `[${value}]`
+        } else {
+          returnQueryPrefixes += `${value}`
+        }
+        returnQueryPrefixes = returnQueryPrefixes.replace(' ', '') 
+
+        // The onl edge case where the css prop-value does not match the tailwind prefix
+        if (returnQueryPrefixes.includes('no-preference')) returnQueryPrefixes = returnQueryPrefixes.replace('no-preference', 'safe')
+        returnQueryPrefixes += ':'
+      }
+    })
+    returnPrefix += `${returnQueryPrefixes}`
+  } else if (prefix.includes('@supports')) {
+    console.log(prefix)
+    prefix = prefix.replace('@supports', '').replace('(', '').replace(')', '').trim()
+    const supportQueries = prefix.split(',').map(query => query.replace('(', '').replace(')', '').trim())
+    let returnSupportPrefixes = ''
+    supportQueries.forEach(query => {
+      const [queryPrefix, value] = query.split(':').map(item => item.trim())
+      returnSupportPrefixes += `supports-[${queryPrefix}:${value}]:`
+    })
+    returnPrefix += `${returnSupportPrefixes}`
+  }
+  else if (prefix.includes("::")) {
+    prefix = prefix.replace('::', '')
+    if (pseudoElementsArray.includes(prefix)) returnPrefix += `${prefix}:`
+    else returnPrefix += `![&::${prefix}]:`
+  } else if (prefix.includes(":")) {
+    prefix = prefix.replace(':', '')
+    if (pseudoClassesDict.hasOwnProperty(prefix)) returnPrefix += `${pseudoClassesDict[prefix]}:`
+    else returnPrefix += `![&:${prefix}]:`
+  }
+  
+  if (prefix.includes("[")) {
+    prefix = prefix.replace('[', '').replace(']', '')
+
+    if (prefix.includes('aria')) {
+      let returnAriaPrefix = 'aria-'
+
+      if (ariaAttributesDict.hasOwnProperty(prefix.split("=")[0].trim()) && prefix.includes('true')) returnAriaPrefix += `${ariaAttributesDict[prefix.split("=")[0].replace(/"/g, '').trim()]}:` 
+      else returnAriaPrefix += `[${prefix.split('-')[1].replace(/"/g, '').trim()}]:`
+
+      returnPrefix += returnAriaPrefix
+    }
+    if (prefix.includes('dir')) returnPrefix += `${prefix.replace('dir="', '').replace('"', '')}:`
+    if (prefix.includes('open')) returnPrefix += 'open:'
+    if (prefix.includes('data')) returnPrefix += `[${prefix.split('-')[1].replace(/"/g, '').trim()}]:`
+    
+  }
+  // console.log(returnPrefix)
+  return returnPrefix
+}
 
 
 function formatTailwindArrayToDict(tailwindArray) {
   let tailwindDict = {}
   tailwindArray.forEach((item) => {
     const [selector, classes] = Object.entries(item)[0]
-    console.log(classes)
+    // console.log(classes)
     const splitClasses = splitRules(classes)
     tailwindDict[selector] = splitClasses
   })
@@ -165,6 +303,7 @@ function convertCSSJSONToTailwind(cssObject) {
   }).filter(item => item !== null); // Remove any null items from the result
 }
 
+let isNegative = '';
 function computeTailwindRule(property, value, prefixes="") {
 
 
@@ -184,7 +323,6 @@ function computeTailwindRule(property, value, prefixes="") {
   if(property == "transform") return formatArrayRules(parseTransformRule(value)) // Case #2: The transform property has many different values based on their functions
 
   const unconvertedValue = value
-  if (value.includes(`"`)) console.log(value)
   value = util.convertUnits(value)
 
   if (valueIsNegative(value)) value = util.convertUnits(value).replace('[-', '[');
@@ -377,90 +515,6 @@ function parseEdgeCases(property, value, unconvertedValue) {
 // ! Old Code
 
 
-function parseOutput(cssString) {
-    // Remove @apply and extra spaces
-    const cleanedCss = cssString.replace(/@apply\s+/g, '').trim() // Remove the @apply and any extra spaces
-  
-    let jsonResult = {};
-    
-    
-    const cssRules = cleanedCss.trim().split('}').filter(rule => rule.trim().length > 0).map(str => str.trim()) // cssrules is an
-    // console.log(cleanedCss)
-    
-    cssRules.forEach(rule => {
-      // find duplicate rules
-      
-      // Extract the selector and the class definitions
-      const [selector, classes] = rule.split('{').map(part => part.trim())
-      
-      let classArray = classes.split(/(?<!:)\s+/)
-      if (classArray == undefined) classArray = [classes]
-      classArray = classArray.filter(className => className.length > 0);
-      if(jsonResult[selector] != undefined) {
-        // add the new classes to the old classes, do not remove the old classes
-        jsonResult[selector].push(...classArray)
-      } else {
-        jsonResult[selector] = classArray
-      }
-
-    });
-  jsonResult = resolveDuplicates(jsonResult)
-  // console.log(jsonResult)
-  return jsonResult;
-}
-
-function markDuplicates(arr) {
-  let prefixMap = {}
-  let result = []
-  let duplicateCount = 0
-
-  // Build the prefix map
-  let index = 0
-  arr.forEach((item, index) => {
-    let prefix = item.slice(0, item.lastIndexOf('-'))
-    if(prefix.indexOf('-') == 0) {
-        prefix = prefix.substring(prefix.indexOf('-') + 1)
-      }
-    if (prefixMap[prefix]) {
-      prefixMap[prefix].push(index)
-    } else {
-      prefixMap[prefix] = [index]
-      index++
-    }
-  })
-  // console.table(prefixMap)
-
-  result = Object.keys(prefixMap).forEach((prefix) => {
-    if(prefixMap[prefix].length > 1) {
-      for(let i = 0; i < prefixMap[prefix].length; i++) {
-        
-        let arrIndex = prefixMap[prefix][i]
-        arr[prefixMap[prefix][i]] = `${duplicateCount}?${arr[prefixMap[prefix][i]]}`
-      }
-      duplicateCount++
-    } 
-  })
-
-
-  return arr
-}
-
-
-function resolveDuplicates(json) {
-  Object.keys(json).forEach((selector) => {
-    const classes = json[selector]
-
-    // Resolving direct duplicates
-    const uniqueClasses = [...new Set(classes)]
-    json[selector] = uniqueClasses
-
-    
-    json[selector] = markDuplicates(json[selector])
-    // console.log(json[selector])
-  })
-  return json
-}
-
 function convertLinearWithAvailableValues(propertyName, value, availableValues, backdrop) {
   if(availableValues.includes(Number(value))) return `${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
   else return `${backdrop}${property}-[${value}]` // Else use a arbitrary value
@@ -545,11 +599,7 @@ function convertPropertylessToTailwind(property, value) {
   else return `${value}`
 }
 
-let isNegative = '';
 
-function removeNegative(value) {
-  return value.replace('[-', '').replace(']', '')
-}
 
 function parseTransformRule(value) {
   const transformValues = value.replace(/\)(?=[a-zA-Z])/g, ')) ').split(') ').map(s => s.trim()) // Split the values by the space, after ensuring there are spaces between the functions
@@ -626,34 +676,7 @@ function valueIsNegative(value) {
   }
   
 }
-function handleMediaQueries(mediaQuery) {
-  mediaQuery = mediaQuery.replace('media', '').trim()
-  console.log(mediaQuery)
-  let mediaQueryValues = mediaQuery.split(',').map(s => s.trim())
-  if(mediaQueryValues == undefined) mediaQueryValues = [mediaQuery]
-  let returnPrefixes = ''
-  for(let i = 0; i < mediaQueryValues.length; i++) {
-    mediaQueryValues[i] = mediaQueryValues[i].replace('(', '').replace(')', '')
-    let [prefix, value] = mediaQueryValues[i].split(':').map(s => s.trim())
-    if(mediaQueryDict.hasOwnProperty(prefix)) {
-      returnPrefixes += `${mediaQueryDict[prefix]}`
-    }
-    if(value == undefined) continue
-    if(viewportBreakpoints.hasOwnProperty(value)) {
-      returnPrefixes += `${viewportBreakpoints[value]}`
-    } else if (numberRegex.test(value)) {
-      console.log(prefix, value)
-      if(prefix.includes('min')) returnPrefixes += `min-w-[${value}]`
-      else returnPrefixes += `[${value}]`
-    } else {
-      returnPrefixes += `${value}`
-    }
-    returnPrefixes = returnPrefixes.replace(' ', '') 
 
-    returnPrefixes += ':'
-  }
-  return returnPrefixes
-}
 
 function handleSupportQueries(supportQuery) {
   supportQuery = supportQuery.replace('supports', '').trim()
@@ -668,265 +691,7 @@ function handleSupportQueries(supportQuery) {
   }
   return returnPrefixes
 }
-let insideAtRule = false
-let insideCSSRule = false
-let prefixes = ''
-let line = 0;
-function convertPVPairToTailwind(stylesList, style) {
-  line++
-  let debugStringBuilder = `Line ${line}: \n`
 
-  function appendToStylesList(value, forChip=true) {
-    if(insideCSSRule || insideAtRule || (value != undefined && value.includes(`}`))) {
-      let insideCSSRuleInsideAtRule = insideAtRule && insideCSSRule
-      if(value.includes(`}`)) {
-        if(insideCSSRuleInsideAtRule) insideCSSRule = false
-        else if (insideAtRule) {
-          insideAtRule = false
-          prefixes = ''
-        }
-        else if (insideCSSRule) insideCSSRule = false
-        else prefixes = ''
-      }
-      else if (Array.isArray(value)) {
-        for(let i = 0; i < value.length; i++) {
-          stylesList.push(`${prefixes}${isNegative}${value[i]}`)
-        }
-      }
-      else {
-        if(forChip) stylesList.push(`${prefixes}${isNegative}${value}`)
-        else stylesList.push(`${value}`)
-      }
-
-    } else {
-      // createAlert(`The value ${value} was not inside a CSS rule and was not converted to TailwindCSS`)
-    }
-    // console.log(`${debugStringBuilder}`)
-    
-    return stylesList
-  }
-
-  if(style.includes('{') || style.includes('@')) {
-    // if(insideCSSRule) createAlert('Error: Nested CSS rules are not supported yet')
-    debugStringBuilder += `${style} was the beginning of a CSS rule\n`
-    // console.log(debugStringBuilder)
-    insideCSSRule = true
-    if(style.includes('@')) {
-      debugStringBuilder += `${style} was specifically the beginning of a CSS at-rule\n`
-      style = style.replace('@', '').replace('(', '').replace(')', '').replace('{', '').replace('}', '').trim()
-      if(cssAtRules.includes(style)) {
-        createAlert(`Error: TailwindCSS does not support the @${style.replace('{', '')} at-rule. This rule will not be converted`)
-      }
-      if (style.includes('media')) {
-        insideCSSRule = false
-        insideAtRule = true
-        // createAlert('Error: media queries are not supported yet')
-        prefixes += handleMediaQueries(style)
-      } 
-      if (style.includes('supports')) {
-        prefixes += handleSupportQueries(style)
-      }
-      // TODO: Add support for other at-rules
-      if (style.includes('keyframes')) {
-        createAlert('Error: keyframes are not supported yet')
-      } 
-      if (style.includes('font-face')) {
-        createAlert('Error: font-face is not supported yet')
-      }
-      // console.log(debugStringBuilder)
-      return stylesList
-    }
-    return appendToStylesList(`${style} @apply`, false) // If its the style declaration: list it out and enter a new line
-  } else if(style.includes('}')) {
-    debugStringBuilder += `${style} was the end of a CSS rule\n`
-    return appendToStylesList(`}`, false) // If it is the ending bracket: enter past the styles place the bracket, then enter another new line
-  } else {
-    debugStringBuilder += `${style} was not a special line \n`
-  }
-
-
-  let [property, value] = style.split(':').map(s => s.trim()) // Split up the properties and the styles
-  debugStringBuilder += `property: ${property}, value: ${value}\n`
-  let completeProperty = false
-  
-  if(property.includes('/*')) return stylesList // If it is a comment, ignore it
-  if(value != undefined) {
-    value = value.replace(';', '') // Get rid of the semicolon
-    completeProperty = true
-  }
-
-  
-  if(property == 'filter' || property == 'backdrop-filter') return appendToStylesList(parseFilterRule(property, value))  // Case #1: The filter and backdrop-filter properties all have many different values based on their functions
-  
-  if(property == "transform") return appendToStylesList(parseTransformRule(value)) // Case #2: The transform property has many different values based on their functions
-  
-  value = util.convertUnits(value)
-  
-  // console.log(value)
-  if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', '')).replace('[-', '[')
-    
-    
-  let returnStyles = []
-    // * EDGE CASES
-  switch (property) {
-    // * SINGLE VALUES WITH UNITS
-    // * BORDER CORNER RADIUS
-    // * STYLES THAT NEED REVERTED UNITS
-    case 'text-decoration-thickness':
-      if(numberRegex.test(value)) value = util.revertUnits(unitDict, value).replace('px', '')
-      return appendToStylesList(`decoration-${value}`)
-    case 'text-underline-offset':
-      if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      return appendToStylesList(`underline-offset-${value}`)
-    case 'outline-width':
-      if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      return appendToStylesList(`outline-${value.replace('px', '')}`)
-    case 'outline-offset':
-      if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      return appendToStylesList(`outline-offset-${value.replace('px', '')}`)
-    case 'letter-spacing':
-      value = value.replace('[', '').replace(']', '')
-      return appendToStylesList(`tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
-
-    // * SHORTHANDABLE VALUES EDGE CASES
-    
-    case 'border-radius':
-      let borderRadiuses = value.split(' ')
-      returnStyles = []
-      for(let i = 0; i < borderRadiuses.length; i++) {
-        borderRadiuses[i] = util.translateConvertedToIrregular(borderRadiusUnitDict, borderRadiuses[i])
-      }
-      if (borderRadiuses.length === 1) {
-        returnStyles.push(`rounded-${borderRadiuses[0]}`.replace('-/', ''))
-      } else if (borderRadiuses.length === 2) {
-        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
-        returnStyles.push(`rounded-br-${borderRadiuses[0]}`.replace('-/', ''))
-        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
-        returnStyles.push(`rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
-      } else if (borderRadiuses.length === 3) { 
-        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
-        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
-        returnStyles.push(`rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
-        returnStyles.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
-      } else if (borderRadiuses.length === 4) {
-        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
-        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
-        returnStyles.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
-        returnStyles.push(`rounded-bl-${borderRadiuses[3]}`.replace('-/', ''))
-      }
-      return appendToStylesList(returnStyles)
-
-    case 'inset':
-      const values = value.split(' ')
-      returnStyles = []
-      if (values.length === 1) {
-        returnStyles.push(`inset-${values[0]}`)
-      } else if (values.length === 2) {
-        returnStyles.push(`inset-y-${values[0]}`)
-        returnStyles.push(`inset-x-${values[1]}`)
-      } else if (values.length === 3) {
-        returnStyles.push(`top-${values[0]}`)
-        returnStyles.push(`inset-x-${values[1]}`)
-        returnStyles.push(`bottom-${values[2]}`)
-      } else if (values.length === 4) {
-        returnStyles.push(`top-${values[0]}`)
-        returnStyles.push(`right-${values[1]}`)
-        returnStyles.push(`bottom-${values[2]}`)
-        returnStyles.push(`left-${values[3]}`)
-      }
-      return appendToStylesList(returnStyles)
-
-    // * NUMBER NO UNIT
-    case 'order':
-      if(value == '0') return appendToStylesList(`order-none`)
-      else return appendToStylesList(`order-${value}`)
-    case 'opacity':
-      return appendToStylesList(`opacity-${value * 100}`)
-    case 'aspect-ratio':
-      if(value.includes('1 / 1')) return appendToStylesList(`aspect-square`)
-      if(value.includes('16 / 9')) return appendToStylesList(`aspect-video`)
-      else return appendToStylesList(`aspect-${value}`)
-    case 'font-weight':
-      return appendToStylesList(`font-${util.irregularConvertUnits(fontWeightUnitDict, value)}`)
-    case 'flex-grow':
-      if(value.includes('1')) return appendToStylesList(`grow`)
-      else return appendToStylesList(`grow-0`)
-    case 'flex-shrink':
-      if(value.includes('1')) return appendToStylesList(`shrink`)
-      else return appendToStylesList(`shrink-0`)
-    
-    // * WORDS
-    case 'isolate':
-      if(value.includes('isolate')) return appendToStylesList(`isolate`)
-      else return appendToStylesList(`isolation-${value}`)
-      break
-    case 'flex-direction': return appendToStylesList(`flex-${value}`.replace('column', 'col'))
-  
-    // TODO: Flex
-    case 'grid-auto-flow': return appendToStylesList(`grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
-    
-    case 'font-style': 
-      if(value.includes('italic')) return appendToStylesList(`italic`)
-      else if(value.includes('normal')) return appendToStylesList(`not-italic`)
-    case 'text-transform':
-      if(value.includes('none')) return appendToStylesList(`normal-case`)
-      else return appendToStylesList(`${value}`)
-     case 'overflow-wrap':
-      if(value.include('break-word')) return appendToStylesList(`break-words`)
-      else return appendToStylesList(`${value}`)
-    case 'word-break':
-      if(value.includes('keep-all')) return appendToStylesList(`break-keep`)
-      else return appendToStylesList(`whitespace-pre-${value}`)
-    case 'content':
-      return appendToStylesList(`content-[${value}]`)
-    // case 'transform-origin':
-    //   return appendToStylesList(`origin-${value}`.replace(' ', '-'))
-    case 'resize':
-      if(value.includes('vertical')) return appendToStylesList(`resize-y`)
-      else if(value.includes('horizontal')) return appendToStylesList(`resize-x`)
-      else if(value.includes('both')) return appendToStylesList(`resize`)
-      else return appendToStylesList(`resize-${value}`)
-    case 'scroll-snap-align':
-      if(value.includes('none')) return appendToStylesList(`snap-align-none`)
-      else return appendToStylesList(`snap-${value}`)
-    case 'scroll-snap-type':
-      return stylesList
-
-    // default:
-    //   return appendToStylesList(`![${property}: ${value}]`)
-  } 
-  
-  const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
-  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) return appendToStylesList(convertShorthandToTailwind(property, value));
-
-  if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) {
-    if (value == '') return appendToStylesList(`${singleValueDict[property]}`)
-    else return appendToStylesList(`${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
-  }
-  
-  if (propertylessDict.hasOwnProperty(property)) return appendToStylesList(convertPropertylessToTailwind(property, value)) // Applies to display, position, visibility, etc 
- 
-
-  if (borderRadiusDict.hasOwnProperty(property)) {
-    value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
-    return appendToStylesList(`${borderRadiusDict[property]}-${value}`)
-  }
-
-  if(completeProperty) return appendToStylesList(`![${property}: ${value}]`)
-  
-  
-}
-
-
-function convertCSSToPVPair(css) {
-  line = 0
-  const styles = css.split('\n') // Split styles by line
-    .filter(style => style.trim() !== '') // Remove empty lines
-    .map(style => style.trim()) // Trim leading/trailing spaces
-    .reduce((stylesList, style) => convertPVPairToTailwind(stylesList, style), [])
-  // console.table(styles)
-  return styles.join(' ')
-}
 
 
 

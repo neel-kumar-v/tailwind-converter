@@ -88,7 +88,7 @@ function createOutputSelectorDiv(selector, json) {
     let classButton = createCustomizableButton(className, 'bg-white/[0.1]', '')
     classButton.addEventListener('click', () => copy('the tailwind class', className))
     if(className.includes('!')) {
-      classButton = createCustomizableButton(className.substring(1), 'bg-red-500/[0.5]', '')
+      classButton = createCustomizableButton(className.replace('!', ''), 'bg-red-500/[0.5]', '')
       let tooltip = document.createElement('div')
       tooltip.className = 'tooltip tooltip-error'
       tooltip.setAttribute('data-tooltip', 'No TailwindCSS equivalent: not recommended')
