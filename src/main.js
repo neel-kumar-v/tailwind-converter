@@ -1,11 +1,11 @@
 import './style.css'
-import * as util from './utilities'
+import * as util from './helpers/utilities'
 import { inject } from '@vercel/analytics'
-import { createNotification } from "./notification"
-import { tokenize } from './tokenize'
-import { displayOutputWithSelectors } from './display'
-import { parseSelectors, combineSelectorPrefixes } from './prefix'
-import { convertCSSJSONToTailwind, formatTailwindArrayToDict } from './converter'
+import { createNotification } from "./helpers/notification"
+import { tokenize } from './helpers/tokenize'
+import { displayOutputWithSelectors } from './helpers/display'
+import { parseSelectors, combineSelectorPrefixes } from './helpers/prefix'
+import { convertCSSJSONToTailwind, formatTailwindArrayToDict } from './helpers/converter'
 
 inject() // 
 

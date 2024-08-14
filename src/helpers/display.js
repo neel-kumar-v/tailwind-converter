@@ -1,5 +1,4 @@
-import './style.css'
-import { createNotification } from "./notification"
+
 
 const outputElement = document.getElementById('output');
 

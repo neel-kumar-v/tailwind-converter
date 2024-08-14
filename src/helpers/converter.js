@@ -1,4 +1,3 @@
-import './style.css'
 import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict } from './dictionaries'
 import * as util from './utilities'
 

@@ -133,7 +133,7 @@ function computePrefix(prefix) {
     })
     returnPrefix += `${returnQueryPrefixes}`
   } else if (prefix.includes('@supports')) {
-    console.log(prefix)
+    // console.log(prefix)
     prefix = prefix.replace('@supports', '').replace('(', '').replace(')', '').trim()
     const supportQueries = prefix.split(',').map(query => query.replace('(', '').replace(')', '').trim())
     let returnSupportPrefixes = ''
