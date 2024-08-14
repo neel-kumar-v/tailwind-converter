@@ -24,9 +24,9 @@
     <div class="hidden bg-indigo-500/[0.2]"></div>
     <div class="hidden bg-lime-500/[0.2]"></div>
     <div class="hidden bg-blue-500/[0.2] flex-wrap justify-start mb-3 has-[:hover]:flex-nowrap"></div>
-    <div class="grid grid-cols-3 xl:grid-cols-4 w-screen h-screen overflow-x-hidden "> 
+    <div class="grid grid-cols-3 xl:grid-cols-4 w-screen h-screen overflow-x-hidden"> 
 
-      <div class="w-full pt-12 px-12 row-start-1 h-screen mx-auto bg-[#212121]  ">
+      <div class="w-full pt-12 px-12 row-start-1 h-screen mx-auto bg-[#212121] bg-repeat">
         <div class="flex flex-nowrap justify-between">
           <h1 class="block font-medium text-xl xl:text-3xl  text-white">Input CSS: </h1>
           <div class="text-right translate-y-[-0.5rem]">
@@ -43,9 +43,6 @@
         </div>
         <textarea id="input" name="input" class=""></textarea>
       </div>
-
-      
-
       <div class="pt-12 px-12 w-full h-screen col-span-2 xl:col-span-3  mx-auto bg-[#292929]  ">
         <div class="flex flex-nowrap justify-between">
           <h1 for="input" class="block font-medium text-xl xl:text-3xl  text-white">Output TailwindCSS:</h1>
@@ -67,10 +64,9 @@
 
         </div>
 
-    </div>
-    <script type="module" src="/main.js"></script>
-    <script type="module" src="/display.js"></script>
-    <script type="module" src="/tokenize.js"></script>
+    </div> 
+    <script type="module" src="/main.js" defer></script>
+
   </body>
 </html>
 <!-- 

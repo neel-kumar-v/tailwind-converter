@@ -65,7 +65,8 @@ function createOutputSelectorDiv(selector, json) {
   const selectorCopyButton1 = document.createElement('button')
   selectorCopyButton1.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit xl:mx-3 mx-1 p-1 xl:px-3 px-1 rounded-lg'
   selectorCopyButton1.innerHTML = `
-    <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case">Copy as TailwindCSS directive</p>
+    <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case max-lg:hidden">Copy as CSS with @apply</p>
+    <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case lg:hidden">@apply</p>
     <svg-icon width="5" opacity="75"></svg-icon>
   `
   selectorCopyButton1.addEventListener('click', () => copy('selector tailwind directive ', `${selector} {\n  @apply ${json[selector].join(' ')}\n}`))
@@ -74,7 +75,8 @@ function createOutputSelectorDiv(selector, json) {
   const selectorCopyButton2 = document.createElement('button')
   selectorCopyButton2.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit mx-3 p-1 px-3 rounded-lg'
   selectorCopyButton2.innerHTML = `
-    <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case">Copy as TailwindCSS classes</p>
+    <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case max-lg:hidden">Copy as TailwindCSS classes</p>
+    <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case lg:hidden">Classes</p>
     <svg-icon width="5" opacity="75"></svg-icon>
   `
   selectorCopyButton2.addEventListener('click', () => copy('selector tailwind classes', `${json[selector].join(' ')}`))
