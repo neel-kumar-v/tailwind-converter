@@ -63,12 +63,16 @@ export function convertUnits(value) {
                 returnValues += `${values[i]} `
             }
             returnValue = returnValues.substring(0, returnValues.length - 1)
-        } else if(value.includes('/')) returnValue = '[' + value.replace(/\s+/g, '_') + ']'
+        } else if(value.includes('/')) returnValue = '[' + replaceSpacesWithUnderscores(value) + ']'
         else if(!isDigitWithUnits) returnValue = value // if it is not a digit or it is a digit without a unit
-        else returnValue = '[' + value.replace(/\s+/g, '_') + ']'
+        else returnValue = '[' + replaceSpacesWithUnderscores(value) + ']'
         // console.log(`returned value: ${returnValue}`)
         return returnValue
     }
+}
+
+export function replaceSpacesWithUnderscores(value) {
+    return value.replace(/\s+/g, '_')
 }
 
 function parseRGBA(input) {

@@ -17,7 +17,7 @@ function splitRules(classes) {
   if (classes == undefined) return
   let returnArray = []
   classes.forEach((rule) => {
-    if (!rule.includes(' ') || rule.includes('[')) {
+    if ((!rule.includes(' ') || rule.includes('[')) && !rule.includes('] ')) {
       returnArray.push(rule)
       return
     }
@@ -280,7 +280,8 @@ function parseEdgeCases(property, value, unconvertedValue) {
       break
 
     default:
-      returnStyles.push(`![${property}: ${unconvertedValue}]`)
+      console.log(`(${property}: ${value}) could not be converted, using ${unconvertedValue}`)
+      returnStyles.push(`![${property}:${util.replaceSpacesWithUnderscores(unconvertedValue)}]`)
   } 
   return returnStyles
 }

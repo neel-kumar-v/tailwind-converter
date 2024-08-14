@@ -32,7 +32,7 @@ export function parseSelectors(cssObject) {
 
       // console.log(pseudoMatch)
       if (atRuleMatch) {
-        const selectorMatch = selector.match(/(?:\([^)]*\)|\b(?:and|not|only|or|all|print|screen)\b|\s)+([\w\s.]+)/)
+        const selectorMatch = selector.match(/(?:\([^)]*\)|\b(?:and|not|only|or|all|print|screen)\b|\s)+([\w\s.-]+)/)
         prefix = atRuleMatch[1] + selector.match(/(\(.*?\)|print)/g).join(',');
         selector = selectorMatch[1].trim();
         // console.log([selector, prefix])
@@ -146,11 +146,11 @@ function computePrefix(prefix) {
   else if (prefix.includes("::")) {
     prefix = prefix.replace('::', '')
     if (pseudoElementsArray.includes(prefix)) returnPrefix += `${prefix}:`
-    else returnPrefix += `![&::${prefix}]:`
+    else returnPrefix += `![&::${prefix.replace(' ', '_')}]:`
   } else if (prefix.includes(":")) {
     prefix = prefix.replace(':', '')
     if (pseudoClassesDict.hasOwnProperty(prefix)) returnPrefix += `${pseudoClassesDict[prefix]}:`
-    else returnPrefix += `![&:${prefix}]:`
+    else returnPrefix += `![&:${prefix.replace(' ', '_')}]:`
   }
   
   if (prefix.includes("[")) {

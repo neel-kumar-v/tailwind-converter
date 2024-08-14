@@ -40,11 +40,11 @@ inputEditor.on('change', () => {
   const css = inputEditor.getValue()
 
   const cssJSON = tokenize(css)
-  // console.log(cssJSON)
+  console.log("CSS JSON: ", cssJSON)
   let outputTailwindJSON = formatTailwindArrayToDict(convertCSSJSONToTailwind(cssJSON))
-  // console.log("Flattened CSS Tree JSON: ", outputTailwindJSON)
+  console.log("Flattened CSS Tree JSON: ", outputTailwindJSON)
   const outputTailwindSelectorPrefixes = parseSelectors(outputTailwindJSON);
-  // console.log("Flattened CSS Selector-Prefix: ", outputTailwindSelectorPrefixes)
+  console.log("Flattened CSS Selector-Prefix: ", outputTailwindSelectorPrefixes)
   combineSelectorPrefixes(outputTailwindJSON, outputTailwindSelectorPrefixes);
   displayOutputWithSelectors(outputTailwindJSON)
 })
