@@ -20,7 +20,6 @@ function splitRules(classes) {
     rule = rule.replace('[[', '[').replace(']]', ']')
     if (!rule.includes(' ') && (rule.includes('[') && !rule.includes('] '))) {
       returnArray.push(rule)
-      console.log(rule)
       return
     }
     const rules = rule.split(' ')
@@ -112,7 +111,6 @@ function computeTailwindRule(property, value, prefixes="") {
   
   if (propertylessDict.hasOwnProperty(property)) return formatRule(convertPropertylessToTailwind(property, value)) // Applies to display, position, visibility, etc 
  
-
   if (borderRadiusDict.hasOwnProperty(property)) {
     value = util.translateConvertedToIrregular(borderRadiusUnitDict, value)
     return formatRule(`${borderRadiusDict[property]}-${value}`)
@@ -121,10 +119,7 @@ function computeTailwindRule(property, value, prefixes="") {
   // if(completeProperty) return appendToStylesList(`![${property}: ${value}]`)
 
   let rule = parseEdgeCases(property, value, unconvertedValue)
-  // console.log(rule)
-
   if (rule != undefined && rule.length > 0) return formatArrayRules(rule)
-
   
 }
 
@@ -295,23 +290,33 @@ function parseEdgeCases(property, value, unconvertedValue) {
 }
 
 function convertLinearWithAvailableValues(propertyName, value, availableValues, backdrop) {
-  value = handleNegative(value)
-  if(availableValues.includes(Number(value))) return `${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
-  else return `${backdrop}${propertyName}-[${value}]` // Else use a arbitrary value
+  if (valueIsNegative(value)) {
+    value = util.convertUnits(value.replace('[-', '').replace(']', ''))
+    isNegative = '-'
+  }
+  if(availableValues.includes(Number(value))) return `${isNegative}${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
+  else return `${isNegative}${backdrop}${propertyName}-[${value}]` // Else use a arbitrary value
 }
 
 function convertRotationWithAvailableValues(propertyName, value, availableValues, backdrop) {
-  value = handleNegative(util.toDegrees(value))
+  value = util.toDegrees(value)
+  if (valueIsNegative(value)) {
+    value = util.convertUnits(value.replace('[-', '').replace(']', ''))
+    isNegative = '-'
+  }
   value = value.replace('deg', '')  // Remove the deg from the value for parsing
-  if(availableValues.includes(Number(value))) return `${backdrop}${propertyName}-${value}` // If the newValue is a number tailwind has a builtin number for, then use it
-  else return `${backdrop}${propertyName}-[${value}deg]` // Else use a arbitrary value and add deg back to it 
+  if(availableValues.includes(Number(value))) return `${isNegative}${backdrop}${propertyName}-${value}` // If the newValue is a number tailwind has a builtin number for, then use it
+  else return `${isNegative}${backdrop}${propertyName}-[${value}deg]` // Else use a arbitrary value and add deg back to it 
 }
 
 function convertPercentageScaledWithAvailableValues(propertyName, value, backdrop) {
-  value = handleNegative(value)
-  if(value.includes('100%')) return `${backdrop}${propertyName}` // If the value is 100%, then just use the property name
-  else if(zeroRegex.test(value)) return `${backdrop}${propertyName}-0` // If the value is 0, then just use the property name with a 0
-  else return `${backdrop}${propertyName}-[${value}]` // Else use the property name with the value in brackets
+  if (valueIsNegative(value)) {
+    value = util.convertUnits(value.replace('[-', '').replace(']', ''))
+    isNegative = '-'
+  }
+  if(value.includes('100%')) return `${isNegative}${backdrop}${propertyName}` // If the value is 100%, then just use the property name
+  else if(zeroRegex.test(value)) return `${isNegative}${backdrop}${propertyName}-0` // If the value is 0, then just use the property name with a 0
+  else return `${isNegative}${backdrop}${propertyName}-[${value}]` // Else use the property name with the value in brackets
 }
 
 function parseFilterRule(property, value) {
@@ -414,7 +419,6 @@ function parseTransformRule(value) {
         const availableScaleValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
         if (value.split(' ').length > 1) {
           let [scaleX, scaleY, scaleZ] = value.replace(',', ' ').replace('  ', ' ').split(' ')
-          console.log(scaleX, scaleY)
           returnStyles.push(convertLinearWithAvailableValues('scale-x', scaleX, availableScaleValues, ''))
           returnStyles.push(convertLinearWithAvailableValues('scale-y', scaleY, availableScaleValues, ''))
         } else {

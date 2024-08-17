@@ -42,7 +42,7 @@ function handleHoverOnConflictingClasses(event, isHovering) {
       }
     })
   } else {
-    console.log('mouse out')
+    // console.log('mouse out')
     buttons.forEach(button => {
       button.style.opacity = '1'
     })

@@ -21,12 +21,13 @@ export function parseSelectors(cssObject) {
 
     Object.keys(cssObject).forEach(key => {
       let selector = formatKeyToSelector(key);
+      // console.log(key, selector)
       // find all the substrings of selector that are inside parentheses, and replace all the spaces in them with nothing
       
 
       let prefix = "";
       
-      const atRuleMatch = selector.match(/^(@media|@supports)/);
+      const atRuleMatch = selector.match(/(@media|@supports)/);
       // \s*\(.*?\)\s+(.*)$
       const pseudoMatch = selector.match(/:{1,2}[a-zA-Z-]+(?:\s*>\s*\*)?$/);
       const attributeMatch = selector.match(/(\[.*?\])$/);
@@ -34,10 +35,10 @@ export function parseSelectors(cssObject) {
 
       // console.log(pseudoMatch)
       if (atRuleMatch) {
-        const selectorMatch = selector.match(/(?:\([^)]*\)|\b(?:and|not|only|or|all|print|screen)\b|\s)+([\w\s.-]+)/)
+        const selectorMatch = selector.match(/(\(.*?\)|\s?(print|@media|@supports|and|not|or|all|screen|only|,)\s?)/)[1]
+        ///(?:\([^)]*\)|\b(?:and|not|only|or|all|print|screen)\b|\s)+([\w\s.-]+)
         prefix = atRuleMatch[1] + selector.match(/(\(.*?\)|print)/g).join(',');
-        selector = selectorMatch[1].trim();
-        // console.log([selector, prefix])
+        selector = selector.replace(selectorMatch, "").replace(/\(.*\)/, "").replace(/print|@media|@supports|and|not|or|all|screen|only|,/, "").trim();
       }
 
 
@@ -95,7 +96,7 @@ export function combineSelectorPrefixes(json, prefixes) {
 function computePrefixes(prefixes) {
   let returnPrefixes = ''
   const splitPrefixes = prefixes.split(' ')
-  console.log(splitPrefixes)
+  // console.log(splitPrefixes)
   splitPrefixes.forEach(prefix => {
     returnPrefixes += computePrefix(prefix)
   })
@@ -113,16 +114,17 @@ function computePrefix(prefix) {
     const mediaQueries = prefix.split(',').map(query => query.trim())
     let returnQueryPrefixes = ''
     mediaQueries.forEach(query => {
-      const [queryPrefix, value] = query.split(':').map(item => item.trim())
+      let [queryPrefix, value] = query.replace('(', '').replace(')', '').trim().split(':').map(item => item.trim())
       if (mediaQueryDict.hasOwnProperty(queryPrefix)) {
         returnQueryPrefixes += `${mediaQueryDict[queryPrefix]}`
       }
       if (value != undefined) {
+        value = value.replace('(', '').replace(')', '').trim()
         if(viewportBreakpoints.hasOwnProperty(value)) {
           returnQueryPrefixes += `${viewportBreakpoints[value]}`
         } else if (util.numberRegex.test(value)) {
           // console.log(prefix, value)
-          if(prefix.includes('min')) returnQueryPrefixes += `min-w-[${value}]`
+          if(prefix.includes('min')) returnQueryPrefixes += `max-[${value}]`
           else returnQueryPrefixes += `[${value}]`
         } else {
           returnQueryPrefixes += `${value}`

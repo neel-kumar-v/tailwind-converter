@@ -37,8 +37,10 @@ var inputEditor = CodeMirror.fromTextArea(input, {
   scrollbarStyle: "null",
   placeholder: 'Paste your CSS here',
 })
+
 let outputTailwindJSON
 export let outputTailwindRuleArray = []
+
 inputEditor.on('change', () => {
   const css = inputEditor.getValue()
 
