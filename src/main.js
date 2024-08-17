@@ -29,12 +29,12 @@ tailwindButton.addEventListener('click', () => {
   let outputString = ''
   Object.keys(outputTailwindJSON).forEach(key => {
     if (outputTailwindJSON[key] == '') return
-    outputString += `${key} +  {\n \t@apply `
+    outputString += `${key} {\n \t@apply`
     outputTailwindJSON[key].forEach(rule => {
       if (rule == '') return
-      outputString += `${rule.replace('!', '').trim()} `
+      outputString += ` ${rule.replace('!', '').trim()}`
     })
-    outputString += '\n}\n'
+    outputString += ';\n}\n'
   })
   console.log(outputString)
   util.copy(outputString, 'all TailwindCSS directives')
