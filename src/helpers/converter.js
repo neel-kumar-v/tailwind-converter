@@ -1,6 +1,6 @@
 import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict } from './dictionaries'
 import * as util from './utilities'
-
+const zeroRegex = /0[a-zA-Z]*/
 export function formatTailwindArrayToDict(tailwindArray) {
   let tailwindDict = {}
   tailwindArray.forEach((item) => {
@@ -17,8 +17,10 @@ function splitRules(classes) {
   if (classes == undefined) return
   let returnArray = []
   classes.forEach((rule) => {
-    if ((!rule.includes(' ') || rule.includes('[')) && !rule.includes('] ')) {
+    rule = rule.replace('[[', '[').replace(']]', ']')
+    if (!rule.includes(' ') && (rule.includes('[') && !rule.includes('] '))) {
       returnArray.push(rule)
+      console.log(rule)
       return
     }
     const rules = rule.split(' ')
@@ -97,9 +99,8 @@ function computeTailwindRule(property, value, prefixes="") {
   if(property == "transform") return formatArrayRules(parseTransformRule(value)) // Case #2: The transform property has many different values based on their functions
 
   const unconvertedValue = value
-  value = util.convertUnits(value)
+  value = handleNegative(util.convertUnits(value))
 
-  if (valueIsNegative(value)) value = util.convertUnits(value).replace('[-', '[');
 
   const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
   if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) return formatArrayRules(convertShorthandToTailwind(property, value));
@@ -125,6 +126,14 @@ function computeTailwindRule(property, value, prefixes="") {
   if (rule != undefined && rule.length > 0) return formatArrayRules(rule)
 
   
+}
+
+function handleNegative(value) {
+  if (valueIsNegative(value)){
+    value = value.replace('[-', '').replace(']', '')
+    value = util.convertUnits(value)
+  } 
+  return value
 }
 
 function parseEdgeCases(property, value, unconvertedValue) {
@@ -212,7 +221,7 @@ function parseEdgeCases(property, value, unconvertedValue) {
       break;
     case 'opacity':
       returnStyles.push(`opacity-${value * 100}`)
-        break;
+      break;
     case 'aspect-ratio':
       if(value.includes('1 / 1')) returnStyles.push(`aspect-square`)
       if(value.includes('16 / 9')) returnStyles.push(`aspect-video`)
@@ -276,28 +285,30 @@ function parseEdgeCases(property, value, unconvertedValue) {
       else returnStyles.push(`snap-${value}`)
       break;
     case 'scroll-snap-type':
-      return []
       break
 
     default:
-      console.log(`(${property}: ${value}) could not be converted, using ${unconvertedValue}`)
+      // console.log(`(${property}: ${value}) could not be converted, using ${unconvertedValue}`)
       returnStyles.push(`![${property}:${util.replaceSpacesWithUnderscores(unconvertedValue)}]`)
   } 
   return returnStyles
 }
 
 function convertLinearWithAvailableValues(propertyName, value, availableValues, backdrop) {
+  value = handleNegative(value)
   if(availableValues.includes(Number(value))) return `${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
-  else return `${backdrop}${property}-[${value}]` // Else use a arbitrary value
+  else return `${backdrop}${propertyName}-[${value}]` // Else use a arbitrary value
 }
 
 function convertRotationWithAvailableValues(propertyName, value, availableValues, backdrop) {
+  value = handleNegative(util.toDegrees(value))
   value = value.replace('deg', '')  // Remove the deg from the value for parsing
   if(availableValues.includes(Number(value))) return `${backdrop}${propertyName}-${value}` // If the newValue is a number tailwind has a builtin number for, then use it
   else return `${backdrop}${propertyName}-[${value}deg]` // Else use a arbitrary value and add deg back to it 
 }
 
 function convertPercentageScaledWithAvailableValues(propertyName, value, backdrop) {
+  value = handleNegative(value)
   if(value.includes('100%')) return `${backdrop}${propertyName}` // If the value is 100%, then just use the property name
   else if(zeroRegex.test(value)) return `${backdrop}${propertyName}-0` // If the value is 0, then just use the property name with a 0
   else return `${backdrop}${propertyName}-[${value}]` // Else use the property name with the value in brackets
@@ -341,6 +352,11 @@ function parseFilterRule(property, value) {
       case 'sepia':
         returnStyles.push(convertPercentageScaledWithAvailableValues('sepia', value, backdrop))
         break
+      case 'opacity':
+        const convertedValue = util.convertUnits(value)
+        if ((parseFloat(convertedValue) * 100) % 5 == 0) returnStyles.push(`${backdrop}opacity-${parseFloat(convertedValue) * 100}`)
+        else returnStyles.push(`${backdrop}opacity-[${convertedValue}]`)
+        break  
       default:
         // createNotification(`(${property}: ${value}) could not be converted`, 1)
         returnStyles.push(`!(${property}: ${value})`)
@@ -395,7 +411,15 @@ function parseTransformRule(value) {
         returnStyles.push(convertRotationWithAvailableValues('rotate', value, [0, 1, 2, 3, 6, 12, 45, 90, 180], ''))
         break
       case 'scale':
-        returnStyles.push(convertLinearWithAvailableValues('scale', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
+        const availableScaleValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
+        if (value.split(' ').length > 1) {
+          let [scaleX, scaleY, scaleZ] = value.replace(',', ' ').replace('  ', ' ').split(' ')
+          console.log(scaleX, scaleY)
+          returnStyles.push(convertLinearWithAvailableValues('scale-x', scaleX, availableScaleValues, ''))
+          returnStyles.push(convertLinearWithAvailableValues('scale-y', scaleY, availableScaleValues, ''))
+        } else {
+          returnStyles.push(convertLinearWithAvailableValues('scale', value, availableScaleValues, ''))
+        }
         break
       case 'scaleX':
         returnStyles.push(convertLinearWithAvailableValues('scale-x', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
@@ -409,6 +433,14 @@ function parseTransformRule(value) {
       case 'skewY':
         returnStyles.push(convertRotationWithAvailableValues('skew-y', value, [0, 1, 2, 3, 6, 12], ''))
         break
+      case 'skew':
+        const availableSkewValues = [0, 1, 2, 3, 6, 12]
+        if (value.split(' ').length > 1) {
+          let [skewX, skewY] = value.replace(',', ' ').replace('  ', ' ').split(' ')
+          returnStyles.push(convertRotationWithAvailableValues('skew-x', skewX, availableSkewValues, ''))
+          returnStyles.push(convertRotationWithAvailableValues('skew-y', skewY, availableSkewValues, ''))
+          break
+        } 
       case 'translate':
         let split = value.split(', ')
         let [translateX, translateY, translateZ] = [util.convertUnits(split[0]), util.convertUnits(split[1]), split[2]]
@@ -420,12 +452,12 @@ function parseTransformRule(value) {
         if (valueIsNegative(translateY)) translateY = util.convertUnits(translateY.replace('[-', '').replace(']', ''))
         returnStylesTranslate.push(`translate-y-${translateY}`)
 
-        returnStylesTranslate.push(`transform-[translateZ(${translateZ.replace(/\s/g, '_')})]`)
+        returnStylesTranslate.push(`transform-[translateZ(${util.replaceSpacesWithUnderscores(translateZ)})]`)
         returnStyles.push(...returnStylesTranslate) 
         break
       default:
         // createNotification(`${property}: ${value} could not be converted cleanly`, '1')
-        returnStyles.push(`transform-[${property}(${value.replace(/\s/g, '_')})]`)
+        returnStyles.push(`![${property}:(${util.replaceSpacesWithUnderscores(value)})]`)
         break
       
     }

@@ -156,10 +156,10 @@ export function JSONToStringArray(json) {
   let outputTailwindRuleArray = []
   Object.keys(json).forEach(key => {
     if (json[key] == '') return
-    console.log(json[key])
+    // console.log(json[key])
     let tailwindRule = `${key} {\n \t@apply ${json[key].filter(rule => rule != '').join(' ')};\n}`
     outputTailwindRuleArray.push(tailwindRule)
   })
-  console.log(outputTailwindRuleArray.join('\n'))
+  // console.log(outputTailwindRuleArray.join('\n'))
   return outputTailwindRuleArray
 }

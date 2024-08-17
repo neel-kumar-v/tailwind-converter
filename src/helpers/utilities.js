@@ -65,10 +65,32 @@ export function convertUnits(value) {
             returnValue = returnValues.substring(0, returnValues.length - 1)
         } else if(value.includes('/')) returnValue = '[' + replaceSpacesWithUnderscores(value) + ']'
         else if(!isDigitWithUnits) returnValue = value // if it is not a digit or it is a digit without a unit
-        else returnValue = '[' + replaceSpacesWithUnderscores(value) + ']'
+        else {
+            if (value.includes('turn') || value.includes('rad') || value.includes('grad')) {
+                returnValue = toDegrees(value)
+            }
+            returnValue = '[' + replaceSpacesWithUnderscores(value) + ']'
+        }
         // console.log(`returned value: ${returnValue}`)
         return returnValue
     }
+}
+
+export function toDegrees(value) {
+    if (value.includes('turn')) {
+        let turnValue = value.replace('turn', '')
+        return `${parseFloat(turnValue) * 360}deg`
+    }
+    if (value.includes('rad')) {
+        let radValue = value.replace('rad', '')
+        return `${parseFloat(radValue) * 180 / Math.PI}deg`
+    }
+    if (value.includes('grad')) {
+        let gradValue = value.replace('grad', '')
+        return `${parseFloat(gradValue) * 0.9}deg`
+    }
+    return value
+        
 }
 
 export function replaceSpacesWithUnderscores(value) {
@@ -138,7 +160,7 @@ export function copy(type, text) {
   }
   navigator.clipboard.writeText(text);
   const longText = text.length > 40 ? ' ...' : ''
-  console.log(`text was ${text.length} characters long`, longText)
+//   console.log(`text was ${text.length} characters long`, longText)
   createNotification(`Copied ${type}: ${text.slice(0, 40)}${longText}`, 3);
 }
 

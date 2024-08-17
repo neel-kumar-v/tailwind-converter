@@ -75,6 +75,7 @@ export function combineSelectorPrefixes(json, prefixes) {
         const selector = prefixes[key][0];
         const classes = json[key];
         classes.forEach((item, index) => {
+          // console.log(prefix, item)
           classes[index] = prefix + item;
         })
 
@@ -94,7 +95,7 @@ export function combineSelectorPrefixes(json, prefixes) {
 function computePrefixes(prefixes) {
   let returnPrefixes = ''
   const splitPrefixes = prefixes.split(' ')
-
+  console.log(splitPrefixes)
   splitPrefixes.forEach(prefix => {
     returnPrefixes += computePrefix(prefix)
   })
