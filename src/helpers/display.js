@@ -1,4 +1,4 @@
-
+import { copy } from './utilities.js'
 
 const outputElement = document.getElementById('output');
 
@@ -68,7 +68,7 @@ function createOutputSelectorDiv(selector, json) {
     <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case lg:hidden">@apply</p>
     <svg-icon width="5" opacity="75"></svg-icon>
   `
-  selectorCopyButton1.addEventListener('click', () => copy('selector tailwind directive ', `${selector} {\n  @apply ${json[selector].join(' ')}\n}`))
+  selectorCopyButton1.addEventListener('click', () => copy(`${selector} Tailwind @apply directive `, `${selector} {\n  @apply ${json[selector].join(' ')}\n}`))
   selectorFlexContainer.appendChild(selectorCopyButton1)
   
   const selectorCopyButton2 = document.createElement('button')
@@ -78,7 +78,7 @@ function createOutputSelectorDiv(selector, json) {
     <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case lg:hidden">Classes</p>
     <svg-icon width="5" opacity="75"></svg-icon>
   `
-  selectorCopyButton2.addEventListener('click', () => copy('selector tailwind classes', `${json[selector].join(' ')}`))
+  selectorCopyButton2.addEventListener('click', () => copy(`${selector} Tailwind classes`, `${json[selector].join(' ')}`))
   selectorFlexContainer.appendChild(selectorCopyButton2) 
   outputSelectorDiv.appendChild(selectorFlexContainer)
   
@@ -87,13 +87,15 @@ function createOutputSelectorDiv(selector, json) {
   
   json[selector].forEach(className => {
     let classButton = createCustomizableButton(className, 'bg-white/[0.1]', '')
-    classButton.addEventListener('click', () => copy('the tailwind class', className))
+    classButton.addEventListener('click', () => copy('the Tailwind class', className))
     if(className.includes('!')) {
       classButton = createCustomizableButton(className.replace('!', ''), 'bg-red-500/[0.5]', '')
-      let tooltip = document.createElement('div')
-      tooltip.className = 'tooltip tooltip-error'
-      tooltip.setAttribute('data-tooltip', 'No TailwindCSS equivalent: not recommended')
-      tooltip.appendChild(classButton)
+      classButton.addEventListener('click', () => copy('the Tailwind one-off class', className.replace('!', '')))
+      classesFlexContainer.appendChild(classButton)
+      // let tooltip = document.createElement('div')
+      // tooltip.className = 'tooltip tooltip-error'
+      // tooltip.setAttribute('data-tooltip', 'No TailwindCSS equivalent: not recommended')
+      // tooltip.appendChild(classButton)
       // tooltip.addEventListener('mouseover', (event) => {
       //   let element = findParentBySelector(event.target, 'DIV')
       //   element.classList.add('tooltip-open')
@@ -102,7 +104,6 @@ function createOutputSelectorDiv(selector, json) {
       //   let element = findParentBySelector(event.target, 'DIV')
       //   element.classList.remove('tooltip-open')
       // })
-      classesFlexContainer.appendChild(tooltip)
     }
     else if (className.includes('?')) {
       let colorDict = {
@@ -146,3 +147,19 @@ export function displayOutputWithSelectors(json) {
   Object.keys(json).forEach(selector => createOutputSelectorDiv(selector, json));
 }
 
+
+export function JSONToStringArray(json) {
+  if (json == '') {
+    console.log('Nothing was copied')
+    return
+  }
+  let outputTailwindRuleArray = []
+  Object.keys(json).forEach(key => {
+    if (json[key] == '') return
+    console.log(json[key])
+    let tailwindRule = `${key} {\n \t@apply ${json[key].filter(rule => rule != '').join(' ')};\n}`
+    outputTailwindRuleArray.push(tailwindRule)
+  })
+  console.log(outputTailwindRuleArray.join('\n'))
+  return outputTailwindRuleArray
+}

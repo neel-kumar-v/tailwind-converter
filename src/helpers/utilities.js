@@ -131,7 +131,7 @@ export function translateConvertedToIrregular (irregularUnitDict, value) {
     return value
 }
 // TODO: Fix copycss function
-export function copy(text, type) {
+export function copy(type, text) {
   if(text == '' || text == undefined) {
     createNotification(`Nothing to copy here!`, 3);
     return
