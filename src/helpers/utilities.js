@@ -131,13 +131,14 @@ export function translateConvertedToIrregular (irregularUnitDict, value) {
     return value
 }
 // TODO: Fix copycss function
-export function copy(type, text) {
+export function copy(text, type) {
   if(text == '' || text == undefined) {
     createNotification(`Nothing to copy here!`, 3);
     return
   }
   navigator.clipboard.writeText(text);
   const longText = text.length > 40 ? ' ...' : ''
+  console.log(`text was ${text.length} characters long`, longText)
   createNotification(`Copied ${type}: ${text.slice(0, 40)}${longText}`, 3);
 }
 

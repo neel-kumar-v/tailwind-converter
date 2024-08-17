@@ -1,4 +1,6 @@
 import { mediaQueryDict, viewportBreakpoints, pseudoClassesDict, pseudoElementsArray, ariaAttributesDict } from './dictionaries.js'
+import * as util from './utilities.js'
+
 export function parseSelectors(cssObject) {
     const parsedSelectors = {};
 
@@ -117,7 +119,7 @@ function computePrefix(prefix) {
       if (value != undefined) {
         if(viewportBreakpoints.hasOwnProperty(value)) {
           returnQueryPrefixes += `${viewportBreakpoints[value]}`
-        } else if (numberRegex.test(value)) {
+        } else if (util.numberRegex.test(value)) {
           // console.log(prefix, value)
           if(prefix.includes('min')) returnQueryPrefixes += `min-w-[${value}]`
           else returnQueryPrefixes += `[${value}]`

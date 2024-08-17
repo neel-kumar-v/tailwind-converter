@@ -135,19 +135,19 @@ function parseEdgeCases(property, value, unconvertedValue) {
     // * BORDER CORNER RADIUS
     // * STYLES THAT NEED REVERTED UNITS
     case 'text-decoration-thickness':
-      if(numberRegex.test(value)) value = util.revertUnits(unitDict, value).replace('px', '')
+      if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value).replace('px', '')
       returnStyles.push(`decoration-${value}`)
       break;
     case 'text-underline-offset':
-      if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
+      if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value)
       returnStyles.push(`underline-offset-${value}`)
       break;
     case 'outline-width':
-      if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
+      if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value)
       returnStyles.push(`outline-${value.replace('px', '')}`)
       break;
     case 'outline-offset':
-      if(numberRegex.test(value)) value = util.revertUnits(unitDict, value)
+      if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value)
       returnStyles.push(`outline-offset-${value.replace('px', '')}`)
       break;
     case 'letter-spacing':

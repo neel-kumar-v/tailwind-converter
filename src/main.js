@@ -15,14 +15,29 @@ const tailwindButton = document.getElementById('copytailwind')
 const input = document.getElementById('input')
   
 cssButton.addEventListener('click', () => {
-  util.copy(inputEditor.getValue())
+  const copyText = inputEditor.getValue()
+  console.log(copyText)
+  util.copy(copyText, 'all CSS')
 })
 
 tailwindButton.addEventListener('click', () => {
-  if (outputTailwind == '') {
+  console.log(outputTailwindJSON)
+  if (outputTailwindJSON == '') {
     createNotification('Nothing was copied')
+    return
   }
-  util.copy('all TailwindCSS directives', `${outputTailwind}`)
+  let outputString = ''
+  Object.keys(outputTailwindJSON).forEach(key => {
+    if (outputTailwindJSON[key] == '') return
+    outputString += `${key} +  {\n \t@apply `
+    outputTailwindJSON[key].forEach(rule => {
+      if (rule == '') return
+      outputString += `${rule.replace('!', '').trim()} `
+    })
+    outputString += '\n}\n'
+  })
+  console.log(outputString)
+  util.copy(outputString, 'all TailwindCSS directives')
 })
 
 var inputEditor = CodeMirror.fromTextArea(input, {
@@ -35,13 +50,13 @@ var inputEditor = CodeMirror.fromTextArea(input, {
   scrollbarStyle: "null",
   placeholder: 'Paste your CSS here',
 })
-
+let outputTailwindJSON
 inputEditor.on('change', () => {
   const css = inputEditor.getValue()
 
   const cssJSON = tokenize(css)
   console.log("CSS JSON: ", cssJSON)
-  let outputTailwindJSON = formatTailwindArrayToDict(convertCSSJSONToTailwind(cssJSON))
+  outputTailwindJSON = formatTailwindArrayToDict(convertCSSJSONToTailwind(cssJSON))
   console.log("Flattened CSS Tree JSON: ", outputTailwindJSON)
   const outputTailwindSelectorPrefixes = parseSelectors(outputTailwindJSON);
   console.log("Flattened CSS Selector-Prefix: ", outputTailwindSelectorPrefixes)
