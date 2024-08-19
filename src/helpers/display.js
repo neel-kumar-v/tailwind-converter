@@ -5,7 +5,8 @@ const outputElement = document.getElementById('output');
 
 export function resetDisplay() {
   const outputElement = document.getElementById('output')
-  outputElement.innerHTML = '';
+  outputElement.innerHTML = '<div id="placeholder" class="text-white text-lg">Type, paste, or drag a CSS file into the code editor to get started!</div>';
+  // outputElement.querySelector('#placeholder').classList.remove('hidden');
 }
 
 function createCustomizableButton(text, color, outlineStyles) {
@@ -145,6 +146,7 @@ function createOutputSelectorDiv(selector, json) {
 export function displayOutputWithSelectors(json) {
   // resetDisplay();
   Object.keys(json).forEach(selector => createOutputSelectorDiv(selector, json));
+  outputElement.querySelector('#placeholder').classList.add('hidden');
 }
 
 

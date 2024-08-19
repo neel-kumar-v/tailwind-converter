@@ -25,6 +25,6 @@ So, I made my own converter, with the DX of the first solution and the comprehen
 - [ ] Fix CodeMirror's error highlighting 
 - [ ] Resizable panels
 - [ ] Error handling bad CSS and resetting the display without getting stuck
-- [ ] **CSS constant variable support w/ auto generating Tailwind config file (Current)**
-	- Currently supported through arbitrary values, but the Tailwind config solution would be cleaner
+- [x] CSS constant variable support (Now works but only with global root variables)
+	- [ ] Auto generate tailwind.config.js file with CSS variables
 - [ ] ...

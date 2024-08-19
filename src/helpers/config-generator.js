@@ -8,22 +8,31 @@ export let tailwindThemeConfig = {
     }
 }
 export function parseVariables(json) {
+    // Object.keys(json).forEach(key => {
+    //     const values = json[key]
+    //     values.forEach(value => {
+    //         if (!value.includes('--')) return
+    //         console.log(value)
+    //     })
+        
+    // })
 //   json = removeRoot(json)
 //   console.log("root: ", root)
   json.forEach(tree => {
     if (Object.keys(tree).length == 0) return
-    tree = tree[Object.keys(tree)[0]] // Assumes that each dictionary inside the json has one key, which then has a dictionary with more values as the 
+    tree = tree[Object.keys(tree)[0]] // Assumes that each dictionary inside the json has one key, which then has a dictionary with more values as the
+    // console.log(tree) 
     Object.keys(tree).forEach(key => {
         if (!key.includes('--')) return
         unitDict[`var(${key})`] = key.replace('--', '')
         const value = tree[key]
         delete tree[key]
-        console.log(key, value)
+        // console.log(key, value)
         key = key.replace('--', '')
         if (util.hexColorRegex.test(value)) {
             if (util.numberRegex.test(key)) {
                 const num = util.numberRegex.match(key)
-                console.log(num)
+                // console.log(num)
                 key = key.replace(`-${num}`, '')
                 tailwindThemeConfig.colors.key.num = value
             } else {
@@ -34,6 +43,7 @@ export function parseVariables(json) {
         }
     })
   })
+
   
   console.log(tailwindThemeConfig);
   console.log(unitDict)

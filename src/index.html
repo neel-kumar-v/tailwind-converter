@@ -27,9 +27,8 @@
       
       <div class="w-full pt-12 px-12 row-start-1 h-screen mx-auto bg-[#212121] bg-repeat">
         <div class="flex flex-nowrap justify-between">
-          <h1 class="block font-medium text-xl xl:text-3xl  text-white">Input CSS: </h1>
-          <div class="text-right translate-y-[-0.5rem]">
-            <div class="tooltip tooptip-left" data-tip="Copy all CSS">
+          <h1 class="block font-medium text-xl xl:text-3xl  text-white">Input CSS
+            <div class="tooltip tooptip-left translate-y-[0.1rem]" data-tip="Copy all CSS">
               <button class="group btn btn-link no-underline hover:no-underline w-fit mx-auto " id="copycss">
                 <svg class="w-6 transition-all duration-200 group-hover:scale-125 fill-white aspect-square" viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
                   <g transform="matrix(1.43 0 0 1.43 12 12)" >
@@ -38,15 +37,17 @@
                 </svg>
               </button>
             </div>
+          </h1>
+          <div class="text-right translate-y-[-0.5rem]">
+            
           </div>
         </div>
         <textarea id="input" name="input" class=""></textarea>
       </div>
       <div class="pt-12 px-12 w-full h-screen col-span-2 xl:col-span-3  mx-auto bg-[#292929]  ">
         <div class="flex flex-nowrap justify-between">
-          <h1 for="input" class="block font-medium text-xl xl:text-3xl  text-white">Output TailwindCSS:</h1>
-          <div class="text-right translate-y-[-0.5rem]">
-            <div class="tooltip tooptip-right" data-tip="Copy all TailwindCSS">
+          <h1 for="input" class="block font-medium text-xl xl:text-3xl  text-white">Output TailwindCSS
+            <div class="tooltip tooptip-right translate-y-[0.1rem]" data-tip="Copy all TailwindCSS">
               <button class="group btn btn-link no-underline hover:no-underline w-fit mx-auto " id="copytailwind">
                 <svg class="w-6 transition-all duration-200 group-hover:scale-125 fill-white aspect-square" viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
                   <g transform="matrix(1.43 0 0 1.43 12 12)" >
@@ -55,11 +56,33 @@
                 </svg>
               </button>
             </div>
+          </h1>
+          <div class="text-right">
+            <div class="tooltip tooltip-left hidden" data-tip="View Generated Tailwind Config">
+              <button class="group btn btn-link no-underline hover:no-underline w-fit mx-auto " id="copyconfig">
+              <!-- <button class="inline-flex group cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline  w-fit xl:mx-3 mx-1 p-1 xl:px-3 px-1 rounded-lg h-full"> -->
+                <!-- <p class="mr-4 text-md xl:text-lg text-white font-normal normal-case max-lg:hidden">View generated tailwind.config.js</p>
+                <p class="mr-4 text-md xl:text-lg text-white font-normal normal-case lg:hidden">Config</p> -->
+                <svg class="w-4 stroke-[2] transition-all duration-200 group-hover:scale-125 fill-white aspect-square" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                    viewBox="0 0 384.97 384.97" xml:space="preserve">
+                  <g>
+                    <g id="Fullscreen_1_">
+                      <path d="M372.939,216.545c-6.123,0-12.03,5.269-12.03,12.03v132.333H24.061V24.061h132.333c6.388,0,12.03-5.642,12.03-12.03
+                        S162.409,0,156.394,0H24.061C10.767,0,0,10.767,0,24.061v336.848c0,13.293,10.767,24.061,24.061,24.061h336.848
+                        c13.293,0,24.061-10.767,24.061-24.061V228.395C384.97,221.731,380.085,216.545,372.939,216.545z"/>
+                      <path d="M372.939,0H252.636c-6.641,0-12.03,5.39-12.03,12.03s5.39,12.03,12.03,12.03h91.382L99.635,268.432
+                        c-4.668,4.668-4.668,12.235,0,16.903c4.668,4.668,12.235,4.668,16.891,0L360.909,40.951v91.382c0,6.641,5.39,12.03,12.03,12.03
+                        s12.03-5.39,12.03-12.03V12.03l0,0C384.97,5.558,379.412,0,372.939,0z"/>
+                    </g>
+                  </g>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
         
         <div id="output" class="w-full h-full overflow-y-auto">
-          
+          <div id="placeholder" class="text-white text-lg">Type, paste, or drag a CSS file into the code editor to get started!</div>
 
         </div>
         
