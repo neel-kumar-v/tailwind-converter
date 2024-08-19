@@ -3,10 +3,10 @@ import * as util from './helpers/utilities'
 import { inject } from '@vercel/analytics'
 import { createNotification } from "./helpers/notification"
 import { tokenize } from './helpers/tokenize'
-import { displayOutputWithSelectors, JSONToStringArray } from './helpers/display'
+import { displayOutputWithSelectors, JSONToStringArray, resetDisplay } from './helpers/display'
 import { parseSelectors, combineSelectorPrefixes } from './helpers/prefix'
 import { convertCSSJSONToTailwind, formatTailwindArrayToDict } from './helpers/converter'
-
+import { hasRoot, findRoot, parseVariables } from './helpers/config-generator'
 inject() // 
 
 
@@ -41,14 +41,20 @@ var inputEditor = CodeMirror.fromTextArea(input, {
 let outputTailwindJSON
 export let outputTailwindRuleArray = []
 
-inputEditor.on('change', () => {
-  const css = inputEditor.getValue()
+inputEditor.on('change', main)
 
-  const cssJSON = tokenize(css)
+function main() {
+  resetDisplay()
+  const css = inputEditor.getValue()
+  console.log(css)
+
+  let cssJSON = tokenize(css)
+  cssJSON = parseVariables(cssJSON)
   console.log("CSS JSON: ", cssJSON)
 
   outputTailwindJSON = formatTailwindArrayToDict(convertCSSJSONToTailwind(cssJSON))
   console.log("Flattened CSS Tree JSON: ", outputTailwindJSON)
+
 
   const outputTailwindSelectorPrefixes = parseSelectors(outputTailwindJSON);
   console.log("Flattened CSS Selector-Prefix: ", outputTailwindSelectorPrefixes)
@@ -56,6 +62,4 @@ inputEditor.on('change', () => {
   combineSelectorPrefixes(outputTailwindJSON, outputTailwindSelectorPrefixes);
   displayOutputWithSelectors(outputTailwindJSON)
   outputTailwindRuleArray = JSONToStringArray(outputTailwindJSON)
-})
-
-
+}

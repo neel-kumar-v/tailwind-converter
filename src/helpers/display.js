@@ -3,7 +3,7 @@ import { copy } from './utilities.js'
 const outputElement = document.getElementById('output');
 
 
-function resetDisplay() {
+export function resetDisplay() {
   const outputElement = document.getElementById('output')
   outputElement.innerHTML = '';
 }
@@ -143,7 +143,7 @@ function createOutputSelectorDiv(selector, json) {
 
 
 export function displayOutputWithSelectors(json) {
-  resetDisplay();
+  // resetDisplay();
   Object.keys(json).forEach(selector => createOutputSelectorDiv(selector, json));
 }
 

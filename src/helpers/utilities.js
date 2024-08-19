@@ -1,7 +1,7 @@
-const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
-const otherColorRegex = /^(rgb|rgba|hsl|hsla|hsv|cmyk)\(\s*(-?\d+%?\s*([,\s]+|$)){2,3}(-?\d+%?\s*,?\s*[\d.]*%?\s*)?\)$/
+export const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
+export const otherColorRegex = /^(rgb|rgba|hsl|hsla|hsv|cmyk)\(\s*(-?\d+%?\s*([,\s]+|$)){2,3}(-?\d+%?\s*,?\s*[\d.]*%?\s*)?\)$/
 export const numberRegex = /\d/
-const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|vmax|vmin|vw|%)/
+export const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|vmax|vmin|vw|%)/
 import { unitDict, colorsDict, tailwindColors } from './dictionaries'
 import tinycolor from 'tinycolor2'
 import { createNotification } from './notification'
@@ -36,6 +36,7 @@ export function shorthand(values, property) {
 export function convertUnits(value) {
     if(value != undefined) {
         const coveredByDictionary = unitDict != undefined && unitDict[value] != undefined
+        if(value.includes('var(--')) console.log(value, coveredByDictionary, unitDict, unitDict[value])
         // console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
 
         const isColor = colorsDict[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)

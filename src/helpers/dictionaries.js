@@ -85,7 +85,7 @@ export const propertylessDict = {
   'text-transform': '',
 }
 
-export const unitDict = {
+export let unitDict = {
   // Pixel lengths
   '0px': '0', '0rem': '0', '1px': 'px', '0.0625rem': 'px',
   '2px': '0.5', '0.125rem': '0.5', '4px': '1', '0.25rem': '1',
@@ -358,3 +358,15 @@ export const lineHeightUnitDict = {
   '40px': '10', '2.5rem': '10',
   '1': 'none', '1.25': 'tight', '1.375': 'snug', '1.5': 'normal', '1.625': 'relaxed', '2': 'loose',
 }
+
+export const specialSelectors = [
+  'root',
+  'is',
+  'not',
+  'has',
+  'where',
+  'scope',
+  'host',
+  'host-context',
+]
+  

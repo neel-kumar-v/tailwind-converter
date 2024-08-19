@@ -15,12 +15,16 @@ So, I made my own converter, with the DX of the first solution and the comprehen
 - [x] Recursive Nesting
 - [ ] Animation & transition shorthand support
 - [ ] Border & outline shorthand support
-- [ ] Nested `@media` and `@support` query support
+- [x] Nested `@media` and `@support` query support
+- [x] Arbitrary value support
+- [x] Data attribute support
+- [x] Pseudo-class/element support 
 - [ ] Support for multiple CSS selectors
+- [ ] Create a mode for HTML to be input, such that the HTML and CSS can be merged into one HTML file where possible. (Must come after support for multiple CSS selectors)
 - [ ] Fix browser favicon
 - [ ] Fix CodeMirror's error highlighting 
 - [ ] Resizable panels
-- [ ] Error handling bad CSS and resetting the display
-- [ ] CSS variable support w/ auto generating Tailwind config file
+- [ ] Error handling bad CSS and resetting the display without getting stuck
+- [ ] **CSS constant variable support w/ auto generating Tailwind config file (Current)**
 	- Currently supported through arbitrary values, but the Tailwind config solution would be cleaner
 - [ ] ...

@@ -1,3 +1,5 @@
+import { specialSelectors } from "./dictionaries";
+
 class Tree {
   constructor(value, parent=null) {
     this.value = value;
@@ -28,8 +30,14 @@ export function tokenize(css) {
 
   cssArray.forEach(token => {
     if (token.includes("{")) {
-      const selector = token.replace("{", "").trim();
+      let selector = token.replace('{', '').trim()
+      // edge case for the :root and similar selectors to escape out of the pseudo-classes code system
       // console.log(token, currentTree)
+      specialSelectors.forEach(specialSelector => {
+        if (selector.trim() == `:${specialSelector}`) {
+          selector = selector.replace(`:${specialSelector}`, specialSelector)
+        }
+      })
       if (currentTree === null) {
         currentTree = new Tree(selector);
         cssTreeArray.push(currentTree);
