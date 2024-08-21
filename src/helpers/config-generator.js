@@ -34,9 +34,9 @@ export function parseVariables(json) {
                 const num = util.numberRegex.match(key)
                 // console.log(num)
                 key = key.replace(`-${num}`, '')
-                tailwindThemeConfig.colors.key.num = value
+                tailwindThemeConfig.colors[key].num = value
             } else {
-                tailwindThemeConfig.colors.key = value
+                tailwindThemeConfig.colors[key] = value
             }
         } else if (util.unitRegex.test(value)) {
             tailwindThemeConfig.extend.spacing[key] = value
@@ -45,8 +45,8 @@ export function parseVariables(json) {
   })
 
   
-  console.log(tailwindThemeConfig);
-  console.log(unitDict)
+//   console.log(tailwindThemeConfig);
+//   console.log(unitDict)
   return json
 }
 
