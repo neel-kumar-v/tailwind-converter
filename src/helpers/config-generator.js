@@ -45,7 +45,7 @@ export function parseVariables(json) {
   })
 
   
-//   console.log(tailwindThemeConfig);
+//   console.log(tailwindThemeConfig)
 //   console.log(unitDict)
   return json
 }

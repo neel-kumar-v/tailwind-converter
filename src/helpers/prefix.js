@@ -2,11 +2,11 @@ import { mediaQueryDict, viewportBreakpoints, pseudoClassesDict, pseudoElementsA
 import * as util from './utilities.js'
 
 export function parseSelectors(cssObject) {
-    const parsedSelectors = {};   
+    const parsedSelectors = {}   
     Object.keys(cssObject).forEach(key => {
-      parsedSelectors[key] = calculateSelectorPrefixes(key);
+      parsedSelectors[key] = calculateSelectorPrefixes(key)
       // console.log(`parsed selector: [${parsedSelectors[key]}]`)
-    });
+    })
     let rerun = true
     // while (rerun) {
 
@@ -20,104 +20,104 @@ export function parseSelectors(cssObject) {
       if (pseudoMatch != null) {
         console.log(selector, pseudoMatch[0])
         prefix = `${pseudoMatch[0]} ${prefix}`
-        selector = selector.replace(pseudoMatch[0], "").trim();
+        selector = selector.replace(pseudoMatch[0], "").trim()
       }
     
     
       if (attributeMatch != null) {
         prefix += `${attributeMatch[0]} ${prefix}`
-        selector = selector.replace(attributeMatch[0], "").trim();
+        selector = selector.replace(attributeMatch[0], "").trim()
       }
     
       if (selector.includes("> *")) {
         prefix += `* ${prefix}`
-        selector = selector.replace("> *", "").trim();
+        selector = selector.replace("> *", "").trim()
       }
     
       prefix = prefix.replace("> *", '*').trim()
       console.log("Selector: ", selector, "Prefix: ", prefix)
       parsedSelectors[key] = [selector, prefix]
     })
-    return parsedSelectors;
+    return parsedSelectors
 }
 
 export function combineSelectorPrefixes(json, prefixes) {
   Object.keys(json).forEach(key => {
       // console.log(key)
       if (prefixes[key][1] != "") {
-        const prefix = computePrefixes(prefixes[key][1]);
-        const selector = prefixes[key][0];
-        const classes = json[key];
+        const prefix = computePrefixes(prefixes[key][1])
+        const selector = prefixes[key][0]
+        const classes = json[key]
         classes.forEach((item, index) => {
           // console.log(prefix, item)
-          classes[index] = prefix + item;
+          classes[index] = prefix + item
         })
 
         if (json[selector] == undefined) {
-          json[selector] = classes;
+          json[selector] = classes
         } else {
-          json[selector].push(...classes);
+          json[selector].push(...classes)
         }
         // console.log("selector: ", `(${selector})`, "\nclasses: ", json[selector])
-        delete json[key];
+        delete json[key]
       }
-  });
+  })
 
-  return json;
+  return json
 }
 
 function calculateSelectorPrefixes(key) {
   function formatKeyToSelector(selector) {
-    selector = selector.trim().replace(": ", ":");
+    selector = selector.trim().replace(": ", ":")
     const unsupportedKeywords = ['not', 'or']
     unsupportedKeywords.forEach(keyword => {
       // if(selector.includes(`${keyword} `)) createAlert(`The keyword ${keyword}  is not supported yet`, 1)
     })
-    const matches = selector.match(/\(.*?\)/g);
+    const matches = selector.match(/\(.*?\)/g)
     if (matches) {
       matches.forEach(match => {
-        selector = selector.replace(match, match.replace(/\s/g, ""));
-      });
+        selector = selector.replace(match, match.replace(/\s/g, ""))
+      })
     }
     return selector
   }
 
-  let selector = formatKeyToSelector(key);
+  let selector = formatKeyToSelector(key)
   // console.log(key, selector)
   // find all the substrings of selector that are inside parentheses, and replace all the spaces in them with nothing
   
 
-  let prefix = "";
+  let prefix = ""
   
-  const atRuleMatch = selector.match(/(@media|@supports)/);
+  const atRuleMatch = selector.match(/(@media|@supports)/)
   // \s*\(.*?\)\s+(.*)$
-  const pseudoMatch = selector.match(/:{1,2}[a-zA-Z-]+(?:\s*>\s*\*)?$/);
-  const attributeMatch = selector.match(/(\[.*?\])$/);
+  const pseudoMatch = selector.match(/:{1,2}[a-zA-Z-]+(?:\s*>\s*\*)?$/)
+  const attributeMatch = selector.match(/(\[.*?\])$/)
   const pseudoFunctionMatch = selector.match(/:{1,2}[a-zA-Z-]+(\([^)]*\))?$/)
 
   // console.log(pseudoMatch)
   if (atRuleMatch) {
     const selectorMatch = selector.match(/(\(.*?\)|\s?(print|@media|@supports|and|not|or|all|screen|only|,)\s?)/)[1]
     ///(?:\([^)]*\)|\b(?:and|not|only|or|all|print|screen)\b|\s)+([\w\s.-]+)
-    prefix += atRuleMatch[1] + selector.match(/(\(.*?\)|print)/g).join(',');
-    selector = selector.replace(selectorMatch, "").replace(/\(.*\)/, "").replace(/print|@media|@supports|and|not|or|all|screen|only|,/, "").trim();
+    prefix += atRuleMatch[1] + selector.match(/(\(.*?\)|print)/g).join(',')
+    selector = selector.replace(selectorMatch, "").replace(/\(.*\)/, "").replace(/print|@media|@supports|and|not|or|all|screen|only|,/, "").trim()
   }
 
 
   if (pseudoMatch) {
-    prefix += (prefix ? " " : "") + pseudoMatch[0];
-    selector = selector.replace(pseudoMatch[0], "").trim();
+    prefix += (prefix ? " " : "") + pseudoMatch[0]
+    selector = selector.replace(pseudoMatch[0], "").trim()
   }
 
 
   if (attributeMatch) {
-    prefix += (prefix ? " " : "") + attributeMatch[0];
-    selector = selector.replace(attributeMatch[0], "").trim();
+    prefix += (prefix ? " " : "") + attributeMatch[0]
+    selector = selector.replace(attributeMatch[0], "").trim()
   }
 
   if (selector.includes("> *")) {
-    prefix += "*";
-    selector = selector.replace("> *", "").trim();
+    prefix += "*"
+    selector = selector.replace("> *", "").trim()
   }
 
   prefix = prefix.replace("> *", '*').trim()
@@ -138,7 +138,7 @@ function computePrefix(prefix) {
   let returnPrefix = ''
   if (prefix.includes('*')) {
     returnPrefix += '*:'
-    prefix = prefix.replace('*', '').trim();
+    prefix = prefix.replace('*', '').trim()
   }
   if (prefix.includes('@media')) {
     prefix = prefix.replace('@media', '').replace('(', '').replace(')', '').trim()

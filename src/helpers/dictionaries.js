@@ -149,7 +149,7 @@ export let unitDict = {
   '9999px': 'full', 
   'bold': '700',  'normal': '400', 'light': '300', 'extrabold': '800', 'black': '900',
   'spin 1s linear infinite': 'spin', 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite': 'ping', 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite': 'pulse', 'bounce 1s infinite': 'bounce',
-};
+}
 // TODO: Add more values to the non translate values
 export const nonTranslateValues = [
   'auto', 'avoid', 'all', 'avoid-page', 'page', 'left', 'right', 'column', 'clone', 'slice', 'block', 'inline-block', 'inline', 'flex', 'inline-flex', 'table', 'inline-table', 'table-caption', 'table-cell', 'table-column', 'table-column-group', 'table-footer-group', 'table-header-group', 'table-row-group', 'table-row', 'flow-root', 'grid', 'inline-grid', 'contents', 'list-item', 'start', 'end', 'right', 'left', 'none', 'start', 'end', 'both', 'contain', 'cover', 'fill', 'scale-down', 'bottom', 'center', 'left-bottom', 'left-top', 'right-bottom', 'right-top', 'top', 'auto', 'clip', 'visible', 'scroll', 'static', 'fixed', 'absolute', 'relative', 'sticky', 'row', 'wrap', 'wrap-reverse', 'nowrap', 'dense', 'normal', 'flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly', 'stretch', 'baseline', 'ordinal', 'slashed-zero', 'lining-nums', 'oldstyle-nums', 'proportional-nums', 'tabular-nums', 'diagonal-fractions', 'stacked-fractions', 'inside', 'outside', 'disc', 'decimal', 'justify', 'underline', 'overline', 'line-through', 'solid', 'double', 'dotted', 'dashed', 'wavy', 'from-font', 'uppercase', 'lowercase', 'capitalize', 'ellipsis', 'wrap', 'nowrap', 'balance', 'pretty', 'text-top', 'text-bottom', 'sub', 'super', 'pre', 'pre-line', 'pre-wrap', 'break-spaces', 'manual', 'fixed', 'local', 'scroll', 'text'

@@ -1,12 +1,12 @@
 class SVGIcon extends HTMLElement {
   constructor() {
-    super();
+    super()
   }
   connectedCallback() {
-    const width = this.getAttribute('width') || '5'; // Default width
+    const width = this.getAttribute('width') || '5' // Default width
     let opacity = ''
     if (this.getAttribute('opacity')) {
-      opacity = '/' + this.getAttribute('opacity') || ''; // Default opacity
+      opacity = '/' + this.getAttribute('opacity') || '' // Default opacity
     }
     this.innerHTML = `
     <svg class="w-${width} aspect-square stroke-1 group-hover:scale-125" fill="#ffffff" fill-opacity="${this.getAttribute('opacity') / 100}" viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
@@ -18,4 +18,4 @@ class SVGIcon extends HTMLElement {
   }
 }
 
-customElements.define('svg-icon', SVGIcon);
+customElements.define('svg-icon', SVGIcon)

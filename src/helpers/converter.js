@@ -32,53 +32,53 @@ function splitRules(classes) {
 }
  
 function flattenCSSJSON(obj, prefix = '') {
-  let result = [];
+  let result = []
   
   for (const [key, value] of Object.entries(obj)) {
-    let newKey;
+    let newKey
     if (key.startsWith('&')) {
-      newKey = prefix + key.slice(1);
+      newKey = prefix + key.slice(1)
     } else {
-      newKey = prefix ? `${prefix} ${key}` : key;
+      newKey = prefix ? `${prefix} ${key}` : key
     }
     
     if (typeof value === 'object' && value !== null) {
       if (Object.keys(value).some(k => typeof value[k] === 'object' && value[k] !== null)) {
-        result = result.concat(flattenCSSJSON(value, newKey));
+        result = result.concat(flattenCSSJSON(value, newKey))
       } else {
-        result.push({ [newKey]: value });
+        result.push({ [newKey]: value })
       }
     } else {
       if (result.length === 0 || Object.keys(result[result.length - 1])[0] !== prefix) {
-        result.push({ [prefix]: {} });
+        result.push({ [prefix]: {} })
       }
-      result[result.length - 1][prefix][key] = value;
+      result[result.length - 1][prefix][key] = value
     }
   }
   
-  return result;
+  return result
 }
 
 export function convertCSSJSONToTailwind(cssObject) {
-  const flattenedCSS = cssObject.flatMap(obj => flattenCSSJSON(obj));
+  const flattenedCSS = cssObject.flatMap(obj => flattenCSSJSON(obj))
   
   return flattenedCSS.map(item => {
-    const [selector, styles] = Object.entries(item)[0];
-    const tailwindClasses = [];
+    const [selector, styles] = Object.entries(item)[0]
+    const tailwindClasses = []
     
     for (const [key, value] of Object.entries(styles)) {
       if (typeof value === 'string') {
-        const tailwindRule = computeTailwindRule(key, value);
-        tailwindClasses.push(tailwindRule);
+        const tailwindRule = computeTailwindRule(key, value)
+        tailwindClasses.push(tailwindRule)
       }
     }
     
     // Only return the object if it has any Tailwind classes
-    return tailwindClasses.length > 0 ? { [selector]: tailwindClasses } : null;
-  }).filter(item => item !== null); // Remove any null items from the result
+    return tailwindClasses.length > 0 ? { [selector]: tailwindClasses } : null
+  }).filter(item => item !== null) // Remove any null items from the result
 }
 
-let isNegative = '';
+let isNegative = ''
 function computeTailwindRule(property, value, prefixes="") {
 
 
@@ -102,7 +102,7 @@ function computeTailwindRule(property, value, prefixes="") {
 
 
   const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
-  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) return formatArrayRules(convertShorthandToTailwind(property, value));
+  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) return formatArrayRules(convertShorthandToTailwind(property, value))
 
   if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) {
     if (value == '') return appendToStylesList(`${singleValueDict[property]}`)
@@ -141,26 +141,26 @@ function parseEdgeCases(property, value, unconvertedValue) {
     case 'text-decoration-thickness':
       if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value).replace('px', '')
       returnStyles.push(`decoration-${value}`)
-      break;
+      break
     case 'text-underline-offset':
       if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value)
       returnStyles.push(`underline-offset-${value}`)
-      break;
+      break
     case 'outline-width':
       if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value)
       returnStyles.push(`outline-${value.replace('px', '')}`)
-      break;
+      break
     case 'outline-offset':
       if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value)
       returnStyles.push(`outline-offset-${value.replace('px', '')}`)
-      break;
+      break
     case 'letter-spacing':
       value = value.replace('[', '').replace(']', '')
       returnStyles.push(`tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
 
     // * SHORTHANDABLE VALUES EDGE CASES
     
-      break;
+      break
     case 'border-radius':
       let borderRadiuses = value.split(' ')
       returnStyles = []
@@ -186,7 +186,7 @@ function parseEdgeCases(property, value, unconvertedValue) {
         returnStyles.push(`rounded-bl-${borderRadiuses[3]}`.replace('-/', ''))
       }
       returnStyles.push(returnStyles)
-      break;
+      break
 
     case 'inset':
       const values = value.split(' ')
@@ -207,32 +207,32 @@ function parseEdgeCases(property, value, unconvertedValue) {
         returnStyles.push(`left-${values[3]}`)
       }
       returnStyles.push(returnStyles)
-      break;
+      break
 
     // * NUMBER NO UNIT
     case 'order':
       if(value == '0') returnStyles.push(`order-none`)
       else returnStyles.push(`order-${value}`)
-      break;
+      break
     case 'opacity':
       returnStyles.push(`opacity-${value * 100}`)
-      break;
+      break
     case 'aspect-ratio':
       if(value.includes('1 / 1')) returnStyles.push(`aspect-square`)
       if(value.includes('16 / 9')) returnStyles.push(`aspect-video`)
       else returnStyles.push(`aspect-${value}`)
-      break;
+      break
     case 'font-weight':
       returnStyles.push(`font-${util.irregularConvertUnits(fontWeightUnitDict, value)}`)
-        break;
+        break
     case 'flex-grow':
       if(value.includes('1')) returnStyles.push(`grow`)
       else returnStyles.push(`grow-0`)
-      break;
+      break
     case 'flex-shrink':
       if(value.includes('1')) returnStyles.push(`shrink`)
       else returnStyles.push(`shrink-0`)
-      break;
+      break
     
     // * WORDS
     case 'isolate':
@@ -247,26 +247,26 @@ function parseEdgeCases(property, value, unconvertedValue) {
   
     case 'grid-auto-flow': 
       returnStyles.push(`grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
-      break;
+      break
     case 'font-style': 
       if(value.includes('italic')) returnStyles.push(`italic`)
       else if(value.includes('normal')) returnStyles.push(`not-italic`)
-      break;
+      break
     case 'text-transform':
       if(value.includes('none')) returnStyles.push(`normal-case`)
       else returnStyles.push(`${value}`)
-      break;
+      break
      case 'overflow-wrap':
       if(value.include('break-word')) returnStyles.push(`break-words`)
       else returnStyles.push(`${value}`)
-      break;
+      break
     case 'word-break':
       if(value.includes('keep-all')) returnStyles.push(`break-keep`)
       else returnStyles.push(`whitespace-pre-${value}`)
-      break;
+      break
     case 'content':
       returnStyles.push(`content-[${value}]`)
-      break;
+      break
     // case 'transform-origin':
     //   returnStyles.push(`origin-${value}`.replace(' ', '-'))
     case 'resize':
@@ -274,11 +274,11 @@ function parseEdgeCases(property, value, unconvertedValue) {
       else if(value.includes('horizontal')) returnStyles.push(`resize-x`)
       else if(value.includes('both')) returnStyles.push(`resize`)
       else returnStyles.push(`resize-${value}`)
-      break;
+      break
     case 'scroll-snap-align':
       if(value.includes('none')) returnStyles.push(`snap-align-none`)
       else returnStyles.push(`snap-${value}`)
-      break;
+      break
     case 'scroll-snap-type':
       break
 
