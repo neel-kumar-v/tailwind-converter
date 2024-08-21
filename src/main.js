@@ -2,7 +2,7 @@ import './style.css'
 import * as util from './helpers/utilities'
 import { inject } from '@vercel/analytics'
 import { createNotification } from "./helpers/notification"
-import { tokenize } from './helpers/tokenize'
+import { tokenize, tokenizeMultipleSelectors } from './helpers/tokenize'
 import { displayOutputWithSelectors, JSONToStringArray, resetDisplay } from './helpers/display'
 import { parseSelectors, combineSelectorPrefixes } from './helpers/prefix'
 import { convertCSSJSONToTailwind, formatTailwindArrayToDict } from './helpers/converter'
@@ -43,17 +43,19 @@ export let outputTailwindRuleArray = []
 
 const settings = document.getElementById('settingsModal').getElementsByClassName('modal-box')[0].querySelectorAll('.flex')
 inputEditor.on('change', main)
-settings[0].querySelector('input').addEventListener('change', main)
-settings[1].querySelector('input').addEventListener('change', main)
-settings[2].querySelector('input').addEventListener('change', main)
+settings.forEach(setting => setting.querySelector('input').addEventListener('change', main))
+// settings[0].querySelector('input').addEventListener('change', main)
+// settings[1].querySelector('input').addEventListener('change', main)
+// settings[2].querySelector('input').addEventListener('change', main)
 
 function main() {
   resetDisplay()
   retrieveSettings()
   const css = inputEditor.getValue()
+  let cssJSON;
   // console.log(css)
-
-  let cssJSON = tokenize(css)
+  if (multipleSelectors) cssJSON = tokenizeMultipleSelectors(css)
+  else cssJSON = tokenize(css)
   cssJSON = parseVariables(cssJSON)
   console.log("CSS JSON: ", cssJSON)
 
@@ -73,10 +75,12 @@ function main() {
 export let arbitraryRules
 export let arbitraryPrefixes
 export let remPixelConversionRatio
+export let multipleSelectors
 // console.log(settings)
 export function retrieveSettings() {
   arbitraryRules = settings[0].querySelector('input').checked
   arbitraryPrefixes = settings[1].querySelector('input').checked
   remPixelConversionRatio = parseFloat(settings[2].querySelector('input').value)
-  // console.log(arbitraryRules, arbitraryPrefixes, remPixelConversionRatio)
+  multipleSelectors = settings[3].querySelector('input').checked
+  console.log(arbitraryRules, arbitraryPrefixes, remPixelConversionRatio, multipleSelectors)
 }

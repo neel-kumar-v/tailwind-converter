@@ -35,7 +35,8 @@ export function parseSelectors(cssObject) {
       }
     
       prefix = prefix.replace("> *", '*').trim()
-      console.log("Selector: ", selector, "Prefix: ", prefix)
+      if (selector == "") selector = "*"
+      // console.log("Selector: ", selector, "Prefix: ", prefix)
       parsedSelectors[key] = [selector, prefix]
     })
     return parsedSelectors

@@ -19,12 +19,12 @@ So, I made my own converter, with the DX of the first solution and the comprehen
 - [x] Arbitrary value support
 - [x] Data attribute support
 - [x] Pseudo-class/element support 
-- [ ] Support for multiple CSS selectors
+- [x] Support for multiple CSS selectors
 - [ ] Create a mode for HTML to be input, such that the HTML and CSS can be merged into one HTML file where possible. (Must come after support for multiple CSS selectors)
 - [ ] Fix browser favicon
 - [ ] Fix CodeMirror's error highlighting 
 - [ ] Resizable panels
-- [ ] Error handling bad CSS and resetting the display without getting stuck
+- [x] Error handling bad CSS and resetting the display without getting stuck
 - [x] CSS constant variable support (Now works but only with global root variables)
 	- [ ] Auto generate tailwind.config.js file with CSS variables
 - [ ] ...

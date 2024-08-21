@@ -4,12 +4,11 @@ const zeroRegex = /0[a-zA-Z]*/
 export function formatTailwindArrayToDict(tailwindArray) {
   let tailwindDict = {}
   tailwindArray.forEach((item) => {
-    const [selector, classes] = Object.entries(item)[0]
+    let [selector, classes] = Object.entries(item)[0]
     // console.log(classes)
     const splitClasses = splitRules(classes)
     tailwindDict[selector] = splitClasses
   })
-  // iterate over the tailwinddict 
   return tailwindDict
 }
 

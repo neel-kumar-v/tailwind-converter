@@ -95,7 +95,7 @@
       <script defer src="./helpers/components.js" type="module"></script>
       <script type="module" src="./main.js" defer></script>
       <div role="dialog" id="settingsModal" class="modal z-100">
-        <div class="modal-box bg-[#383838] w-[30vw]">
+        <div class="modal-box bg-[#383838] w-[30vw] min-w-[400px]">
           <form method="dialog">
             <h3 class="text-2xl mb-2 font-bold -translate-y-3">Settings</h3>
             <a class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" href="#">✕</a>
@@ -111,7 +111,10 @@
           <div class="flex flex-row justify-between">
             <p class="py-2">Rem to Pixels Ratio</p>
             <input type="number" value="16" class="max-w-[70px] input-ghost p-3 focus:outline-none focus:bg-black/25 rounded-xl" />
-
+          </div>
+          <div class="flex flex-row justify-between">
+            <p class="py-2">Split Comma-Separated Selectors</p>
+            <input type="checkbox" class="toggle my-auto" checked="checked" />
           </div>
 
         </div>
