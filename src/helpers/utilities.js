@@ -5,6 +5,7 @@ export const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|v
 import { unitDict, colorsDict, tailwindColors } from './dictionaries'
 import tinycolor from 'tinycolor2'
 import { createNotification } from './notification'
+import { remPixelConversionRatio, retrieveSettings } from '../main'
 
 export function shorthand(values, property) {
     let returnStyles = []
@@ -35,19 +36,25 @@ export function shorthand(values, property) {
   
 export function convertUnits(value) {
     if(value != undefined) {
-        const coveredByDictionary = unitDict != undefined && unitDict[value] != undefined
-        if(value.includes('var(--')) console.log(value, coveredByDictionary, unitDict, unitDict[value])
-        // console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
-
-        const isColor = colorsDict[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)
-        // console.log(`convertUnits() - ${value} was a color: ${isColor}`)
-
         const includesMultipleValues = value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/') && !value.includes(',')
         // console.log(`convertUnits() - ${value} includes multiple values: ${includesMultipleValues}`)
         
+        if (value.includes('rem') && !includesMultipleValues) {
+            value = value.replace('rem', '')
+            const num = parseFloat(value)
+            retrieveSettings()
+            value = `${num * remPixelConversionRatio}px`
+        }
+        // console.log(value)
+        const coveredByDictionary = unitDict != undefined && unitDict[value] != undefined
+        // if(value.includes('var(--')) console.log(value, coveredByDictionary, unitDict, unitDict[value])
+        // console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
+        
+        const isColor = colorsDict[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)
+        // console.log(`convertUnits() - ${value} was a color: ${isColor}`)
+        
         const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',') || value.includes('(')
         // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
-        // console.log(value)
 
         let returnValue = ''
 
@@ -95,7 +102,8 @@ export function toDegrees(value) {
 }
 
 export function replaceSpacesWithUnderscores(value) {
-    return value.replace(/\s+/g, '_')
+    // console.log(value)
+    return `${value}`.replace(/\s+/g, '_')
 }
 
 function parseRGBA(input) {

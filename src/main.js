@@ -41,16 +41,22 @@ var inputEditor = CodeMirror.fromTextArea(input, {
 let outputTailwindJSON
 export let outputTailwindRuleArray = []
 
+const settings = document.getElementById('settingsModal').getElementsByClassName('modal-box')[0].querySelectorAll('.flex')
 inputEditor.on('change', main)
+settings[0].querySelector('input').addEventListener('change', main)
+settings[1].querySelector('input').addEventListener('change', main)
+settings[2].querySelector('input').addEventListener('change', main)
 
 function main() {
   resetDisplay()
+  retrieveSettings()
   const css = inputEditor.getValue()
-  console.log(css)
+  // console.log(css)
 
   let cssJSON = tokenize(css)
   cssJSON = parseVariables(cssJSON)
   console.log("CSS JSON: ", cssJSON)
+
 
   outputTailwindJSON = formatTailwindArrayToDict(convertCSSJSONToTailwind(cssJSON))
   console.log("Flattened CSS Tree JSON: ", outputTailwindJSON)
@@ -62,4 +68,15 @@ function main() {
   combineSelectorPrefixes(outputTailwindJSON, outputTailwindSelectorPrefixes);
   displayOutputWithSelectors(outputTailwindJSON)
   outputTailwindRuleArray = JSONToStringArray(outputTailwindJSON)
+}
+
+export let arbitraryRules
+export let arbitraryPrefixes
+export let remPixelConversionRatio
+// console.log(settings)
+export function retrieveSettings() {
+  arbitraryRules = settings[0].querySelector('input').checked
+  arbitraryPrefixes = settings[1].querySelector('input').checked
+  remPixelConversionRatio = parseFloat(settings[2].querySelector('input').value)
+  // console.log(arbitraryRules, arbitraryPrefixes, remPixelConversionRatio)
 }
