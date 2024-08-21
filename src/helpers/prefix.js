@@ -2,69 +2,42 @@ import { mediaQueryDict, viewportBreakpoints, pseudoClassesDict, pseudoElementsA
 import * as util from './utilities.js'
 
 export function parseSelectors(cssObject) {
-    const parsedSelectors = {};
-
-    function formatKeyToSelector(selector) {
-      selector = selector.trim().replace(": ", ":");
-      const unsupportedKeywords = ['not', 'or']
-      unsupportedKeywords.forEach(keyword => {
-        // if(selector.includes(`${keyword} `)) createAlert(`The keyword ${keyword}  is not supported yet`, 1)
-      })
-      const matches = selector.match(/\(.*?\)/g);
-      if (matches) {
-        matches.forEach(match => {
-          selector = selector.replace(match, match.replace(/\s/g, ""));
-        });
-      }
-      return selector
-    }
-
+    const parsedSelectors = {};   
     Object.keys(cssObject).forEach(key => {
-      let selector = formatKeyToSelector(key);
-      // console.log(key, selector)
-      // find all the substrings of selector that are inside parentheses, and replace all the spaces in them with nothing
-      
-
-      let prefix = "";
-      
-      const atRuleMatch = selector.match(/(@media|@supports)/);
-      // \s*\(.*?\)\s+(.*)$
-      const pseudoMatch = selector.match(/:{1,2}[a-zA-Z-]+(?:\s*>\s*\*)?$/);
-      const attributeMatch = selector.match(/(\[.*?\])$/);
-      const pseudoFunctionMatch = selector.match(/:{1,2}[a-zA-Z-]+(\([^)]*\))?$/)
-
-      // console.log(pseudoMatch)
-      if (atRuleMatch) {
-        const selectorMatch = selector.match(/(\(.*?\)|\s?(print|@media|@supports|and|not|or|all|screen|only|,)\s?)/)[1]
-        ///(?:\([^)]*\)|\b(?:and|not|only|or|all|print|screen)\b|\s)+([\w\s.-]+)
-        prefix = atRuleMatch[1] + selector.match(/(\(.*?\)|print)/g).join(',');
-        selector = selector.replace(selectorMatch, "").replace(/\(.*\)/, "").replace(/print|@media|@supports|and|not|or|all|screen|only|,/, "").trim();
-      }
-
-
-      if (pseudoMatch) {
-        prefix += (prefix ? " " : "") + pseudoMatch[0];
-        selector = selector.replace(pseudoMatch[0], "").trim();
-      }
-
-
-      if (attributeMatch) {
-        prefix += (prefix ? " " : "") + attributeMatch[0];
-        selector = selector.replace(attributeMatch[0], "").trim();
-      }
-
-      if (selector.includes("> *")) {
-        prefix += "*";
-        selector = selector.replace("> *", "").trim();
-      }
-
-      prefix = prefix.replace("> *", '*').trim()
-
-
-      parsedSelectors[key] = [selector, prefix];
+      parsedSelectors[key] = calculateSelectorPrefixes(key);
       // console.log(`parsed selector: [${parsedSelectors[key]}]`)
     });
+    let rerun = true
+    // while (rerun) {
 
+    // }
+    Object.keys(parsedSelectors).forEach(key => {
+      let selector = parsedSelectors[key][0]
+      let prefix = parsedSelectors[key][1]
+      const pseudoMatch = selector.match(/:{1,2}[a-zA-Z-]+(?:\s*>\s*\*)?$/)
+      const attributeMatch = selector.match(/(\[.*?\])$/)
+      // console.log(pseudoMatch, attributeMatch) 
+      if (pseudoMatch != null) {
+        console.log(selector, pseudoMatch[0])
+        prefix = `${pseudoMatch[0]} ${prefix}`
+        selector = selector.replace(pseudoMatch[0], "").trim();
+      }
+    
+    
+      if (attributeMatch != null) {
+        prefix += `${attributeMatch[0]} ${prefix}`
+        selector = selector.replace(attributeMatch[0], "").trim();
+      }
+    
+      if (selector.includes("> *")) {
+        prefix += `* ${prefix}`
+        selector = selector.replace("> *", "").trim();
+      }
+    
+      prefix = prefix.replace("> *", '*').trim()
+      console.log("Selector: ", selector, "Prefix: ", prefix)
+      parsedSelectors[key] = [selector, prefix]
+    })
     return parsedSelectors;
 }
 
@@ -91,6 +64,64 @@ export function combineSelectorPrefixes(json, prefixes) {
   });
 
   return json;
+}
+
+function calculateSelectorPrefixes(key) {
+  function formatKeyToSelector(selector) {
+    selector = selector.trim().replace(": ", ":");
+    const unsupportedKeywords = ['not', 'or']
+    unsupportedKeywords.forEach(keyword => {
+      // if(selector.includes(`${keyword} `)) createAlert(`The keyword ${keyword}  is not supported yet`, 1)
+    })
+    const matches = selector.match(/\(.*?\)/g);
+    if (matches) {
+      matches.forEach(match => {
+        selector = selector.replace(match, match.replace(/\s/g, ""));
+      });
+    }
+    return selector
+  }
+
+  let selector = formatKeyToSelector(key);
+  // console.log(key, selector)
+  // find all the substrings of selector that are inside parentheses, and replace all the spaces in them with nothing
+  
+
+  let prefix = "";
+  
+  const atRuleMatch = selector.match(/(@media|@supports)/);
+  // \s*\(.*?\)\s+(.*)$
+  const pseudoMatch = selector.match(/:{1,2}[a-zA-Z-]+(?:\s*>\s*\*)?$/);
+  const attributeMatch = selector.match(/(\[.*?\])$/);
+  const pseudoFunctionMatch = selector.match(/:{1,2}[a-zA-Z-]+(\([^)]*\))?$/)
+
+  // console.log(pseudoMatch)
+  if (atRuleMatch) {
+    const selectorMatch = selector.match(/(\(.*?\)|\s?(print|@media|@supports|and|not|or|all|screen|only|,)\s?)/)[1]
+    ///(?:\([^)]*\)|\b(?:and|not|only|or|all|print|screen)\b|\s)+([\w\s.-]+)
+    prefix += atRuleMatch[1] + selector.match(/(\(.*?\)|print)/g).join(',');
+    selector = selector.replace(selectorMatch, "").replace(/\(.*\)/, "").replace(/print|@media|@supports|and|not|or|all|screen|only|,/, "").trim();
+  }
+
+
+  if (pseudoMatch) {
+    prefix += (prefix ? " " : "") + pseudoMatch[0];
+    selector = selector.replace(pseudoMatch[0], "").trim();
+  }
+
+
+  if (attributeMatch) {
+    prefix += (prefix ? " " : "") + attributeMatch[0];
+    selector = selector.replace(attributeMatch[0], "").trim();
+  }
+
+  if (selector.includes("> *")) {
+    prefix += "*";
+    selector = selector.replace("> *", "").trim();
+  }
+
+  prefix = prefix.replace("> *", '*').trim()
+  return [selector, prefix]
 }
 
 function computePrefixes(prefixes) {
