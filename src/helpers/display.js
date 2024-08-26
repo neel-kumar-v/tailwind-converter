@@ -1,6 +1,8 @@
 import { copy } from './utilities.js'
-
+import { tailwindThemeConfig } from './config-generator.js'
+import { config } from 'daisyui';
 const outputElement = document.getElementById('output');
+const exclamationRegex = /(?<!["'!])!+(?!["'!])/;
 
 
 export function resetDisplay() {
@@ -24,10 +26,21 @@ function createCustomizableButton(text, color, outlineStyles) {
     `
     return button
 }
-
+export function highlightTooltip(element, timeToClose) {
+  element = findParentByClass(element, 'tooltip')
+  element.classList.add('tooltip-open')
+  setTimeout(() => {
+    element.classList.remove('tooltip-open')
+  }, timeToClose)
+}
 function findParentBySelector(element, tagname) {
-  if (element.tagName == tagname) return element
+  if ((element != null && element.tagName == tagname) || element.parentElement == null) return element
   else return findParentBySelector(element.parentElement, tagname)
+}
+
+function findParentByClass(element, classname) {
+  if ((element != null && element.classList.contains(classname)) || element.parentElement == null) return element
+  else return findParentByClass(element.parentElement, classname)
 }
 
 function handleHoverOnConflictingClasses(event, isHovering) {
@@ -89,7 +102,7 @@ function createOutputSelectorDiv(selector, json) {
   json[selector].forEach(className => {
     let classButton = createCustomizableButton(className, 'bg-white/[0.1]', '')
     classButton.addEventListener('click', () => copy('the Tailwind class', className))
-    if(className.includes('!')) {
+    if(exclamationRegex.test(className)) {
       classButton = createCustomizableButton(className.replace('!', ''), 'bg-red-500/[0.5]', '')
       classButton.addEventListener('click', () => copy('the Tailwind one-off class', className.replace('!', '')))
       classesFlexContainer.appendChild(classButton)
@@ -164,4 +177,30 @@ export function JSONToStringArray(json) {
   })
   // console.log(outputTailwindRuleArray.join('\n'))
   return outputTailwindRuleArray
+}
+
+
+export function displayConfigModal(configJSON) {
+  const modal = document.getElementById('configModal')
+  let modalContent = modal.getElementsByClassName('mockup-code')[0]
+  if (Object.keys(configJSON.colors).length == 0 && Object.keys(configJSON.extend.spacing).length == 0) return
+  let outputCodeLines = `<pre><code>module.exports = {</code></pre>`
+  if (Object.keys(configJSON.colors).length > 0) {
+    outputCodeLines += `\n<pre><code class="ml-2">colors: {</code></pre>`
+    Object.keys(configJSON.colors).forEach((color) => {
+      outputCodeLines += `\n<pre><code class="ml-4">${color}: '${configJSON.colors[color]}',</code></pre>`
+    })
+    outputCodeLines += `\n<pre><code class="ml-2">\},</code></pre>`
+  }
+  if (Object.keys(configJSON.extend.spacing).length > 0) {
+    outputCodeLines += `\n<pre><code class="ml-2">extend: {</code></pre>\n<pre><code class="ml-4">spacing: {</code></pre>`
+    Object.keys(configJSON.extend.spacing).forEach((spacing) => {
+      outputCodeLines += `\n<pre><code class="ml-6">${spacing}: '${configJSON.extend.spacing[spacing]}',</code></pre>`
+    })
+    outputCodeLines += `\n<pre><code class="ml-4">},</code></pre>\n<pre><code class="ml-2">},</code></pre>`
+  }
+  outputCodeLines += `\n<pre><code>\}</code></pre>`
+  console.log(outputCodeLines)
+  modalContent.innerHTML = outputCodeLines
+
 }

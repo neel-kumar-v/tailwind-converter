@@ -3,16 +3,18 @@ import * as util from './helpers/utilities'
 import { inject } from '@vercel/analytics'
 import { createNotification } from "./helpers/notification"
 import { tokenize, tokenizeMultipleSelectors } from './helpers/tokenize'
-import { displayOutputWithSelectors, JSONToStringArray, resetDisplay } from './helpers/display'
+import { displayConfigModal, displayOutputWithSelectors, highlightTooltip, JSONToStringArray, resetDisplay } from './helpers/display'
 import { parseSelectors, combineSelectorPrefixes } from './helpers/prefix'
 import { convertCSSJSONToTailwind, formatTailwindArrayToDict } from './helpers/converter'
-import { hasRoot, findRoot, parseVariables } from './helpers/config-generator'
+import { parseVariables, tailwindThemeConfig } from './helpers/config-generator'
+import { highlightActiveLine } from '@codemirror/view'
 inject() // 
 
 
 const cssButton = document.getElementById('copycss')
 const tailwindButton = document.getElementById('copytailwind')
 const input = document.getElementById('input')
+const configModalButton = document.getElementById('copyconfig')
   
 cssButton.addEventListener('click', () => {
   const copyText = inputEditor.getValue()
@@ -52,22 +54,35 @@ function main() {
   resetDisplay()
   retrieveSettings()
   const css = inputEditor.getValue()
+  if (css == '') return
   let cssJSON;
   // console.log(css)
   if (multipleSelectors) cssJSON = tokenizeMultipleSelectors(css)
   else cssJSON = tokenize(css)
   cssJSON = parseVariables(cssJSON)
+  // check if either colors or extend is not empty
+  if (Object.keys(tailwindThemeConfig.colors).length != 0 || Object.keys(tailwindThemeConfig.extend.spacing).length != 0) {
+    displayConfigModal(tailwindThemeConfig)
+    if (configModalButton.classList.contains('hidden')) {
+      configModalButton.classList.remove('hidden')
+      highlightTooltip(configModalButton, 2000)
+    }
+  } else if (configModalButton.classList.contains('hidden') == false) {
+    configModalButton.classList.add('hidden')
+  }
   console.log("CSS JSON: ", cssJSON)
 
 
   outputTailwindJSON = formatTailwindArrayToDict(convertCSSJSONToTailwind(cssJSON))
   console.log("Flattened CSS Tree JSON: ", outputTailwindJSON)
-
-
+  
+  
   const outputTailwindSelectorPrefixes = parseSelectors(outputTailwindJSON);
   console.log("Flattened CSS Selector-Prefix: ", outputTailwindSelectorPrefixes)
-
-  combineSelectorPrefixes(outputTailwindJSON, outputTailwindSelectorPrefixes);
+  
+  combineSelectorPrefixes(outputTailwindJSON, outputTailwindSelectorPrefixes)
+  removeArbitraryRules(outputTailwindJSON, !arbitraryPrefixes, !arbitraryRules)
+  // console.log("Prefixed Tree JSON: ", outputTailwindJSON)
   displayOutputWithSelectors(outputTailwindJSON)
   outputTailwindRuleArray = JSONToStringArray(outputTailwindJSON)
 }
@@ -82,5 +97,29 @@ export function retrieveSettings() {
   arbitraryPrefixes = settings[1].querySelector('input').checked
   remPixelConversionRatio = parseFloat(settings[2].querySelector('input').value)
   multipleSelectors = settings[3].querySelector('input').checked
-  console.log(arbitraryRules, arbitraryPrefixes, remPixelConversionRatio, multipleSelectors)
+  // console.log(arbitraryRules, arbitraryPrefixes, remPixelConversionRatio, multipleSelectors)
+}
+// wait 0.5 seconds and then highlight the tooltip
+// setTimeout
+Array.from(document.querySelectorAll('.tooltip')).
+  filter(tooltip => !tooltip.classList.contains('hidden')).
+  forEach((tooltip, index) => setTimeout(() => highlightTooltip(tooltip, 1000), index * 1000 + 500))
+
+const codeEditors = document.querySelectorAll('.CodeMirror')
+if (codeEditors.length > 1) {
+  codeEditors.forEach((editor, index) => {
+    if (index == 0) return
+    editor.remove()
+  })
+}
+
+const arbitraryPrefixesRegex = /!(?![^"]*["])[^!]*:/
+const arbitraryRulesRegex = /:(?![^"]*["])[^:]*!/
+
+function removeArbitraryRules(json, removeArbitraryPrefixes, removeArbitraryRules) {
+  Object.keys(json).forEach(key => {
+    if (removeArbitraryRules) json[key] = json[key].filter(rule => !arbitraryRulesRegex.test(rule))
+    if (removeArbitraryPrefixes) json[key] = json[key].filter(rule => !arbitraryPrefixesRegex.test(rule))
+  })
+  return json
 }

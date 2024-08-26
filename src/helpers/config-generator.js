@@ -45,7 +45,7 @@ export function parseVariables(json) {
   })
 
   
-//   console.log(tailwindThemeConfig)
+  console.log(toString(tailwindThemeConfig))
 //   console.log(unitDict)
   return json
 }
@@ -63,6 +63,25 @@ export function findRoot(json) {
   }
   return undefined
 }
-function removeRoot(json) {
-  return json.filter(tree => tree["root"] == undefined)
+export function toString(configJSON) {
+    let colors = 'colors: {\n'
+    let spacing = 'extend: {\n\tspacing: {\n'
+    Object.keys(configJSON.colors).forEach(key => {
+        colors += `${key}: ${configJSON.colors[key]},\n`
+    })
+    colors += '},\n'
+    if (colors === 'colors: {\n},\n') colors = ''
+    Object.keys(configJSON.extend.spacing).forEach(key => {
+        spacing += `${key}: ${configJSON.extend.spacing[key]},\n`
+    })
+    spacing += '},\n'
+    if (spacing === 'extend: {\n\tspacing: {\n},\n') spacing = ''
+    const output = `
+    theme: {
+        ${colors}
+        ${spacing}
+    }
+    `
+    // console.log(output)
+    return output
 }

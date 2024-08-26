@@ -37,16 +37,31 @@ export function tokenizeMultipleSelectors(css) {
       })
 
       let selectors = selector.split(",").map(item => item.trim())
-      
-      currentTrees = selectors.map(singleSelector => {
-        if (currentTrees.length === 0) {
+      if (currentTrees.length === 0) {
+        selectors.forEach(singleSelector => {
           const newTree = new Tree(singleSelector)
           cssTreeArray.push(newTree)
-          return newTree
-        } else {
-          return currentTrees[0].addChild(singleSelector)
-        }
-      })
+          currentTrees.push(newTree)
+        })
+      } else {
+        const newTrees = []
+        currentTrees.forEach(tree => {
+          selectors.forEach(singleSelector => {
+            newTrees.push(tree.addChild(singleSelector))
+          })
+        })
+        currentTrees = newTrees
+      }
+      // currentTrees = selectors.map(singleSelector => {
+      //   if (currentTrees.length === 0) {
+      //     const newTree = new Tree(singleSelector)
+      //     cssTreeArray.push(newTree)
+      //     return newTree
+      //   } else {
+      //     console.log(currentTrees)
+      //     return currentTrees[0].addChild(singleSelector)
+      //   }
+      // })
     } else if (token === "}") {
       currentTrees = currentTrees.map(tree => tree.parent).filter(Boolean)
     } else if (token.includes(":")) {

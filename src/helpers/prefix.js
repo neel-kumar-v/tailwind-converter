@@ -18,7 +18,7 @@ export function parseSelectors(cssObject) {
       const attributeMatch = selector.match(/(\[.*?\])$/)
       // console.log(pseudoMatch, attributeMatch) 
       if (pseudoMatch != null) {
-        console.log(selector, pseudoMatch[0])
+        // console.log(selector, pseudoMatch[0])
         prefix = `${pseudoMatch[0]} ${prefix}`
         selector = selector.replace(pseudoMatch[0], "").trim()
       }
@@ -36,7 +36,6 @@ export function parseSelectors(cssObject) {
     
       prefix = prefix.replace("> *", '*').trim()
       if (selector == "") selector = "*"
-      // console.log("Selector: ", selector, "Prefix: ", prefix)
       parsedSelectors[key] = [selector, prefix]
     })
     return parsedSelectors
@@ -101,7 +100,23 @@ function calculateSelectorPrefixes(key) {
     const selectorMatch = selector.match(/(\(.*?\)|\s?(print|@media|@supports|and|not|or|all|screen|only|,)\s?)/)[1]
     ///(?:\([^)]*\)|\b(?:and|not|only|or|all|print|screen)\b|\s)+([\w\s.-]+)
     prefix += atRuleMatch[1] + selector.match(/(\(.*?\)|print)/g).join(',')
-    selector = selector.replace(selectorMatch, "").replace(/\(.*\)/, "").replace(/print|@media|@supports|and|not|or|all|screen|only|,/, "").trim()
+    const isQueryFirst = selector.startsWith(atRuleMatch[0])
+    if (isQueryFirst) {
+      const lastIndex = Math.max(
+        selector.lastIndexOf(')'),
+        selector.lastIndexOf('print'),
+        selector.lastIndexOf('screen')
+      );
+  
+      if (lastIndex !== -1) {
+        // Get the second half of the string from that index and trim it
+        selector = selector.substring(lastIndex + 1).trim();
+      } else {
+        selector = selector.replace(selectorMatch, "").replace(/\(.*\)/, "").replace(/print|@media|@supports|and|not|or|all|screen|only|,/, "").trim()
+      }
+    } else {
+      selector = selector.split('@')[0].trim()
+    }
   }
 
 
