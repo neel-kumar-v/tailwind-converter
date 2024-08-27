@@ -184,22 +184,22 @@ export function displayConfigModal(configJSON) {
   const modal = document.getElementById('configModal')
   let modalContent = modal.getElementsByClassName('mockup-code')[0]
   if (Object.keys(configJSON.colors).length == 0 && Object.keys(configJSON.extend.spacing).length == 0) return
-  let outputCodeLines = `<pre><code>module.exports = {</code></pre>`
+  let outputCodeLines = `<pre><code>module.exports = {</code></pre>\n<pre><code class="ml-2">theme: {</code></pre>`
   if (Object.keys(configJSON.colors).length > 0) {
-    outputCodeLines += `\n<pre><code class="ml-2">colors: {</code></pre>`
+    outputCodeLines += `\n<pre><code class="ml-4">colors: {</code></pre>`
     Object.keys(configJSON.colors).forEach((color) => {
-      outputCodeLines += `\n<pre><code class="ml-4">${color}: '${configJSON.colors[color]}',</code></pre>`
+      outputCodeLines += `\n<pre><code class="ml-6">${color}: '${configJSON.colors[color]}',</code></pre>`
     })
-    outputCodeLines += `\n<pre><code class="ml-2">\},</code></pre>`
+    outputCodeLines += `\n<pre><code class="ml-4">\},</code></pre>`
   }
   if (Object.keys(configJSON.extend.spacing).length > 0) {
-    outputCodeLines += `\n<pre><code class="ml-2">extend: {</code></pre>\n<pre><code class="ml-4">spacing: {</code></pre>`
+    outputCodeLines += `\n<pre><code class="ml-4">extend: {</code></pre>\n<pre><code class="ml-6">spacing: {</code></pre>`
     Object.keys(configJSON.extend.spacing).forEach((spacing) => {
-      outputCodeLines += `\n<pre><code class="ml-6">${spacing}: '${configJSON.extend.spacing[spacing]}',</code></pre>`
+      outputCodeLines += `\n<pre><code class="ml-8">${spacing}: '${configJSON.extend.spacing[spacing]}',</code></pre>`
     })
-    outputCodeLines += `\n<pre><code class="ml-4">},</code></pre>\n<pre><code class="ml-2">},</code></pre>`
+    outputCodeLines += `\n<pre><code class="ml-6">},</code></pre>\n<pre><code class="ml-4">},</code></pre>`
   }
-  outputCodeLines += `\n<pre><code>\}</code></pre>`
+  outputCodeLines += `\n<pre><code class="ml-2">},</code></pre>\n<pre><code>}</code></pre>`
   console.log(outputCodeLines)
   modalContent.innerHTML = outputCodeLines
 
