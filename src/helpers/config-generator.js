@@ -1,5 +1,7 @@
+import { completeFromList } from "@codemirror/autocomplete"
 import { unitDict } from "./dictionaries"
 import * as util from "./utilities"
+import { config } from "daisyui"
 
 export let tailwindThemeConfig = {
     colors: {},
@@ -64,24 +66,43 @@ export function findRoot(json) {
   return undefined
 }
 export function toString(configJSON) {
-    let colors = 'colors: {\n'
-    let spacing = 'extend: {\n\tspacing: {\n'
-    Object.keys(configJSON.colors).forEach(key => {
-        colors += `${key}: ${configJSON.colors[key]},\n`
-    })
-    colors += '},\n'
-    if (colors === 'colors: {\n},\n') colors = ''
-    Object.keys(configJSON.extend.spacing).forEach(key => {
-        spacing += `${key}: ${configJSON.extend.spacing[key]},\n`
-    })
-    spacing += '},\n'
-    if (spacing === 'extend: {\n\tspacing: {\n},\n') spacing = ''
-    const output = `
+  if (configJSON === undefined) return ''
+  if (Object.keys(configJSON).length === 0 && Object.keys(configJSON.extend.spacing) === 0) return ''
+  let colors = 'colors: {\n\t'
+  Object.keys(configJSON.colors).forEach(key => {
+    colors += `\t\t${key}: ${configJSON.colors[key]},\n`
+  })
+  colors += '\t\t},\n'
+  if (colors === 'colors: {\n\t},\n') colors = ''
+  let spacing = 'extend: {\n\tspacing: {\n\t'
+  Object.keys(configJSON.extend.spacing).forEach(key => {
+    spacing += `${key}: ${configJSON.extend.spacing[key]},\n`
+  })
+  spacing += '},'
+  if (spacing === 'extend: {\n\tspacing: {\n\t},') spacing = ''
+  let output = `
+  module.exports = {
     theme: {
         ${colors}
         ${spacing}
-    }
-    `
-    // console.log(output)
-    return output
+    },
+  }
+  `
+  
+  output = output.replace(/^\s*[\r\n]/gm, '')
+  // console.log(output)
+  return output
 }
+
+// module.exports = {
+//   theme: {
+//       colors: {
+// some-color: #090909,
+// },
+
+//       extend: {
+// spacing: {
+// },
+
+//   },
+// }

@@ -1,5 +1,5 @@
 import { copy } from './utilities.js'
-import { tailwindThemeConfig } from './config-generator.js'
+import { toString } from './config-generator.js'
 import { config } from 'daisyui';
 const outputElement = document.getElementById('output');
 const exclamationRegex = /(?<!["'!])!+(?!["'!])/;
@@ -203,4 +203,8 @@ export function displayConfigModal(configJSON) {
   console.log(outputCodeLines)
   modalContent.innerHTML = outputCodeLines
 
+  let copyButton = document.getElementById('copyConfig')
+  copyButton.addEventListener('click', () => copy('the generated tailwind.config.js', toString(configJSON)))
+
 }
+

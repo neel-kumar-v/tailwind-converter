@@ -60,7 +60,6 @@ function main() {
   if (multipleSelectors) cssJSON = tokenizeMultipleSelectors(css)
   else cssJSON = tokenize(css)
   cssJSON = parseVariables(cssJSON)
-  // check if either colors or extend is not empty
   if (Object.keys(tailwindThemeConfig.colors).length != 0 || Object.keys(tailwindThemeConfig.extend.spacing).length != 0) {
     displayConfigModal(tailwindThemeConfig)
     if (configModalButton.classList.contains('hidden')) {
