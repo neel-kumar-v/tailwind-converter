@@ -201,7 +201,7 @@ export function displayConfigModal(configJSON) {
   }
   outputCodeLines += `\n<pre><code class="ml-2">},</code></pre>\n<pre><code>}</code></pre>`
   console.log(outputCodeLines)
-  modalContent.innerHTML = outputCodeLines
+  modalContent.innerHTML = outputCodeLines; //skjbwius
 
   let copyButton = document.getElementById('copyConfig')
   copyButton.addEventListener('click', () => copy('the generated tailwind.config.js', toString(configJSON)))
