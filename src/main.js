@@ -51,7 +51,7 @@ settings.forEach(setting => setting.querySelector('input').addEventListener('cha
 // settings[2].querySelector('input').addEventListener('change', main)
 
 function main() {
-  track('Conversion')
+  // track('Conversion')
   resetDisplay()
   retrieveSettings()
   const css = inputEditor.getValue()
