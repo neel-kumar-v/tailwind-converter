@@ -82,7 +82,7 @@ function main() {
   
   combineSelectorPrefixes(outputTailwindJSON, outputTailwindSelectorPrefixes)
   removeArbitraryRules(outputTailwindJSON, !arbitraryPrefixes, !arbitraryRules)
-  // console.log("Prefixed Tree JSON: ", outputTailwindJSON)
+  console.log("Prefixed Tree JSON: ", outputTailwindJSON)
   displayOutputWithSelectors(outputTailwindJSON)
   outputTailwindRuleArray = JSONToStringArray(outputTailwindJSON)
 }

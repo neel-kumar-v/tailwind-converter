@@ -2,7 +2,7 @@ import { copy } from './utilities.js'
 import { toString } from './config-generator.js'
 import { config } from 'daisyui';
 const outputElement = document.getElementById('output');
-const exclamationRegex = /(?<!["'!])!+(?!["'!])/;
+const exclamationRegex = /(?<!["'!])!+(?!["'!])/g;
 
 
 export function resetDisplay() {
@@ -102,8 +102,8 @@ function createOutputSelectorDiv(selector, json) {
   json[selector].forEach(className => {
     let classButton = createCustomizableButton(className, 'bg-white/[0.1]', '')
     classButton.addEventListener('click', () => copy('the Tailwind class', className))
-    if(exclamationRegex.test(className)) {
-      classButton = createCustomizableButton(className.replace('!', ''), 'bg-red-500/[0.5]', '')
+    if(exclamationRegex.test(className) || className.includes('![')) {
+      classButton = createCustomizableButton(className.replace(/!/g, ''), 'bg-red-500/[0.5]', '')
       classButton.addEventListener('click', () => copy('the Tailwind one-off class', className.replace('!', '')))
       classesFlexContainer.appendChild(classButton)
       // let tooltip = document.createElement('div')
