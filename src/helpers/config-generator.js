@@ -93,6 +93,3 @@ export function toString(configJSON) {
   // console.log(output)
   return output
 }
-
-//   },
-// }
