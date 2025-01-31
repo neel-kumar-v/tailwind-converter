@@ -94,15 +94,5 @@ export function toString(configJSON) {
   return output
 }
 
-// module.exports = {
-//   theme: {
-//       colors: {
-// some-color: #090909,
-// },
-
-//       extend: {
-// spacing: {
-// },
-
 //   },
 // }
