@@ -56,6 +56,10 @@ export function convertUnits(value) {
         const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',') || value.includes('(')
         // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
 
+        const isRatio = value.includes('/') && !value.includes('var(')
+        // console.log(`convertUnits() - ${value} is a ratio: ${isRatio}`)
+        const isSimpleVariable = value.includes('var(--') && value.split('(').length == 2
+
         let returnValue = ''
 
         // console.log(coveredByDictionary, isColor, includesMultipleValues, !isDigitWithUnits, value.includes('/'))
@@ -63,6 +67,8 @@ export function convertUnits(value) {
 
         if(coveredByDictionary) returnValue = unitDict[value]
         else if(isColor) returnValue = handleColors(value)
+        else if(isSimpleVariable) returnValue = handleVariable(value)
+        else if(isRatio) returnValue = handleRatio(value)
         else if(includesMultipleValues) {
             let values = value.split(' ')
             let returnValues = ''
@@ -124,7 +130,15 @@ function parseRGBA(input) {
     return input
 }
 
+function handleRatio(value) {
+  const [width, height] = value.split('/')
+  return `${width.trim()}/${height.trim()}`
+}
 
+function handleVariable(value) {
+  const variableName = value.replace('var(--', '').replace(')', '')
+  return `(${variableName})`
+}
 
 function handleColors(value) {
     if(colorsDict[value] != undefined) value = colorsDict[value]

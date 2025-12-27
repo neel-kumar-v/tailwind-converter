@@ -21,7 +21,6 @@ export const singleValueDict = {
   'transition-duration': 'duration', 'transition-delay': 'delay', 'transition-timing-function': 'ease',
   'grid-row-start': 'row-start', 'grid-row-end': 'row-end', 'grid-column-start': 'col-start', 'grid-column-end': 'col-end', 
   'z-index': 'z',
-  'columns': 'columns',
   'break-after': 'break-after', 'break-before': 'break-before', 'break-inside': 'break-inside',
   'box-decoration-break-inside': 'box-decoration',
   'box-sizing': 'box',
@@ -74,6 +73,8 @@ export const singleValueDict = {
   'overflow-wrap': 'break', 'word-break': 'break', 
   'column-reverse': 'col-reverse', 'row-reverse': 'row-reverse',
   'box-shadow': 'shadow',
+  'box-decoration-break': 'box-decoration',
+  'overscroll-behavior': 'overscroll', 'overscroll-behavior-x': 'overscroll-x', 'overscroll-behavior-y': 'overscroll-y',
 }
 
 export const propertylessDict = {
@@ -153,7 +154,7 @@ export let unitDict = {
 }
 // TODO: Add more values to the non translate values
 export const nonTranslateValues = [
-  'auto', 'avoid', 'all', 'avoid-page', 'page', 'left', 'right', 'column', 'clone', 'slice', 'block', 'inline-block', 'inline', 'flex', 'inline-flex', 'table', 'inline-table', 'table-caption', 'table-cell', 'table-column', 'table-column-group', 'table-footer-group', 'table-header-group', 'table-row-group', 'table-row', 'flow-root', 'grid', 'inline-grid', 'contents', 'list-item', 'start', 'end', 'right', 'left', 'none', 'start', 'end', 'both', 'contain', 'cover', 'fill', 'scale-down', 'bottom', 'center', 'left-bottom', 'left-top', 'right-bottom', 'right-top', 'top', 'auto', 'clip', 'visible', 'scroll', 'static', 'fixed', 'absolute', 'relative', 'sticky', 'row', 'wrap', 'wrap-reverse', 'nowrap', 'dense', 'normal', 'flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly', 'stretch', 'baseline', 'ordinal', 'slashed-zero', 'lining-nums', 'oldstyle-nums', 'proportional-nums', 'tabular-nums', 'diagonal-fractions', 'stacked-fractions', 'inside', 'outside', 'disc', 'decimal', 'justify', 'underline', 'overline', 'line-through', 'solid', 'double', 'dotted', 'dashed', 'wavy', 'from-font', 'uppercase', 'lowercase', 'capitalize', 'ellipsis', 'wrap', 'nowrap', 'balance', 'pretty', 'text-top', 'text-bottom', 'sub', 'super', 'pre', 'pre-line', 'pre-wrap', 'break-spaces', 'manual', 'fixed', 'local', 'scroll', 'text'
+  'auto', 'avoid', 'all', 'avoid-page', 'avoid-column', 'page', 'left', 'right', 'column', 'clone', 'slice', 'block', 'inline-block', 'inline', 'flex', 'inline-flex', 'table', 'inline-table', 'table-caption', 'table-cell', 'table-column', 'table-column-group', 'table-footer-group', 'table-header-group', 'table-row-group', 'table-row', 'flow-root', 'grid', 'inline-grid', 'contents', 'list-item', 'start', 'end', 'right', 'left', 'none', 'start', 'end', 'both', 'contain', 'cover', 'fill', 'scale-down', 'bottom', 'center', 'left-bottom', 'left-top', 'right-bottom', 'right-top', 'top', 'auto', 'clip', 'visible', 'scroll', 'static', 'fixed', 'absolute', 'relative', 'sticky', 'row', 'wrap', 'wrap-reverse', 'nowrap', 'dense', 'normal', 'flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly', 'stretch', 'baseline', 'ordinal', 'slashed-zero', 'lining-nums', 'oldstyle-nums', 'proportional-nums', 'tabular-nums', 'diagonal-fractions', 'stacked-fractions', 'inside', 'outside', 'disc', 'decimal', 'justify', 'underline', 'overline', 'line-through', 'solid', 'double', 'dotted', 'dashed', 'wavy', 'from-font', 'uppercase', 'lowercase', 'capitalize', 'ellipsis', 'wrap', 'nowrap', 'balance', 'pretty', 'text-top', 'text-bottom', 'sub', 'super', 'pre', 'pre-line', 'pre-wrap', 'break-spaces', 'manual', 'fixed', 'local', 'scroll', 'text'
 ]
 
 export const cssAtRules = [
@@ -161,11 +162,15 @@ export const cssAtRules = [
 ]
 
 export const viewportBreakpoints = {
-  '640px': 'sm', '768px': 'md', '1024px': 'lg', '1280px': 'xl', '1536px': '2xl',
+  '640px': 'sm', '40rem': 'sm',
+  '768px': 'md', '48rem': 'md',
+  '1024px': 'lg', '64rem': 'lg',
+  '1280px': 'xl', '80rem': 'xl',
+  '1536px': '2xl', '96rem': '2xl',
 }
 
 export const mediaQueryDict = {
-  'min-width': '', 'not all and min-width': 'max-', 'max-width': 'max-', 'prefers-color-scheme': '', 'prefers-reduced-motion': 'motion-', 'prefers-contrast': 'contrast-', 'print': 'print:', 'orientation': '', 
+  'min-width': '', 'not all and min-width': 'max-', 'not all and (min-width': 'max-', 'max-width': 'max-', 'prefers-color-scheme': '', 'prefers-reduced-motion': 'motion-', 'prefers-contrast': 'contrast-', 'print': 'print:', 'orientation': '', 
 }
 // css_dict = {
 //   "&[aria-…]": "aria-[…]",
@@ -373,6 +378,24 @@ export const specialSelectors = [
 ]
   
 export const multilineRules = {
-  'sr-only': ['absolute', 'w-px', 'h-px', 'p-0', '-m-px', 'overflow-hidden', '![clip-path:inset(50%)]', 'whitespace-nowrap', 'border-0'],
-  'not-sr-only': ['static', 'w-auto', 'h-auto', 'p-0', 'm-0', 'overflow-visible', '![clip:auto]', 'whitespace-normal'],
+  'sr-only': ['absolute', 'w-px', 'h-px', 'p-0', '-m-px', 'overflow-hidden', 'clip-path:inset(50%)', 'whitespace-nowrap', 'border-0'],
+  'not-sr-only': ['static', 'w-auto', 'h-auto', 'p-0', 'm-0', 'overflow-visible', 'clip:auto', 'whitespace-normal'],
 }
+
+export const columnsUnitDict = {
+  '16rem': '3xs', '256px': '3xs',
+  '18rem': '2xs', '288px': '2xs',
+  '20rem': 'xs', '320px': 'xs',
+  '24rem': 'sm', '384px': 'sm',
+  '28rem': 'md', '448px': 'md',
+  '32rem': 'lg', '512px': 'lg',
+  '36rem': 'xl', '576px': 'xl',
+  '42rem': '2xl', '672px': '2xl',
+  '48rem': '3xl', '768px': '3xl',
+  '56rem': '4xl', '896px': '4xl',
+  '64rem': '5xl', '1024px': '5xl',
+  '72rem': '6xl', '1152px': '6xl',
+  '80rem': '7xl', '1280px': '7xl',
+  'auto': 'auto',
+}
+

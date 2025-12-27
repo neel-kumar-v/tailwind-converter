@@ -119,12 +119,10 @@ function calculateSelectorPrefixes(key) {
     }
   }
 
-
   if (pseudoMatch) {
     prefix += (prefix ? " " : "") + pseudoMatch[0]
     selector = selector.replace(pseudoMatch[0], "").trim()
   }
-
 
   if (attributeMatch) {
     prefix += (prefix ? " " : "") + attributeMatch[0]
@@ -157,21 +155,25 @@ function computePrefix(prefix) {
     prefix = prefix.replace('*', '').trim()
   }
   if (prefix.includes('@media')) {
-    prefix = prefix.replace('@media', '').replace('(', '').replace(')', '').trim()
+    prefix = prefix.replace(/@media|\(|\)/g, '').trim()
     const mediaQueries = prefix.split(',').map(query => query.trim())
     let returnQueryPrefixes = ''
     mediaQueries.forEach(query => {
-      let [queryPrefix, value] = query.replace('(', '').replace(')', '').trim().split(':').map(item => item.trim())
+      let [queryPrefix, value] = query.replace('(', '').replace(')', '')
+                                      .trim().split(/:|>=|<=|>|</)
+                                      .map(item => item.trim())
+
+      // console.log(queryPrefix, value)
       if (mediaQueryDict.hasOwnProperty(queryPrefix)) {
         returnQueryPrefixes += `${mediaQueryDict[queryPrefix]}`
       }
       if (value != undefined) {
         value = value.replace('(', '').replace(')', '').trim()
         if(viewportBreakpoints.hasOwnProperty(value)) {
-          returnQueryPrefixes += `${viewportBreakpoints[value]}`
+          returnQueryPrefixes +=  `${(/all|</.test(query) ? 'max-' : '')}${viewportBreakpoints[value]}`
         } else if (util.numberRegex.test(value)) {
           // console.log(prefix, value)
-          if(prefix.includes('min')) returnQueryPrefixes += `max-[${value}]`
+          if(prefix.includes('min')) returnQueryPrefixes += `min-[${value}]`
           else returnQueryPrefixes += `[${value}]`
         } else {
           returnQueryPrefixes += `${value}`

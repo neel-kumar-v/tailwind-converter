@@ -71,20 +71,20 @@ function main() {
   } else if (configModalButton.classList.contains('hidden') == false) {
     configModalButton.classList.add('hidden')
   }
-  console.log("CSS JSON: ", cssJSON)
+  // console.log("CSS JSON: ", cssJSON)
 
 
   outputTailwindJSON = formatTailwindArrayToDict(convertCSSJSONToTailwind(cssJSON))
-  console.log("Flattened CSS Tree JSON: ", outputTailwindJSON)
+  // console.log("Flattened CSS Tree JSON: ", outputTailwindJSON)
   
   
   const outputTailwindSelectorPrefixes = parseSelectors(outputTailwindJSON);
-  console.log("Flattened CSS Selector-Prefix: ", outputTailwindSelectorPrefixes)
+  // console.log("Flattened CSS Selector-Prefix: ", outputTailwindSelectorPrefixes)
   
   combineSelectorPrefixes(outputTailwindJSON, outputTailwindSelectorPrefixes)
   removeArbitraryRules(outputTailwindJSON, !arbitraryPrefixes, !arbitraryRules)
   addMultilineRules(outputTailwindJSON, multilineRules)
-  console.log("Prefixed Tree JSON: ", outputTailwindJSON)
+  // console.log("Prefixed Tree JSON: ", outputTailwindJSON)
 
   displayOutputWithSelectors(outputTailwindJSON)
   outputTailwindRuleArray = JSONToStringArray(outputTailwindJSON)
@@ -133,10 +133,10 @@ function addMultilineRules(json, multilineRules) {
     const selector = key
     // go through each css selector in json and check if all rules from the multiline rule definition are in the selector's rules
     Object.keys(json).forEach(selector => {
-      console.log(selector, rules, json[selector])
-      console.log(isSubset(rules, json[selector]))
-      if (isSubset(rules, json[selector])) {
-        json[selector] = intersectComplement(rules, json[selector])
+      // console.log(selector, rules, json[selector])
+      // console.log(isSubset(rules, json[selector]), isLooseSubset(rules, json[selector]))
+      if (isSubset(rules, json[selector]) || isLooseSubset(rules, json[selector])) {
+        json[selector] = looseIntersectComplement(rules, json[selector])
         json[selector].push(key)
       }
     })
@@ -149,7 +149,16 @@ function isSubset(array1, array2) {
   return array1.every(item => array2.includes(item))
 }
 
+function isLooseSubset(array1, array2) {
+  return array1.every(item => array2.some(element => element.includes(item)))
+}
+
 // function that removes all rules from array2 that are in array1
 function intersectComplement(array1, array2) {
   return array2.filter(item => !array1.includes(item))
+}
+
+// function that removes all rules from array2 that include any element from array1
+function looseIntersectComplement(array1, array2) {
+  return array2.filter(item => !array1.some(element => item.includes(element)))
 }

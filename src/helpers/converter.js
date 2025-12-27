@@ -1,4 +1,4 @@
-import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict } from './dictionaries'
+import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, columnsUnitDict } from './dictionaries'
 import * as util from './utilities'
 const zeroRegex = /0[a-zA-Z]*/
 export function formatTailwindArrayToDict(tailwindArray) {
@@ -79,11 +79,12 @@ export function convertCSSJSONToTailwind(cssObject) {
 
 let isNegative = ''
 function computeTailwindRule(property, value, prefixes="") {
-
+  // Reset isNegative at the start of each rule computation
+  isNegative = ''
 
   function formatRule(rule) {
     const returnRule = `${prefixes}${isNegative}${rule}`.trim()
-    // console.log(returnRule)
+    console.log(returnRule)
     return returnRule
   }
 
@@ -104,6 +105,7 @@ function computeTailwindRule(property, value, prefixes="") {
   if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) return formatArrayRules(convertShorthandToTailwind(property, value))
 
   if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) {
+    console.log(singleValueDict[property], value)
     if (value == '') return appendToStylesList(`${singleValueDict[property]}`)
     else return formatRule(`${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
   }
@@ -124,9 +126,20 @@ function computeTailwindRule(property, value, prefixes="") {
 
 function handleNegative(value) {
   if (valueIsNegative(value)){
-    value = value.replace('[-', '').replace(']', '')
+    // Handle bracket format [-1]
+    if (value.startsWith('[-')) {
+      value = value.replace('[-', '').replace(']', '')
+    }
+    // Strip the negative sign from the value itself since isNegative is already set
+    // This handles both [-1] format (after bracket removal) and -1 format
+    if (value.trim().startsWith('-')) {
+      value = value.trim().substring(1)
+    }
     value = util.convertUnits(value)
-  } 
+  } else {
+    // Reset isNegative if value is not negative
+    isNegative = ''
+  }
   return value
 }
 
@@ -232,9 +245,17 @@ function parseEdgeCases(property, value, unconvertedValue) {
       if(value.includes('1')) returnStyles.push(`shrink`)
       else returnStyles.push(`shrink-0`)
       break
-    
+    case 'columns':
+      if(unconvertedValue.includes('auto')) returnStyles.push(`columns-auto`)
+      else if(unconvertedValue.includes('rem')) returnStyles.push(`columns-${util.translateConvertedToIrregular(columnsUnitDict, unconvertedValue)}`)
+      else returnStyles.push(`columns-${value}`)
+      break
     // * WORDS
     case 'isolate':
+      if(value.includes('isolate')) returnStyles.push(`isolate`)
+      else returnStyles.push(`isolation-${value}`)
+      break
+    case 'isolation':
       if(value.includes('isolate')) returnStyles.push(`isolate`)
       else returnStyles.push(`isolation-${value}`)
       break
@@ -288,7 +309,8 @@ function parseEdgeCases(property, value, unconvertedValue) {
 
     default:
       // console.log(`(${property}: ${value}) could not be converted, using ${unconvertedValue}`)
-      returnStyles.push(`![${property}:${util.replaceSpacesWithUnderscores(unconvertedValue)}]`)
+      if (singleValueDict.hasOwnProperty(property)) returnStyles.push(`${singleValueDict[property]}-[${util.replaceSpacesWithUnderscores(unconvertedValue)}]`)
+      else returnStyles.push(`![${property}:${util.replaceSpacesWithUnderscores(unconvertedValue)}]`)
   } 
   return returnStyles
 }
@@ -476,6 +498,10 @@ function parseTransformRule(value) {
 function valueIsNegative(value) {
   if(value != undefined && value.startsWith('[-')) {
     // console.log(`value ${value} is negative`)
+    isNegative = '-'
+    return true
+  } else if(value != undefined && value.trim().startsWith('-') && /^-?\d/.test(value.trim())) {
+    // Also check for raw negative numbers like -1 (not just [-1] format)
     isNegative = '-'
     return true
   } else {
