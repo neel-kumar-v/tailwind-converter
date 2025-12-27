@@ -58,7 +58,7 @@ export const singleValueDict = {
   'inset-inline-start': 'start', 'inset-inline-end': 'end',
   'top': 'top', 'left': 'left', 'bottom': 'bottom', 'right': 'right',
   'appearance': 'appearance',
-  'margin': 'm', 'padding': 'p', 'inset': 'inset-', 'border-width': 'border', 
+  'margin': 'm', 'padding': 'p', 'inset': 'inset', 'border-width': 'border', 
   'scroll-margin': 'scroll-m', 'scroll-margin-top': 'scroll-mt', 'scroll-margin-left': 'scroll-ml', 'scroll-margin-bottom': 'scroll-mb', 'scroll-margin-right': 'scroll-mr', 'scroll-margin-inline-start': 'scroll-ms', 'scroll-margin-inline-end': 'scroll-me', 
   'scroll-padding': 'scroll-p', 'scroll-padding-top': 'scroll-pt', 'scroll-padding-left': 'scroll-pl', 'scroll-padding-bottom': 'scroll-pb', 'scroll-padding-right': 'scroll-pr', 'scroll-padding-inline-start': 'scroll-ps', 'scroll-padding-inline-end': 'scroll-pe', 
   'border-spacing': 'border-spacing',

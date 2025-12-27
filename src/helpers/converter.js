@@ -98,11 +98,13 @@ function computeTailwindRule(property, value, prefixes="") {
   if(property == "transform") return formatArrayRules(parseTransformRule(value)) // Case #2: The transform property has many different values based on their functions
 
   const unconvertedValue = value
-  value = handleNegative(util.convertUnits(value))
-
-
   const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
-  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) return formatArrayRules(convertShorthandToTailwind(property, value))
+  if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) {
+    return formatArrayRules(convertShorthandToTailwind(property, unconvertedValue))
+  }
+  
+  // For non-shorthand, process the value normally
+  value = handleNegative(util.convertUnits(value))
 
   if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) {
     console.log(singleValueDict[property], value)
@@ -196,27 +198,6 @@ function parseEdgeCases(property, value, unconvertedValue) {
         returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
         returnStyles.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
         returnStyles.push(`rounded-bl-${borderRadiuses[3]}`.replace('-/', ''))
-      }
-      returnStyles.push(returnStyles)
-      break
-
-    case 'inset':
-      const values = value.split(' ')
-      returnStyles = []
-      if (values.length === 1) {
-        returnStyles.push(`inset-${values[0]}`)
-      } else if (values.length === 2) {
-        returnStyles.push(`inset-y-${values[0]}`)
-        returnStyles.push(`inset-x-${values[1]}`)
-      } else if (values.length === 3) {
-        returnStyles.push(`top-${values[0]}`)
-        returnStyles.push(`inset-x-${values[1]}`)
-        returnStyles.push(`bottom-${values[2]}`)
-      } else if (values.length === 4) {
-        returnStyles.push(`top-${values[0]}`)
-        returnStyles.push(`right-${values[1]}`)
-        returnStyles.push(`bottom-${values[2]}`)
-        returnStyles.push(`left-${values[3]}`)
       }
       returnStyles.push(returnStyles)
       break
@@ -398,11 +379,117 @@ function parseFilterRule(property, value) {
 }
 
 function convertShorthandToTailwind(property, value) {
-  const shorthandValues = util.shorthand(value.split(' '), shorthandDict[property]) // Split the values by space and parse the shorthand notation
-  let styles = []
-  for (let i = 0; i < shorthandValues.length; i++) {
-    styles.push(`${shorthandValues[i]}`) // Push each value to the styles array
+  const rawValues = value.split(' ')
+  const processedValues = []
+  const negativeFlags = []
+  
+  for (let i = 0; i < rawValues.length; i++) {
+    isNegative = ''
+    const convertedValue = util.convertUnits(rawValues[i])
+    const processedValue = handleNegative(convertedValue)
+    processedValues.push(processedValue)
+    negativeFlags.push(isNegative === '-')
   }
+  
+  // Special case for inset to use top/bottom/left/right instead of inset-t/inset-l/etc
+  if (property === 'inset') {
+    const formatInsetValue = (val, isNeg, prop) => {
+      let v = val
+      if (v.startsWith('[') && v.endsWith(']')) v = v.substring(1, v.length - 1)
+      const isSimpleNum = v.match(/^\d+(\.\d+)?$/)
+      const isFraction = /^\d+\/\d+$/.test(v)
+      const inDict = unitDict[`${v}px`] || unitDict[v]
+      const isTailwindKeyword = /^[a-zA-Z-]+$/.test(v) && !isSimpleNum && !inDict && !v.includes('_')
+      if (!isSimpleNum && !isFraction && !inDict && !isTailwindKeyword) v = `[${v}]`
+      return isNeg ? `-${prop}-${v}` : `${prop}-${v}`
+    }
+    
+    let styles = []
+    if (processedValues.length === 1) {
+      let valuePart = processedValues[0]
+      if (valuePart.startsWith('[') && valuePart.endsWith(']')) {
+        valuePart = valuePart.substring(1, valuePart.length - 1)
+      }
+      const isSimpleNumber = valuePart.match(/^\d+(\.\d+)?$/)
+      const isFraction = /^\d+\/\d+$/.test(valuePart)
+      const isInDict = unitDict[`${valuePart}px`] || unitDict[valuePart]
+      const isTailwindKeyword = /^[a-zA-Z-]+$/.test(valuePart) && !isSimpleNumber && !isInDict && !valuePart.includes('_')
+      if (!isSimpleNumber && !isFraction && !isInDict && !isTailwindKeyword) {
+        valuePart = `[${valuePart}]`
+      }
+      styles.push(negativeFlags[0] ? `-inset-${valuePart}` : `inset-${valuePart}`)
+    } else if (processedValues.length === 2) {
+      const formatValue = (val) => {
+        let v = val
+        if (v.startsWith('[') && v.endsWith(']')) v = v.substring(1, v.length - 1)
+        const isSimpleNum = v.match(/^\d+(\.\d+)?$/)
+        const isFraction = /^\d+\/\d+$/.test(v)
+        const inDict = unitDict[`${v}px`] || unitDict[v]
+        const isTailwindKeyword = /^[a-zA-Z-]+$/.test(v) && !isSimpleNum && !inDict && !v.includes('_')
+        if (!isSimpleNum && !isFraction && !inDict && !isTailwindKeyword) v = `[${v}]`
+        return v
+      }
+      styles.push(negativeFlags[0] ? `-inset-y-${formatValue(processedValues[0])}` : `inset-y-${formatValue(processedValues[0])}`)
+      styles.push(negativeFlags[1] ? `-inset-x-${formatValue(processedValues[1])}` : `inset-x-${formatValue(processedValues[1])}`)
+    } else if (processedValues.length === 3) {
+      const formatValue = (val) => {
+        let v = val
+        if (v.startsWith('[') && v.endsWith(']')) v = v.substring(1, v.length - 1)
+        const isSimpleNum = v.match(/^\d+(\.\d+)?$/)
+        const isFraction = /^\d+\/\d+$/.test(v)
+        const inDict = unitDict[`${v}px`] || unitDict[v]
+        const isTailwindKeyword = /^[a-zA-Z-]+$/.test(v) && !isSimpleNum && !inDict && !v.includes('_')
+        if (!isSimpleNum && !isFraction && !inDict && !isTailwindKeyword) v = `[${v}]`
+        return v
+      }
+      styles.push(negativeFlags[0] ? `-top-${formatValue(processedValues[0])}` : `top-${formatValue(processedValues[0])}`)
+      styles.push(negativeFlags[1] ? `-inset-x-${formatValue(processedValues[1])}` : `inset-x-${formatValue(processedValues[1])}`)
+      styles.push(negativeFlags[2] ? `-bottom-${formatValue(processedValues[2])}` : `bottom-${formatValue(processedValues[2])}`)
+    } else if (processedValues.length === 4) {
+      styles.push(formatInsetValue(processedValues[0], negativeFlags[0], 'top'))
+      styles.push(formatInsetValue(processedValues[1], negativeFlags[1], 'right'))
+      styles.push(formatInsetValue(processedValues[2], negativeFlags[2], 'bottom'))
+      styles.push(formatInsetValue(processedValues[3], negativeFlags[3], 'left'))
+    }
+    return styles
+  }
+  
+  const shorthandValues = util.shorthand(processedValues, shorthandDict[property])
+  let styles = []
+  
+  let negativeIndex = 0
+  for (let i = 0; i < shorthandValues.length; i++) {
+    let rule = shorthandValues[i]
+    const isValueNegative = negativeFlags[negativeIndex]
+    
+    if (isValueNegative) {
+      const parts = rule.split('-')
+      if (parts.length >= 2) {
+        const propertyPart = parts.slice(0, -1).join('-')
+        let valuePart = parts[parts.length - 1]
+        
+        if (valuePart.startsWith('[') && valuePart.endsWith(']')) {
+          valuePart = valuePart.substring(1, valuePart.length - 1)
+        }
+        if (valuePart.startsWith('-')) {
+          valuePart = valuePart.substring(1)
+        }
+        
+        const isSimpleNumber = valuePart.match(/^\d+(\.\d+)?$/)
+        const isFraction = /^\d+\/\d+$/.test(valuePart)
+        const isInDict = unitDict[`${valuePart}px`] || unitDict[valuePart]
+        if (!isSimpleNumber && !isFraction && !isInDict) {
+          valuePart = `[${valuePart}]`
+        }
+        
+        rule = `-${propertyPart}-${valuePart}`
+      }
+    }
+    
+    styles.push(rule.replace('--', '-'))
+    negativeIndex++
+  }
+  
   return styles
 }
 
@@ -497,15 +584,12 @@ function parseTransformRule(value) {
 
 function valueIsNegative(value) {
   if(value != undefined && value.startsWith('[-')) {
-    // console.log(`value ${value} is negative`)
     isNegative = '-'
     return true
   } else if(value != undefined && value.trim().startsWith('-') && /^-?\d/.test(value.trim())) {
-    // Also check for raw negative numbers like -1 (not just [-1] format)
     isNegative = '-'
     return true
   } else {
-    // console.log(`value ${value} is positive`)
     isNegative = ''
     return false
   }

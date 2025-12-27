@@ -628,3 +628,35 @@
     }
 }
 
+/* inset - top / right / bottom / left */
+.inset {
+    inset: 2rem;
+}
+@media (print) {
+    .inset {
+        inset: -1px;
+    }
+}
+
+@media (max-width: 640px) {
+    .inset {
+        inset: 28px -4px 100% 6px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .inset {
+        inset: 4;
+    }
+}
+
+@media (orientation: portrait) {
+    .inset {
+        inset: 3.25vh -4px -50%;
+    }
+}
+@media (orientation: landscape) {
+    .inset {
+        inset: 50%;
+    }
+}
