@@ -38,7 +38,7 @@ export const singleValueDict = {
   'list-style-type': 'list', 'list-style-position': 'list',
   'text-align': 'text', 'text-decoration-style': 'decoration', 'text-overflow': 'text',
   'vertical-align': 'align',
-  'white-space': 'whitespace-pre',
+  // 'white-space': 'whitespace-pre',
   'background-attachment': 'bg', 'background-clip': 'bg-clip', 'background-origin': 'bg-origin', 'background-position': 'bg', 'background-repeat': 'bg', 'background-size': 'bg', 'background-image': 'bg', 'background-color': 'bg', 'background': 'bg', // Todo: bg-no-repeat edge case
   'border-style': 'border',
   ' -style': 'outline',
@@ -142,7 +142,8 @@ export let unitDict = {
   '1 1 0%': '1', '1 1 auto': 'auto', '0 1 auto': 'initial',
   'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"': 'sans', 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif': 'serif', 'ui-monospace font-mono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace': 'mono',
   'linear-gradient(to top, var(--tw-gradient-stops))': 'to-t', 'linear-gradient(to top right, var(--tw-gradient-stops))': 'to-tr', 'linear-gradient(to right, var(--tw-gradient-stops))': 'to-r', 'linear-gradient(to bottom right, var(--tw-gradient-stops))': 'to-br', 'linear-gradient(to bottom, var(--tw-gradient-stops))': 'to-b', 'linear-gradient(to bottom left, var(--tw-gradient-stops))': 'to-bl', 'linear-gradient(to left, var(--tw-gradient-stops))': 'to-l', 'linear-gradient(to top left, var(--tw-gradient-stops))': 'to-tl',
-  '0 1px 2px 0 rgb(0 0 0 / 0.05)': 'sm', '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)': '', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)': 'md', '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)': 'lg', '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)': 'xl', '0 25px 50px -12px rgb(0 0 0 / 0.25)': '2xl', 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)': 'inset', '0 0 #000000': 'none',
+  '0 1px rgb(0 0 0 / 0.05)': '2xs', '0 1px 2px 0 rgb(0 0 0 / 0.05)': 'xs', '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)': 'sm', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)': 'md', '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)': 'lg', '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)': 'xl', '0 25px 50px -12px rgb(0 0 0 / 0.25)': '2xl', 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)': 'inset', '0 0 #000000': 'none', // Box Shadow
+  '0 1px 1px rgb(0 0 0 / 0.05)': 'xs', '0 1px 2px rgb(0 0 0 / 0.15)': 'sm', '0 3px 3px rgb(0 0 0 / 0.12)': 'md', '0 4px 4px rgb(0 0 0 / 0.15)': 'lg', '0 9px 7px rgb(0 0 0 / 0.1)': 'xl', '0 25px 25px rgb(0 0 0 / 0.15)': '2xl', '0 0 #0000': 'none',
   'cubic-bezier(0.4, 0, 1, 1)': 'ease-in', 'cubic-bezier(0, 0, 0.2, 1)': 'ease-out', 'cubic-bezier(0.4, 0, 0.2, 1)': 'ease-in-out', 
   'break-word': 'break-words', 'break-all': 'all', 'keep-all': 'keep',
   '1 / 1': 'square', '16 / 9': 'video',
@@ -306,8 +307,8 @@ export const borderRadiusDict = {
 
 export const borderRadiusUnitDict = {
   '0px': 'none',
-  '2px': 'sm',
-  '4px': '/',
+  '2px': 'xs',
+  '4px': 'sm',
   '6px': 'md',
   '8px': 'lg',
   '12px': 'xl',
@@ -316,9 +317,10 @@ export const borderRadiusUnitDict = {
 }
 
 export const blurUnitDict = {
+  '': 'none',
   '0px': 'none',
-  '4px': 'sm',
-  '8px': '/',
+  '4px': 'xs',
+  '8px': 'sm',
   '12px': 'md',
   '16px': 'lg',
   '12px': 'xl',
@@ -370,3 +372,7 @@ export const specialSelectors = [
   'host-context',
 ]
   
+export const multilineRules = {
+  'sr-only': ['absolute', 'w-px', 'h-px', 'p-0', '-m-px', 'overflow-hidden', '![clip-path:inset(50%)]', 'whitespace-nowrap', 'border-0'],
+  'not-sr-only': ['static', 'w-auto', 'h-auto', 'p-0', 'm-0', 'overflow-visible', '![clip:auto]', 'whitespace-normal'],
+}

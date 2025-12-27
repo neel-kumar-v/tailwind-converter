@@ -261,7 +261,12 @@ function parseEdgeCases(property, value, unconvertedValue) {
       break
     case 'word-break':
       if(value.includes('keep-all')) returnStyles.push(`break-keep`)
-      else returnStyles.push(`whitespace-pre-${value}`)
+      if(value.includes('break-all')) returnStyles.push(`break-all`)
+      else returnStyles.push(`break-${value}`)
+      break
+    case 'white-space':
+      if(unconvertedValue.includes('normal') || unconvertedValue.includes("nowrap")) returnStyles.push(`whitespace-${unconvertedValue}`)
+      else returnStyles.push(`whitespace-${value}`)
       break
     case 'content':
       returnStyles.push(`content-[${value}]`)

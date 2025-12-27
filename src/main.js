@@ -7,6 +7,7 @@ import { displayConfigModal, displayOutputWithSelectors, highlightTooltip, JSONT
 import { parseSelectors, combineSelectorPrefixes } from './helpers/prefix'
 import { convertCSSJSONToTailwind, formatTailwindArrayToDict } from './helpers/converter'
 import { parseVariables, tailwindThemeConfig } from './helpers/config-generator'
+import { multilineRules } from './helpers/dictionaries'
 import { highlightActiveLine } from '@codemirror/view'
 inject() // 
 
@@ -82,7 +83,9 @@ function main() {
   
   combineSelectorPrefixes(outputTailwindJSON, outputTailwindSelectorPrefixes)
   removeArbitraryRules(outputTailwindJSON, !arbitraryPrefixes, !arbitraryRules)
+  addMultilineRules(outputTailwindJSON, multilineRules)
   console.log("Prefixed Tree JSON: ", outputTailwindJSON)
+
   displayOutputWithSelectors(outputTailwindJSON)
   outputTailwindRuleArray = JSONToStringArray(outputTailwindJSON)
 }
@@ -122,4 +125,31 @@ function removeArbitraryRules(json, removeArbitraryPrefixes, removeArbitraryRule
     if (removeArbitraryPrefixes) json[key] = json[key].filter(rule => !arbitraryPrefixesRegex.test(rule))
   })
   return json
+}
+
+function addMultilineRules(json, multilineRules) {
+  Object.keys(multilineRules).forEach(key => {
+    const rules = multilineRules[key]
+    const selector = key
+    // go through each css selector in json and check if all rules from the multiline rule definition are in the selector's rules
+    Object.keys(json).forEach(selector => {
+      console.log(selector, rules, json[selector])
+      console.log(isSubset(rules, json[selector]))
+      if (isSubset(rules, json[selector])) {
+        json[selector] = intersectComplement(rules, json[selector])
+        json[selector].push(key)
+      }
+    })
+  })
+  return json
+
+}
+
+function isSubset(array1, array2) {
+  return array1.every(item => array2.includes(item))
+}
+
+// function that removes all rules from array2 that are in array1
+function intersectComplement(array1, array2) {
+  return array2.filter(item => !array1.includes(item))
 }

@@ -1,0 +1,23 @@
+.a {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+}
+/* absolute w-px h-px p-0 -m-px overflow-hidden ![clip-path:inset(50%)] whitespace-pre-nowrap border-0 */
+.b {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+/* static w-auto h-auto p-0 m-0 overflow-visible ![clip:auto] whitespace-pre-400 */
