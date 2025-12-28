@@ -1,8 +1,12 @@
 export const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
-export const otherColorRegex = /^(rgb|rgba|hsl|hsla|hsv|cmyk)\(\s*(-?\d+%?\s*([,\s]+|$)){2,3}(-?\d+%?\s*,?\s*[\d.]*%?\s*)?\)$/
+export const otherColorRegex = /^(rgb|rgba|hsl|hsla|hsv|cmyk|oklch)\(\s*(-?\d*\.?\d+%?\s*([,\s]+|$)){2,3}(-?\d*\.?\d+%?\s*,?\s*[\d.]*%?\s*)?\)$/
 export const numberRegex = /\d/
 export const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|vmax|vmin|vw|%)/
 export const degreeRegex = /turn|rad|grad/
+export const sansSerifRegex = /ui-sans-serif|system-ui|sans-serif|Apple Color Emoji|Segoe UI Emoji|Segoe UI Symbol|Noto Color Emoji/
+export const serifRegex = /ui-serif|Georgia|Cambria|Times New Roman|Times|serif/
+export const monospaceRegex = /ui-monospace|SFMono-Regular|Menlo|Monaco|Consolas|Liberation Mono|Courier New|monospace/
+
 import { unitDict, colorsDict, tailwindColors } from './dictionaries'
 import tinycolor from 'tinycolor2'
 import { createNotification } from './notification'
@@ -46,13 +50,12 @@ export function convertUnits(value) {
             retrieveSettings()
             value = `${num * remPixelConversionRatio}px`
         }
-        // console.log(value)
+        // console.log(`Value: ${value}`)
         const coveredByDictionary = unitDict != undefined && unitDict[value] != undefined
-        // if(value.includes('var(--')) console.log(value, coveredByDictionary, unitDict, unitDict[value])
+
         // console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
-        
-        const isColor = colorsDict[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)
-        // console.log(`convertUnits() - ${value} was a color: ${isColor}`)
+        const isColor = colorsDict[value] != undefined || tailwindColors[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)
+        // console.log(`convertUnits() - ${value} was a color: ${isColor}, colorsDict[value]: ${colorsDict[value]}, tailwindColors[value]: ${tailwindColors[value]}`)
         
         const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',') || value.includes('(')
         // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
@@ -65,11 +68,13 @@ export function convertUnits(value) {
         // console.log(`convertUnits() - ${value} is a variable: ${isSimpleVariable}`)
         const isRepeatFunction = value.includes('repeat') && value.includes('minmax(0, 1fr)')
         // console.log(`convertUnits() - ${value} is a repeat function: ${isRepeatFunction}`)
+        const isURL = value.includes('url(')
+        // console.log(`convertUnits() - ${value} is a URL: ${isURL}`)
 
         let returnValue = ''
 
-        // console.log(coveredByDictionary, isColor, includesMultipleValues, !isDigitWithUnits, value.includes('/'))
-        if (value.includes(`'`) || value.includes(`"`)) return value
+        // console.log(coveredByDictionary, isColor, includesMultipleValues, !isDigitWithUnits, isSimpleRatio, isSpanRatio, isSimpleVariable, isRepeatFunction, isURL)
+        if (!isURL && (value.includes(`'`) || value.includes(`"`))) return value
 
         if(coveredByDictionary) returnValue = unitDict[value]
         else if(isColor) returnValue = handleColors(value)
@@ -78,10 +83,10 @@ export function convertUnits(value) {
         else if(isSpanRatio) returnValue = handleSpanRatio(value)
         else if(isRepeatFunction) returnValue = handleRepeatFunction(value)
         else if(includesMultipleValues) returnValue = handleMultipleValues(value)
-        // else if(value.includes('/')) returnValue = '[' + replaceSpacesWithUnderscores(value) + ']'
         else if(!isDigitWithUnits) returnValue = value // if it is not a digit or it is a digit without a unit
         else if (degreeRegex.test(value)) returnValue = toDegrees(value)
         else returnValue = handleBaseCase(value)
+
         // console.log(`returned value: ${returnValue}`)
         return returnValue
     }
@@ -158,7 +163,10 @@ function handleVariable(value) {
   const variableName = value.replace('var(--', '').replace(')', '')
   return `(${variableName})`
 }
-
+export function handleNamedVariable(value, variableName) {
+    const variable = value.replace('(', '').replace(')', '')
+    return `(${variableName}:${variable})`
+}
 function handleRepeatFunction(value) {
   let repeatNum = value.replace('repeat(', '').split(',')[0]
   return convertUnits(repeatNum)
@@ -177,6 +185,8 @@ function handleBaseCase(value) {
 }
 
 function handleColors(value) {
+    console.log(value, colorsDict[value], tailwindColors[value])
+    if(tailwindColors[value] != undefined) return tailwindColors[value]
     if(colorsDict[value] != undefined) value = colorsDict[value]
 
     let hexColor = ''
@@ -203,7 +213,8 @@ export function revertUnits(object, value) { // This function is used to convert
 
 export function irregularConvertUnits(unitDictionary, value) {
     if(unitDictionary[value] != undefined) return unitDictionary[value]
-    else return `[${value}]`
+    if (value.includes('(') && value.includes(')')) return value
+    return `[${value}]`
 }
 export function translateConvertedToIrregular (irregularUnitDict, value) {
     if(revertUnits(unitDict, value) != undefined) value = `${revertUnits(unitDict, value)}`

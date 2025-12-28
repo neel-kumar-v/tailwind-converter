@@ -1,4 +1,4 @@
-import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, spacingUnitDict, lengthUnitSet } from './dictionaries'
+import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, spacingUnitDict, lengthUnitSet, fontSizeUnitDict, fontStretchUnitDict } from './dictionaries'
 import * as util from './utilities'
 const zeroRegex = /0[a-zA-Z]*/
 export function formatTailwindArrayToDict(tailwindArray) {
@@ -103,12 +103,11 @@ function computeTailwindRule(property, value, prefixes="") {
   if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) {
     return formatArrayRules(convertShorthandToTailwind(property, unconvertedValue))
   }
-  
   value = handleNegative(util.convertUnits(value))
   // Re-check valueIsShorthand after conversion (the converted value might be a single value now)
   const convertedValueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1
-  if (singleValueDict.hasOwnProperty(property) && !convertedValueIsShorthand) {
-    // console.log(singleValueDict[property], value)
+  if (singleValueDict.hasOwnProperty(property) && (!convertedValueIsShorthand || util.otherColorRegex.test(value))) {
+    console.log(singleValueDict[property], value)
     if (lengthUnitSet.has(property) && spacingUnitDict[value] != undefined) return formatRule(`${singleValueDict[property]}-${spacingUnitDict[value]}`)
     if (value == '') return appendToStylesList(`${singleValueDict[property]}`)
     return formatRule(`${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
@@ -155,27 +154,50 @@ function parseEdgeCases(property, value, unconvertedValue) {
     // * BORDER CORNER RADIUS
     // * STYLES THAT NEED REVERTED UNITS
     case 'text-decoration-thickness':
-      if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value).replace('px', '')
-      returnStyles.push(`decoration-${value}`)
+      if(unconvertedValue.includes('px')) returnStyles.push(`decoration-${Math.abs(Number(unconvertedValue.replace('px', '')))}`)
+      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`decoration-[${unconvertedValue}]`)
+      else returnStyles.push(`decoration-${value}`)
       break
     case 'text-underline-offset':
-      if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      returnStyles.push(`underline-offset-${value}`)
+      if(unconvertedValue.includes('px')) returnStyles.push(`underline-offset-${Math.abs(Number(unconvertedValue.replace('px', '')))}`)
+      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`underline-offset-[${unconvertedValue}]`)
+      else returnStyles.push(`underline-offset-${value}`)
       break
     case 'outline-width':
-      if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      returnStyles.push(`outline-${value.replace('px', '')}`)
+      if(unconvertedValue.includes('px')) returnStyles.push(`outline-${Math.abs(Number(unconvertedValue.replace('px', '')))}`)
+      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`outline-[${value}]`)
+      else returnStyles.push(`outline-${value}`)
       break
     case 'outline-offset':
-      if(util.numberRegex.test(value)) value = util.revertUnits(unitDict, value)
-      returnStyles.push(`outline-offset-${value.replace('px', '')}`)
+      if(unconvertedValue.includes('px')) returnStyles.push(`outline-offset-${Math.abs(Number(unconvertedValue.replace('px', '')))}`)
+      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`outline-offset-[${value}]`)
+      else returnStyles.push(`outline-offset-${value}`)
       break
     case 'letter-spacing':
       value = value.replace('[', '').replace(']', '')
       returnStyles.push(`tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
       break
-
-      
+    case 'font-family':
+      if(util.sansSerifRegex.test(value)) returnStyles.push(`font-sans`)
+      else if(util.serifRegex.test(value)) returnStyles.push(`font-serif`)
+      else if(util.monospaceRegex.test(value)) returnStyles.push(`font-mono`)
+      else if (value.includes('(')) returnStyles.push(util.handleNamedVariable(value, 'font-family'))
+      else returnStyles.push(`font-${value}`)
+      break
+    case 'font-size':
+      if(util.unitRegex.test(unconvertedValue) && fontSizeUnitDict[unconvertedValue] != undefined) returnStyles.push(`text-${fontSizeUnitDict[unconvertedValue]}`)
+      else if (value.includes('(')) returnStyles.push(util.handleNamedVariable(value, 'length'))
+      else returnStyles.push(`text-${value}`)
+      break
+    case 'font-style':
+      if(value.includes('italic')) returnStyles.push(`italic`)
+      else if(value.includes('normal')) returnStyles.push(`not-italic`)
+      break
+    case 'line-height':
+      if (unconvertedValue == '1') returnStyles.push(`leading-none`)
+      else if (util.unitRegex.test(unconvertedValue)) returnStyles.push(`leading-[${unconvertedValue}]`)
+      else returnStyles.push(`leading-${value}`)
+      break
       // * SHORTHANDABLE VALUES EDGE CASES
     case 'border-radius':
       let borderRadiuses = value.split(' ')
@@ -238,7 +260,13 @@ function parseEdgeCases(property, value, unconvertedValue) {
     case 'font-weight':
       if (util.numberRegex.test(value)) returnStyles.push(`font-${util.irregularConvertUnits(fontWeightUnitDict, value)}`)
       else returnStyles.push(`font-${value}`)
-        break
+      break
+    case 'font-stretch':
+      if (unconvertedValue.includes('%') && fontStretchUnitDict[unconvertedValue] != undefined) returnStyles.push(`font-stretch-${fontStretchUnitDict[unconvertedValue]}`)
+      else if (unconvertedValue.includes('%')) returnStyles.push(`font-stretch-${unconvertedValue}`)
+      else returnStyles.push(`font-stretch-${value}`)
+      console.log(unconvertedValue, value, util.unitRegex.test(value), util.numberRegex.test(unconvertedValue))
+      break
     case 'flex-grow':
       if(value.includes('1')) returnStyles.push(`grow`)
       else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`grow-[${unconvertedValue}]`)
@@ -306,7 +334,8 @@ function parseEdgeCases(property, value, unconvertedValue) {
       else returnStyles.push(`whitespace-${value}`)
       break
     case 'content':
-      returnStyles.push(`content-[${value}]`)
+      if (value.includes('(') || value == 'none') returnStyles.push(`content-${value}`)
+      else returnStyles.push(`content-[${value}]`)
       break
     // case 'transform-origin':
     //   returnStyles.push(`origin-${value}`.replace(' ', '-'))
