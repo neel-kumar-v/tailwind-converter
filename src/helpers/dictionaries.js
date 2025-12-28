@@ -22,11 +22,11 @@ export const singleValueDict = {
   'grid-row-start': 'row-start', 'grid-row-end': 'row-end', 'grid-column-start': 'col-start', 'grid-column-end': 'col-end', 
   'z-index': 'z',
   'break-after': 'break-after', 'break-before': 'break-before', 'break-inside': 'break-inside',
-  'box-decoration-break-inside': 'box-decoration',
+  'box-decoration-break-inside': 'box-decoration', 'box-decoration-break': 'box-decoration',
   'box-sizing': 'box',
   'float': 'float',
   'clear': 'clear',
-  'flex': 'flex',
+  // 'flex': 'flex',
   'object-fit': 'object', 'object-position': 'object', 'overflow': 'overflow', 'overflow-x': 'overflow-x', 'overflow-y': 'overflow-y',
   'overscroll': 'overscroll', 'overscroll-x': 'overscroll-x', 'overscroll-y': 'overscroll-y',
   'flex-wrap': 'flex',
@@ -55,10 +55,12 @@ export const singleValueDict = {
   'fill': 'fill',
   'stroke': 'stroke',
   'stroke-width': 'stroke',
-  'inset-inline-start': 'start', 'inset-inline-end': 'end',
+  'inset-inline-start': 'start', 'inset-inline-end': 'end', 'inset-inline': 'inset-x', 'inset-block': 'inset-y',
   'top': 'top', 'left': 'left', 'bottom': 'bottom', 'right': 'right',
   'appearance': 'appearance',
-  'margin': 'm', 'padding': 'p', 'inset': 'inset', 'border-width': 'border', 
+  'margin': 'm', 'margin-inline': 'mx', 'margin-block': 'my', 'margin-inline-start': 'ms', 'margin-inline-end': 'me', 'margin-block-start': 'ms', 'margin-block-end': 'me', 'margin-top': 'mt', 'margin-left': 'ml', 'margin-bottom': 'mb', 'margin-right': 'mr',
+  'padding': 'p', 'padding-inline': 'px', 'padding-block': 'py', 'padding-inline-start': 'ps', 'padding-inline-end': 'pe', 'padding-block-start': 'ps', 'padding-block-end': 'pe', 'padding-top': 'pt', 'padding-left': 'pl', 'padding-bottom': 'pb', 'padding-right': 'pr',
+  'inset': 'inset', 'border-width': 'border', 
   'scroll-margin': 'scroll-m', 'scroll-margin-top': 'scroll-mt', 'scroll-margin-left': 'scroll-ml', 'scroll-margin-bottom': 'scroll-mb', 'scroll-margin-right': 'scroll-mr', 'scroll-margin-inline-start': 'scroll-ms', 'scroll-margin-inline-end': 'scroll-me', 
   'scroll-padding': 'scroll-p', 'scroll-padding-top': 'scroll-pt', 'scroll-padding-left': 'scroll-pl', 'scroll-padding-bottom': 'scroll-pb', 'scroll-padding-right': 'scroll-pr', 'scroll-padding-inline-start': 'scroll-ps', 'scroll-padding-inline-end': 'scroll-pe', 
   'border-spacing': 'border-spacing',
@@ -73,7 +75,6 @@ export const singleValueDict = {
   'overflow-wrap': 'break', 'word-break': 'break', 
   'column-reverse': 'col-reverse', 'row-reverse': 'row-reverse',
   'box-shadow': 'shadow',
-  'box-decoration-break': 'box-decoration',
   'overscroll-behavior': 'overscroll', 'overscroll-behavior-x': 'overscroll-x', 'overscroll-behavior-y': 'overscroll-y',
 }
 
@@ -85,6 +86,10 @@ export const propertylessDict = {
   'text-decoration-line': '',
   'text-transform': '',
 }
+
+export const lengthUnitSet = new Set([
+  'width', 'min-width', 'max-width', 
+])
 
 export let unitDict = {
   // Pixel lengths
@@ -120,27 +125,24 @@ export let unitDict = {
   '320px': '80', '20rem': '80',
   '384px': '96', '24rem': '96',
   'min': 'min-content', 'max': 'max-content',
-  'flex-start': 'start', 'flex-end': 'end',
-  'space-between': 'between', 'space-around': 'around', 'space-evenly': 'evenly',
-  'fit-content': 'fit',
-  'border-box': 'border',
-  'padding-box': 'padding',
-  'content-box': 'content',
+  'min-content': 'min', 'max-content': 'max', 'fit-content': 'fit',
+  'flex-start': 'start', 'safe flex-start': 'start-safe', 'safe start': 'start-safe', 'flex-end': 'end', 'safe flex-end': 'end-safe', 'safe end': 'end-safe', 'space-between': 'between', 'space-around': 'around', 'space-evenly': 'evenly', 'safe center': 'center-safe', 'last baseline': 'baseline-last',
+  'border-box': 'border', 'padding-box': 'padding', 'content-box': 'content',
   'currentColor': 'current',
   'scroll-position': 'scroll',
   'minmax(0, 1fr)': 'fr',
   '100%': 'full', '25%': '1/4', '33%': '1/3', '50%': '1/2', '75%': '3/4',
-  '100vh': 'screen', '100vw': 'screen', '100dvw': 'dvw', '100dvh': 'dvh', '100lvw': 'lvw', '100lvh': 'lvh', '100svh': 'svh', '100svw': 'svw',
+  '100vh': 'screen', '100vw': 'screen', '100dvw': 'dvw', '100dvh': 'dvh', '100lvw': 'lvw', '100lvh': 'lvh', '100svh': 'svh', '100svw': 'svw', '1lh': 'lh',
   '0s': '0', '75ms': '75', '100ms': '100', '150ms': '150', '200ms': '200', '300ms': '300', '500ms': '500', '700ms': '700', '1000ms': '1000',
   'column': 'col', 'row': 'row', 'dense': 'dense', 'column dense': 'col-dense', 'row dense': 'row-dense',
-  'repeat(1, minmax(0, 1fr))': '1', 'repeat(2, minmax(0, 1fr))': '2', 'repeat(3, minmax(0, 1fr))': '3', 'repeat(4, minmax(0, 1fr))': '4', 'repeat(5, minmax(0, 1fr))': '5', 'repeat(6, minmax(0, 1fr))': '6', 'repeat(7, minmax(0, 1fr))': '7', 'repeat(8, minmax(0, 1fr))': '8', 'repeat(9, minmax(0, 1fr))': '9', 'repeat(10, minmax(0, 1fr))': '10', 'repeat(11, minmax(0, 1fr))': '11', 'repeat(12, minmax(0, 1fr))': '12',
+  // 'repeat(1, minmax(0, 1fr))': '1', 'repeat(2, minmax(0, 1fr))': '2', 'repeat(3, minmax(0, 1fr))': '3', 'repeat(4, minmax(0, 1fr))': '4', 'repeat(5, minmax(0, 1fr))': '5', 'repeat(6, minmax(0, 1fr))': '6', 'repeat(7, minmax(0, 1fr))': '7', 'repeat(8, minmax(0, 1fr))': '8', 'repeat(9, minmax(0, 1fr))': '9', 'repeat(10, minmax(0, 1fr))': '10', 'repeat(11, minmax(0, 1fr))': '11', 'repeat(12, minmax(0, 1fr))': '12',
   'x var(--tw-scroll-snap-strictness)': 'x', 'y var(--tw-scroll-snap-strictness)': 'y', 'both var(--tw-scroll-snap-strictness)': 'both',
   'bottom left': 'bottom-left', 'bottom right': 'bottom-right', 'top left': 'top-left', 'top right': 'top-right', 'left': 'left', 'right': 'right', 'top': 'top', 'bottom': 'bottom',
   'inherit': 'inherit', 'currentColor': 'current', 'transparent': 'transparent',
   'var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color': '0', 'var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color': '1', 'var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color': '2', 'var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color': '4', 'var(--tw-ring-inset) 0 0 0 calc(8px + var(--tw-ring-offset-width)) var(--tw-ring-color': '8',
-  '-9999': 'first', '9999': 'last',
-  'span 1 / span 1': '1', 'span 2 / span 2': '2', 'span 3 / span 3': '3', 'span 4 / span 4': '4', 'span 5 / span 5': '5', 'span 6 / span 6': '6', 'span 7 / span 7': '7', 'span 8 / span 8': '8', 'span 9 / span 9': '9', 'span 10 / span 10': '10', 'span 11 / span 11': '11', 'span 12 / span 12': '12', '1 / -1': 'full',
-  '1 1 0%': '1', '1 1 auto': 'auto', '0 1 auto': 'initial',
+  // '-9999': 'first', '9999': 'last',
+  // 'span 1 / span 1': '1', 'span 2 / span 2': '2', 'span 3 / span 3': '3', 'span 4 / span 4': '4', 'span 5 / span 5': '5', 'span 6 / span 6': '6', 'span 7 / span 7': '7', 'span 8 / span 8': '8', 'span 9 / span 9': '9', 'span 10 / span 10': '10', 'span 11 / span 11': '11', 'span 12 / span 12': '12', '1 / -1': 'full',
+  // '1 1 0%': '1', '1 1 auto': 'auto', '0 1 auto': 'initial', '0 auto': 'initial',
   'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"': 'sans', 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif': 'serif', 'ui-monospace font-mono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace': 'mono',
   'linear-gradient(to top, var(--tw-gradient-stops))': 'to-t', 'linear-gradient(to top right, var(--tw-gradient-stops))': 'to-tr', 'linear-gradient(to right, var(--tw-gradient-stops))': 'to-r', 'linear-gradient(to bottom right, var(--tw-gradient-stops))': 'to-br', 'linear-gradient(to bottom, var(--tw-gradient-stops))': 'to-b', 'linear-gradient(to bottom left, var(--tw-gradient-stops))': 'to-bl', 'linear-gradient(to left, var(--tw-gradient-stops))': 'to-l', 'linear-gradient(to top left, var(--tw-gradient-stops))': 'to-tl',
   '0 1px rgb(0 0 0 / 0.05)': '2xs', '0 1px 2px 0 rgb(0 0 0 / 0.05)': 'xs', '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)': 'sm', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)': 'md', '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)': 'lg', '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)': 'xl', '0 25px 50px -12px rgb(0 0 0 / 0.25)': '2xl', 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)': 'inset', '0 0 #000000': 'none', // Box Shadow
@@ -149,7 +151,7 @@ export let unitDict = {
   'break-word': 'break-words', 'break-all': 'all', 'keep-all': 'keep',
   '1 / 1': 'square', '16 / 9': 'video',
   '9999px': 'full', 
-  'bold': '700',  'normal': '400', 'light': '300', 'extrabold': '800', 'black': '900',
+  // 'bold': '700',  'normal': '400', 'light': '300', 'extrabold': '800', 'black': '900',
   'spin 1s linear infinite': 'spin', 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite': 'ping', 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite': 'pulse', 'bounce 1s infinite': 'bounce',
 }
 // TODO: Add more values to the non translate values
@@ -380,9 +382,10 @@ export const specialSelectors = [
 export const multilineRules = {
   'sr-only': ['absolute', 'w-px', 'h-px', 'p-0', '-m-px', 'overflow-hidden', 'clip-path:inset(50%)', 'whitespace-nowrap', 'border-0'],
   'not-sr-only': ['static', 'w-auto', 'h-auto', 'p-0', 'm-0', 'overflow-visible', 'clip:auto', 'whitespace-normal'],
+  'size-$size': ['w-$size', 'h-$size'],
 }
 
-export const columnsUnitDict = {
+export const spacingUnitDict = {
   '16rem': '3xs', '256px': '3xs',
   '18rem': '2xs', '288px': '2xs',
   '20rem': 'xs', '320px': 'xs',
@@ -396,6 +399,6 @@ export const columnsUnitDict = {
   '64rem': '5xl', '1024px': '5xl',
   '72rem': '6xl', '1152px': '6xl',
   '80rem': '7xl', '1280px': '7xl',
-  'auto': 'auto',
+  'auto': 'auto', 'fit-content': 'fit', 'max-content': 'max', 'min-content': 'min',
 }
 

@@ -1,13 +1,12 @@
-import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, columnsUnitDict } from './dictionaries'
+import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, spacingUnitDict, lengthUnitSet } from './dictionaries'
 import * as util from './utilities'
 const zeroRegex = /0[a-zA-Z]*/
 export function formatTailwindArrayToDict(tailwindArray) {
   let tailwindDict = {}
   tailwindArray.forEach((item) => {
     let [selector, classes] = Object.entries(item)[0]
-    // console.log(classes)
     const splitClasses = splitRules(classes)
-    tailwindDict[selector] = splitClasses
+    tailwindDict[selector] = (tailwindDict[selector] || []).concat(splitClasses)
   })
   return tailwindDict
 }
@@ -84,7 +83,7 @@ function computeTailwindRule(property, value, prefixes="") {
 
   function formatRule(rule) {
     const returnRule = `${prefixes}${isNegative}${rule}`.trim()
-    console.log(returnRule)
+    // console.log(returnRule)
     return returnRule
   }
 
@@ -98,18 +97,21 @@ function computeTailwindRule(property, value, prefixes="") {
   if(property == "transform") return formatArrayRules(parseTransformRule(value)) // Case #2: The transform property has many different values based on their functions
 
   const unconvertedValue = value
+  const functionRegex = /repeat|calc|minmax|var\(/
+  const hasFunctionSyntax = value.includes('(') && functionRegex.test(value)
   const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
   if (shorthandDict.hasOwnProperty(property) && valueIsShorthand) {
     return formatArrayRules(convertShorthandToTailwind(property, unconvertedValue))
   }
   
-  // For non-shorthand, process the value normally
   value = handleNegative(util.convertUnits(value))
-
-  if (singleValueDict.hasOwnProperty(property) && !valueIsShorthand) {
-    console.log(singleValueDict[property], value)
+  // Re-check valueIsShorthand after conversion (the converted value might be a single value now)
+  const convertedValueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1
+  if (singleValueDict.hasOwnProperty(property) && !convertedValueIsShorthand) {
+    // console.log(singleValueDict[property], value)
+    if (lengthUnitSet.has(property) && spacingUnitDict[value] != undefined) return formatRule(`${singleValueDict[property]}-${spacingUnitDict[value]}`)
     if (value == '') return appendToStylesList(`${singleValueDict[property]}`)
-    else return formatRule(`${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
+    return formatRule(`${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
   }
   
   if (propertylessDict.hasOwnProperty(property)) return formatRule(convertPropertylessToTailwind(property, value)) // Applies to display, position, visibility, etc 
@@ -171,10 +173,10 @@ function parseEdgeCases(property, value, unconvertedValue) {
     case 'letter-spacing':
       value = value.replace('[', '').replace(']', '')
       returnStyles.push(`tracking-${util.irregularConvertUnits(letterSpacingUnitDict, value)}`)
-
-    // * SHORTHANDABLE VALUES EDGE CASES
-    
       break
+
+      
+      // * SHORTHANDABLE VALUES EDGE CASES
     case 'border-radius':
       let borderRadiuses = value.split(' ')
       returnStyles = []
@@ -201,10 +203,28 @@ function parseEdgeCases(property, value, unconvertedValue) {
       }
       returnStyles.push(returnStyles)
       break
-
+    case 'size':
+      let sizes = value.split(' ')
+      for(let i = 0; i < sizes.length; i++) {
+        sizes[i] = i == 0 && spacingUnitDict[sizes[i]] != undefined ? spacingUnitDict[sizes[i]] : util.convertUnits(sizes[i])
+      }
+      if (sizes.length === 1) {
+        returnStyles.push(`size-${sizes[0]}`)
+      } else if (sizes.length === 2) {
+        returnStyles.push(`w-${sizes[0]}`)
+        returnStyles.push(`h-${sizes[1]}`)
+      }
+      returnStyles.push(returnStyles)
+      break
     // * NUMBER NO UNIT
     case 'order':
       if(value == '0') returnStyles.push(`order-none`)
+      else if (parseInt(unconvertedValue) < -99) {
+        isNegative = ''
+        returnStyles.push(`order-last`)
+      }
+      else if (parseInt(value) > 99) returnStyles.push(`order-first`)
+      else if (util.unitRegex.test(unconvertedValue)) returnStyles.push(`order-[${unconvertedValue}]`)
       else returnStyles.push(`order-${value}`)
       break
     case 'opacity':
@@ -216,20 +236,28 @@ function parseEdgeCases(property, value, unconvertedValue) {
       else returnStyles.push(`aspect-${value}`)
       break
     case 'font-weight':
-      returnStyles.push(`font-${util.irregularConvertUnits(fontWeightUnitDict, value)}`)
+      if (util.numberRegex.test(value)) returnStyles.push(`font-${util.irregularConvertUnits(fontWeightUnitDict, value)}`)
+      else returnStyles.push(`font-${value}`)
         break
     case 'flex-grow':
       if(value.includes('1')) returnStyles.push(`grow`)
-      else returnStyles.push(`grow-0`)
+      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`grow-[${unconvertedValue}]`)
+      else returnStyles.push(`grow-${value}`)
       break
     case 'flex-shrink':
       if(value.includes('1')) returnStyles.push(`shrink`)
-      else returnStyles.push(`shrink-0`)
+      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`shrink-[${unconvertedValue}]`)
+      else returnStyles.push(`shrink-${value}`)
       break
     case 'columns':
       if(unconvertedValue.includes('auto')) returnStyles.push(`columns-auto`)
-      else if(unconvertedValue.includes('rem')) returnStyles.push(`columns-${util.translateConvertedToIrregular(columnsUnitDict, unconvertedValue)}`)
+      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`columns-${util.translateConvertedToIrregular(spacingUnitDict, unconvertedValue)}`)
       else returnStyles.push(`columns-${value}`)
+      break
+    case 'flex-basis':
+      if(unconvertedValue.includes('auto')) returnStyles.push(`basis-auto`)
+      else if (util.unitRegex.test(unconvertedValue)) returnStyles.push(`basis-${util.translateConvertedToIrregular(spacingUnitDict, unconvertedValue)}`)
+      else returnStyles.push(`basis-${value}`)
       break
     // * WORDS
     case 'isolate':
@@ -242,6 +270,13 @@ function parseEdgeCases(property, value, unconvertedValue) {
       break
     case 'flex-direction': 
       returnStyles.push(`flex-${value}`.replace('column', 'col'))
+      break
+    case 'flex':
+      if(unconvertedValue.includes('0 auto') || unconvertedValue.includes('initial')) returnStyles.push(`flex-initial`)
+      else if(unconvertedValue.includes('auto')) returnStyles.push(`flex-auto`)
+      else if(unconvertedValue.includes('none')) returnStyles.push(`flex-none`)
+      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`flex-[${unconvertedValue}]`)
+      else returnStyles.push(`flex-${value}`)
       break
   
     // TODO: Flex
@@ -385,8 +420,7 @@ function convertShorthandToTailwind(property, value) {
   
   for (let i = 0; i < rawValues.length; i++) {
     isNegative = ''
-    const convertedValue = util.convertUnits(rawValues[i])
-    const processedValue = handleNegative(convertedValue)
+    const processedValue = handleNegative(util.convertUnits(rawValues[i]))
     processedValues.push(processedValue)
     negativeFlags.push(isNegative === '-')
   }

@@ -8,6 +8,7 @@ import { parseSelectors, combineSelectorPrefixes } from './helpers/prefix'
 import { convertCSSJSONToTailwind, formatTailwindArrayToDict } from './helpers/converter'
 import { parseVariables, tailwindThemeConfig } from './helpers/config-generator'
 import { multilineRules } from './helpers/dictionaries'
+import addMultilineRules from './helpers/multilineRule'
 import { highlightActiveLine } from '@codemirror/view'
 inject() // 
 
@@ -125,40 +126,4 @@ function removeArbitraryRules(json, removeArbitraryPrefixes, removeArbitraryRule
     if (removeArbitraryPrefixes) json[key] = json[key].filter(rule => !arbitraryPrefixesRegex.test(rule))
   })
   return json
-}
-
-function addMultilineRules(json, multilineRules) {
-  Object.keys(multilineRules).forEach(key => {
-    const rules = multilineRules[key]
-    const selector = key
-    // go through each css selector in json and check if all rules from the multiline rule definition are in the selector's rules
-    Object.keys(json).forEach(selector => {
-      // console.log(selector, rules, json[selector])
-      // console.log(isSubset(rules, json[selector]), isLooseSubset(rules, json[selector]))
-      if (isSubset(rules, json[selector]) || isLooseSubset(rules, json[selector])) {
-        json[selector] = looseIntersectComplement(rules, json[selector])
-        json[selector].push(key)
-      }
-    })
-  })
-  return json
-
-}
-
-function isSubset(array1, array2) {
-  return array1.every(item => array2.includes(item))
-}
-
-function isLooseSubset(array1, array2) {
-  return array1.every(item => array2.some(element => element.includes(item)))
-}
-
-// function that removes all rules from array2 that are in array1
-function intersectComplement(array1, array2) {
-  return array2.filter(item => !array1.includes(item))
-}
-
-// function that removes all rules from array2 that include any element from array1
-function looseIntersectComplement(array1, array2) {
-  return array2.filter(item => !array1.some(element => item.includes(element)))
 }

@@ -2,6 +2,7 @@ export const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
 export const otherColorRegex = /^(rgb|rgba|hsl|hsla|hsv|cmyk)\(\s*(-?\d+%?\s*([,\s]+|$)){2,3}(-?\d+%?\s*,?\s*[\d.]*%?\s*)?\)$/
 export const numberRegex = /\d/
 export const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|vmax|vmin|vw|%)/
+export const degreeRegex = /turn|rad|grad/
 import { unitDict, colorsDict, tailwindColors } from './dictionaries'
 import tinycolor from 'tinycolor2'
 import { createNotification } from './notification'
@@ -56,9 +57,14 @@ export function convertUnits(value) {
         const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',') || value.includes('(')
         // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
 
-        const isRatio = value.includes('/') && !value.includes('var(')
-        // console.log(`convertUnits() - ${value} is a ratio: ${isRatio}`)
+        const isSimpleRatio = value.includes('/') && !value.includes('span')
+        const isSpanRatio = value.includes('span') && value.includes('/')
+        // console.log(`convertUnits() - ${value} is a span ratio: ${isSpanRatio}`)
+        // console.log(`convertUnits() - ${value} is a ratio: ${isSimpleRatio}`)
         const isSimpleVariable = value.includes('var(--') && value.split('(').length == 2
+        // console.log(`convertUnits() - ${value} is a variable: ${isSimpleVariable}`)
+        const isRepeatFunction = value.includes('repeat') && value.includes('minmax(0, 1fr)')
+        // console.log(`convertUnits() - ${value} is a repeat function: ${isRepeatFunction}`)
 
         let returnValue = ''
 
@@ -68,23 +74,14 @@ export function convertUnits(value) {
         if(coveredByDictionary) returnValue = unitDict[value]
         else if(isColor) returnValue = handleColors(value)
         else if(isSimpleVariable) returnValue = handleVariable(value)
-        else if(isRatio) returnValue = handleRatio(value)
-        else if(includesMultipleValues) {
-            let values = value.split(' ')
-            let returnValues = ''
-            for(let i = 0; i < values.length; i++) {
-                values[i] = convertUnits(values[i])
-                returnValues += `${values[i]} `
-            }
-            returnValue = returnValues.substring(0, returnValues.length - 1)
-        } else if(value.includes('/')) returnValue = '[' + replaceSpacesWithUnderscores(value) + ']'
+        else if(isSimpleRatio) returnValue = handleRatio(value)
+        else if(isSpanRatio) returnValue = handleSpanRatio(value)
+        else if(isRepeatFunction) returnValue = handleRepeatFunction(value)
+        else if(includesMultipleValues) returnValue = handleMultipleValues(value)
+        // else if(value.includes('/')) returnValue = '[' + replaceSpacesWithUnderscores(value) + ']'
         else if(!isDigitWithUnits) returnValue = value // if it is not a digit or it is a digit without a unit
-        else {
-            if (value.includes('turn') || value.includes('rad') || value.includes('grad')) {
-                returnValue = toDegrees(value)
-            }
-            returnValue = '[' + replaceSpacesWithUnderscores(value) + ']'
-        }
+        else if (degreeRegex.test(value)) returnValue = toDegrees(value)
+        else returnValue = handleBaseCase(value)
         // console.log(`returned value: ${returnValue}`)
         return returnValue
     }
@@ -109,7 +106,13 @@ export function toDegrees(value) {
 
 export function replaceSpacesWithUnderscores(value) {
     // console.log(value)
-    return `${value}`.replace(/\s+/g, '_')
+    // Remove spaces after opening parentheses and before closing parentheses
+    let result = value.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')')
+    
+    // Remove spaces before.after operators (+, -, /, *, =, :)
+    result = result.replace(/\s+([+\-*/=:])/g, '$1').replace(/([+\-*/=:])\s+/g, '$1')
+    
+    return result.replace(/\s+/g, '_')
 }
 
 function parseRGBA(input) {
@@ -131,13 +134,46 @@ function parseRGBA(input) {
 }
 
 function handleRatio(value) {
-  const [width, height] = value.split('/')
-  return `${width.trim()}/${height.trim()}`
+  let [width, height] = value.split('/')
+  return handleGeneralRatio(convertUnits(width), convertUnits(height))
 }
 
+function handleSpanRatio(value) {
+  let [width, height] = value.split('/')
+  width = width.replace('span', '').trim()
+  height = height.replace('span', '').trim()
+  return handleGeneralRatio(convertUnits(width), convertUnits(height))
+}
+
+function handleGeneralRatio(width, height) {
+    if (width.includes('(') && width == height) return width
+    if (numberRegex.test(width) && numberRegex.test(height)) return `${width}/${height}`
+    if (width.includes('(')) width.replace('(', 'var(')
+    if (height.includes('(')) height.replace('(', 'var(')
+    width.replace('[', '').replace(']', '')
+    height.replace('[', '').replace(']', '')
+    return `[${replaceSpacesWithUnderscores(width)}/${replaceSpacesWithUnderscores(height)}]`
+}
 function handleVariable(value) {
   const variableName = value.replace('var(--', '').replace(')', '')
   return `(${variableName})`
+}
+
+function handleRepeatFunction(value) {
+  let repeatNum = value.replace('repeat(', '').split(',')[0]
+  return convertUnits(repeatNum)
+}
+function handleMultipleValues(value) {
+    let values = value.split(' ')
+    let returnValues = ''
+    for(let i = 0; i < values.length; i++) {
+        values[i] = convertUnits(values[i])
+        returnValues += `${values[i]} `
+    }
+    return returnValues.substring(0, returnValues.length - 1)
+}
+function handleBaseCase(value) {
+    return '[' + replaceSpacesWithUnderscores(value) + ']'
 }
 
 function handleColors(value) {
