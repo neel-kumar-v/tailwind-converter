@@ -3079,4 +3079,206 @@
     }
 }
 
+/* background-attachment */
+.background-attachment {
+    background-attachment: fixed;
+}
+@media (print) {
+    .background-attachment {
+        background-attachment: local;
+    }
+}
+@media (max-width: 800px) {
+    .background-attachment {
+        background-attachment: scroll;
+    }
+}
+
+/* background-clip */
+.background-clip {
+    background-clip: border-box;
+}
+@media (print) {
+    .background-clip {
+        background-clip: content-box;
+    }
+}
+@media (max-width: 800px) {
+    .background-clip {
+        background-clip: padding-box;
+    }
+}
+@media (min-width: 1200px) {
+    .background-clip {
+        background-clip: text;
+    }
+}
+
+/* background-color */
+.background-color {
+    background-color: #000000;
+}
+
+@media (print) {
+    .background-color {
+        background-color: #ffffff;
+    }
+}
+
+@media (max-width: 800px) {
+    .background-color {
+        background-color: inherit;
+    }
+}
+
+@media (min-width: 1200px) {
+    .background-color {
+        background-color: oklch(89.7% 0.196 126.665);
+    }
+}
+/* background-image - please no */ 
+
+/* background-origin */
+.background-origin {
+    background-origin: border-box;
+}
+@media (print) {
+    .background-origin {
+        background-origin: content-box;
+    }
+}
+@media (max-width: 800px) {
+    .background-origin {
+        background-origin: padding-box;
+    }
+}
+
+/* background-position */
+@media (max-width: 800px) {
+    .background-position {
+        background-position: top left;
+    }
+}
+
+@media (min-width: 1200px) {
+    .background-position {
+        background-position: top;
+    }
+}
+
+@media (orientation: landscape) {
+    .background-position {
+        background-position: top right;
+    }
+}
+
+@media (pointer: coarse) {
+    .background-position {
+        background-position: left;
+    }
+}
+
+@media (width >=96rem) {
+    .background-position {
+        background-position: center;
+    }
+}
+
+@media (width < 96rem) {
+    .background-position {
+        background-position: right;
+    }
+
+    @media (width > 40rem) {
+        .background-position {
+            background-position: bottom left;
+        }
+    }
+
+    @media (width > 48rem) {
+        .background-position {
+            background-position: bottom;
+        }
+    }
+
+    @media (width > 64rem) {
+        .background-position {
+            background-position: var(--background-position);
+        }
+    }
+
+    @media (width > 80rem) {
+        .background-position {
+            background-position: calc(var(--background-position) + 1);
+        }
+    }
+}
+
+/* background-position */
+@media (max-width: 800px) {
+    .background-position {
+        background-position: repeat;
+    }
+}
+
+@media (min-width: 1200px) {
+    .background-position {
+        background-position: repeat-x;
+    }
+}
+
+@media (orientation: landscape) {
+    .background-position {
+        background-position: repeat-y;
+    }
+}
+
+@media (pointer: coarse) {
+    .background-position {
+        background-position: space;
+    }
+}
+
+@media (width >=96rem) {
+    .background-position {
+        background-position: round;
+    }
+}
+
+@media (width < 96rem) {
+    .background-position {
+        background-position: no-repeat;
+    }
+}
+
+/* background-size */
+@media (max-width: 800px) {
+    .background-size {
+        background-size: auto;
+    }
+}
+
+@media (min-width: 1200px) {
+    .background-size {
+        background-size: contain;
+    }
+}
+
+@media (orientation: landscape) {
+    .background-size {
+        background-size: cover;
+    }
+}
+
+@media (pointer: coarse) {
+    .background-size {
+        background-size: var(--background-size);
+    }
+}
+
+@media (width >=96rem) {
+    .background-size {
+        background-size: auto 32px;
+    }
+}
 
