@@ -107,7 +107,7 @@ function computeTailwindRule(property, value, prefixes="") {
   // Re-check valueIsShorthand after conversion (the converted value might be a single value now)
   const convertedValueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1
   if (singleValueDict.hasOwnProperty(property) && (!convertedValueIsShorthand || util.otherColorRegex.test(value))) {
-    console.log(singleValueDict[property], value)
+    // console.log(singleValueDict[property], value)
     if (lengthUnitSet.has(property) && spacingUnitDict[value] != undefined) return formatRule(`${singleValueDict[property]}-${spacingUnitDict[value]}`)
     if (value == '') return appendToStylesList(`${singleValueDict[property]}`)
     return formatRule(`${singleValueDict[property]}-${value}`) // Applies to most styles: margin, padding, border-width, border-radius, etc
@@ -165,13 +165,13 @@ function parseEdgeCases(property, value, unconvertedValue) {
       break
     case 'outline-width':
       if(unconvertedValue.includes('px')) returnStyles.push(`outline-${Math.abs(Number(unconvertedValue.replace('px', '')))}`)
-      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`outline-[${value}]`)
-      else returnStyles.push(`outline-${value}`)
+      else if(value.includes('(')) returnStyles.push(`outline-${util.handleNamedVariable(value, 'length')}`)
+      else returnStyles.push(`outline-[${value}]`)
       break
     case 'outline-offset':
       if(unconvertedValue.includes('px')) returnStyles.push(`outline-offset-${Math.abs(Number(unconvertedValue.replace('px', '')))}`)
-      else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`outline-offset-[${value}]`)
-      else returnStyles.push(`outline-offset-${value}`)
+      else if(value.includes('(')) returnStyles.push(`outline-offset-${util.handleNamedVariable(value, 'length')}`)
+      else returnStyles.push(`outline-offset-[${value}]`)
       break
     case 'letter-spacing':
       value = value.replace('[', '').replace(']', '')
@@ -204,24 +204,25 @@ function parseEdgeCases(property, value, unconvertedValue) {
       returnStyles = []
       for(let i = 0; i < borderRadiuses.length; i++) {
         borderRadiuses[i] = util.translateConvertedToIrregular(borderRadiusUnitDict, borderRadiuses[i])
+                                                              .replace('-/', '').replace('[100%]', 'full')
       }
       if (borderRadiuses.length === 1) {
-        returnStyles.push(`rounded-${borderRadiuses[0]}`.replace('-/', ''))
+        returnStyles.push(`rounded-${borderRadiuses[0]}`)
       } else if (borderRadiuses.length === 2) {
-        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
-        returnStyles.push(`rounded-br-${borderRadiuses[0]}`.replace('-/', ''))
-        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
-        returnStyles.push(`rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
+        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`)
+        returnStyles.push(`rounded-br-${borderRadiuses[0]}`)
+        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`)
+        returnStyles.push(`rounded-bl-${borderRadiuses[1]}`)
       } else if (borderRadiuses.length === 3) { 
-        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
-        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
-        returnStyles.push(`rounded-bl-${borderRadiuses[1]}`.replace('-/', ''))
-        returnStyles.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
+        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`)
+        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`)
+        returnStyles.push(`rounded-bl-${borderRadiuses[1]}`)
+        returnStyles.push(`rounded-br-${borderRadiuses[2]}`)
       } else if (borderRadiuses.length === 4) {
-        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`.replace('-/', ''))
-        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`.replace('-/', ''))
-        returnStyles.push(`rounded-br-${borderRadiuses[2]}`.replace('-/', ''))
-        returnStyles.push(`rounded-bl-${borderRadiuses[3]}`.replace('-/', ''))
+        returnStyles.push(`rounded-tl-${borderRadiuses[0]}`)
+        returnStyles.push(`rounded-tr-${borderRadiuses[1]}`)
+        returnStyles.push(`rounded-br-${borderRadiuses[2]}`)
+        returnStyles.push(`rounded-bl-${borderRadiuses[3]}`)
       }
       returnStyles.push(returnStyles)
       break
@@ -239,6 +240,10 @@ function parseEdgeCases(property, value, unconvertedValue) {
       returnStyles.push(returnStyles)
       break
     // * NUMBER NO UNIT
+    case '--tw-divide-x-reverse':
+      if (value == '1') returnStyles.push(`divide-x-reverse`)
+    case '--tw-divide-y-reverse':
+      if (value == '1') returnStyles.push(`divide-y-reverse`)
     case 'order':
       if(value == '0') returnStyles.push(`order-none`)
       else if (parseInt(unconvertedValue) < -99) {
@@ -443,7 +448,7 @@ function parseFilterRule(property, value) {
 }
 
 function convertShorthandToTailwind(property, value) {
-  const rawValues = value.split(' ')
+  const rawValues = util.splitSpacesOutsideParentheses(value)
   const processedValues = []
   const negativeFlags = []
   

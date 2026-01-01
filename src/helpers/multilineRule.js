@@ -1,14 +1,20 @@
 export default function addMultilineRules(json, multilineRules) {
   Object.keys(multilineRules).forEach(key => {
     const rules = multilineRules[key]
-    
+    if (typeof rules[0] === 'object') {
+      rules.forEach(rule => handleRule(json, key, rule))
+      return
+    }
+    handleRule(json, key, rules)
+  })
+  return json
+}
+function handleRule(json, key, rules) {
     // Check if this multiline rule contains wildcards
     const hasWildcard = key.includes('$') || rules.some(rule => rule.includes('$'))
     // console.log(rules, hasWildcard)
     if (hasWildcard) handleWildcardRule(json, key, rules)
     else handleNormalRule(json, key, rules)
-  })
-  return json
 }
 
 // Normalize a rule for comparison (remove ![] wrapper, handle colons)
@@ -154,14 +160,15 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
           return
         }
       }
-      // Handle regular rules like 'w-$size' or 'text-$size'
-      const match = rule.match(/(\w+)-?\$(\w+)/)
+      // Handle regular rules like 'w-$size' or 'text-$size' or 'rounded-tr-$radius'
+      // Match everything up to (but not including) the $ wildcard
+      const match = rule.match(/^(.+?)-?\$(\w+)$/)
       if (match) {
         wildcardPatterns.push({
-          prefix: match[1], // e.g., 'w' or 'text'
-          fullPattern: rule, // e.g., 'w-$size' or 'text-$size'
+          prefix: match[1], // e.g., 'w', 'text', or 'rounded-tr'
+          fullPattern: rule, // e.g., 'w-$size', 'text-$size', or 'rounded-tr-$radius'
           hasBrackets: false,
-          wildcardName: match[2] // e.g., 'size' or 'line'
+          wildcardName: match[2] // e.g., 'size', 'line', or 'radius'
         })
         return
       }

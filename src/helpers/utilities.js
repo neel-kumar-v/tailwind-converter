@@ -219,8 +219,27 @@ export function irregularConvertUnits(unitDictionary, value) {
 export function translateConvertedToIrregular (irregularUnitDict, value) {
     if(revertUnits(unitDict, value) != undefined) value = `${revertUnits(unitDict, value)}`
     if(irregularUnitDict[value] != undefined) value = irregularUnitDict[value]
-    else value = `[${value.replace(/ /g, '_')}]`.replace('[[', '[').replace(']]', ']')
+    else value = `[${replaceSpacesWithUnderscores(value)}]`.replace('[[', '[').replace(']]', ']').replace('[(', '(').replace(')]', ')')
     return value
+}
+
+export function splitSpacesOutsideParentheses(value) {
+    const rawValues = []
+    let part = ''
+    let nestLevel = 0
+    for (let i = 0; i < value.length; i++) {
+        const char = value[i]
+        if (char === '(') nestLevel++
+        if (char === ')') nestLevel--
+        if (char === ' ' && nestLevel === 0) {
+            if (part) rawValues.push(part)
+            part = ''
+        } else {
+            part += char
+        }
+    }
+    if (part) rawValues.push(part)
+    return rawValues
 }
 // TODO: Fix copycss function
 export function copy(type, text) {

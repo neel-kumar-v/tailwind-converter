@@ -2,7 +2,7 @@ export const shorthandDict = {
   'margin': 'm',
   'padding': 'p',
   'inset': 'inset-',
-  'border-width': 'border-',
+  'border-width': 'border-', 'border-color': 'border-',
   'scroll-margin': 'scroll-m',
   'scroll-padding': 'scroll-p',
   'border-spacing': 'border-spacing-',
@@ -13,6 +13,8 @@ export const singleValueDict = {
   'margin-top': 'mt', 'margin-left': 'ml', 'margin-bottom': 'mb', 'margin-right': 'mr',
   'padding-top': 'pt', 'padding-left': 'pl', 'padding-bottom': 'pb', 'padding-right': 'pr',
   'border-top-width': 'border-t', 'border-left-width': 'border-l', 'border-bottom-width': 'border-b', 'border-right-width': 'border-r',
+  'border-inline-width': 'border-y', 'border-block-width': 'border-x', 'border-inline-start-width': 'border-s', 'border-inline-end-width': 'border-e', 
+
   'height': 'h', 'width': 'w',
   'gap': 'gap', 'column-gap': 'gap-x', 'row-gap': 'gap-y',
   'min-width': 'min-w', 'max-width': 'max-w', 'min-height': 'min-h', 'max-height': 'max-h',
@@ -40,7 +42,7 @@ export const singleValueDict = {
   // 'white-space': 'whitespace-pre',
   'background-attachment': 'bg', 'background-clip': 'bg-clip', 'background-origin': 'bg-origin', 'background-position': 'bg', 'background-repeat': 'bg', 'background-size': 'bg', 'background-image': 'bg', 'background-color': 'bg', 'background': 'bg', // Todo: bg-no-repeat edge case
   'border-style': 'border',
-  ' -style': 'outline',
+  'outline-style': 'outline',
   'mix-blend-mode': 'mix-blend', 'background-blend-mode': 'bg-blend',
   'border-collapse': 'border',
   'table-layout': 'table',
@@ -52,6 +54,8 @@ export const singleValueDict = {
   'will-change': 'will-change',
   'text-color': 'text', 'text-decoration-color': 'decoration',
   'border-color': 'border', 'outline-color': 'outline', 'accent-color': 'accent', 'caret-color': 'caret',
+  'border-inline-color': 'border-y', 'border-block-color': 'border-x', 'border-inline-start-color': 'border-s', 'border-inline-end-color': 'border-e',
+  'border-top-color': 'border-t', 'border-bottom-color': 'border-b', 'border-left-color': 'border-l', 'border-right-color': 'border-r',
   'fill': 'fill',
   'stroke': 'stroke',
   'stroke-width': 'stroke',
@@ -70,6 +74,8 @@ export const singleValueDict = {
   '--tw-ring-color': 'ring', '--tw-ring-inset': 'ring',
   'grid-column': 'col-span', 'grid-row': 'row-span', 'grid-column-start': 'col-start', 'grid-column-end': 'col-end', 'grid-row-start': 'row-start', 'grid-row-end': 'row-end',
   'border-left-color': 'border-l', 'border-right-color': 'border-r', 'border-top-color': 'border-t', 'border-bottom-color': 'border-b', 'border-inline-start-color': 'border-start', 'border-inline-end-color': 'border-end',
+  'border-start-start-radius': 'rounded-ss', 'border-start-end-radius': 'rounded-se', 'border-end-start-radius': 'rounded-es', 'border-end-end-radius': 'rounded-ee', 
+  'border-top-left-radius': 'rounded-tl', 'border-top-right-radius': 'rounded-tr', 'border-bottom-left-radius': 'rounded-bl', 'border-bottom-right-radius': 'rounded-br',
   'caption-side': 'caption',
   'forced-color-adjust': 'forced-color-adjust',
   'overflow-wrap': 'wrap', 'word-break': 'break', 
@@ -135,6 +141,7 @@ export let unitDict = {
   'scroll-position': 'scroll',
   'minmax(0, 1fr)': 'fr',
   '100%': 'full', '25%': '1/4', '33%': '1/3', '50%': '1/2', '75%': '3/4',
+  'calc(infinity * 1px)': 'full',
   '100vh': 'screen', '100vw': 'screen', '100dvw': 'dvw', '100dvh': 'dvh', '100lvw': 'lvw', '100lvh': 'lvh', '100svh': 'svh', '100svw': 'svw', '1lh': 'lh',
   '0s': '0', '75ms': '75', '100ms': '100', '150ms': '150', '200ms': '200', '300ms': '300', '500ms': '500', '700ms': '700', '1000ms': '1000',
   'column': 'col', 'row': 'row', 'dense': 'dense', 'column dense': 'col-dense', 'row dense': 'row-dense',
@@ -342,6 +349,7 @@ export const borderRadiusDict = {
 }
 
 export const borderRadiusUnitDict = {
+  '100%': 'full',
   '0px': 'none',
   '2px': 'xs',
   '4px': 'sm',
@@ -426,14 +434,7 @@ export const fontSizeUnitDict = {
 }
 
 export const specialSelectors = [
-  'root',
-  'is',
-  'not',
-  'has',
-  'where',
-  'scope',
-  'host',
-  'host-context',
+  'root', 'is', 'not', 'has', 'where', 'scope', 'host', 'host-context', 
 ]
   
 export const multilineRules = {
@@ -445,7 +446,12 @@ export const multilineRules = {
   'line-clamp-$lines': ['![-webkit-line-clamp:$lines]', '![-webkit-box-orient:vertical]', 'overflow-hidden', '-webkit-box'],
   'line-clamp-none': ['![-webkit-line-clamp:unset]', '![-webkit-box-orient:horizontal]', 'overflow-visible', 'block'],
   'text-$size/$line': ['text-$size', 'leading-$line'],
-  'truncate': ['text-ellipsis', 'overflow-hidden', 'whitespace-nowrap']
+  'truncate': ['text-ellipsis', 'overflow-hidden', 'whitespace-nowrap'],
+  'rounded-t-$radius': ['rounded-tl-$radius', 'rounded-tr-$radius'], 'rounded-b-$radius': ['rounded-bl-$radius', 'rounded-br-$radius'], 'rounded-l-$radius': ['rounded-tl-$radius', 'rounded-bl-$radius'], 'rounded-r-$radius': ['rounded-tr-$radius', 'rounded-br-$radius'],
+  'rounded-s-$radius': ['rounded-ss-$radius', 'rounded-es-$radius'], 'rounded-e-$radius': ['rounded-se-$radius', 'rounded-ee-$radius'],
+  'rounded-$radius': [['rounded-t-$radius', 'rounded-b-$radius'], ['rounded-l-$radius', 'rounded-r-$radius'], ['rounded-tl-$radius', 'rounded-tr-$radius', 'rounded-bl-$radius', 'rounded-br-$radius'], ['rounded-ss-$radius', 'rounded-se-$radius', 'rounded-es-$radius', 'rounded-ee-$radius'], ['rounded-s-$radius', 'rounded-e-$radius']],
+  'border-x-$value': [['border-s-$value', 'border-e-$value'], ['border-l-$value', 'border-r-$value']], 'border-y-$value': ['border-t-$value', 'border-b-$value'],
+  'border-$value': [['border-t-$value', 'border-b-$value'], ['border-l-$value', 'border-r-$value'], ['border-s-$value', 'border-e-$value'], ['border-x-$value', 'border-y-$value']],
 }
 
 export const spacingUnitDict = {

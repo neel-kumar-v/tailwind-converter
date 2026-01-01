@@ -3282,3 +3282,353 @@
     }
 }
 
+/* border-radius */
+@media (max-width: 800px) {
+    .border-radius {
+        border-radius: 0;
+    }
+}
+
+@media (min-width: 1200px) {
+    .border-radius {
+        border-radius: calc(infinity * 1px);
+    }
+}
+
+@media (orientation: landscape) {
+    .border-radius {
+        border-radius: 1rem;
+    }
+}
+
+@media (pointer: coarse) {
+    .border-radius {
+        border-radius: 2rem 1rem;
+    }
+}
+
+@media (width >=96rem) {
+    .border-radius {
+        border-radius: 100% 0 0 17px;
+    }
+}
+
+@media (width < 96rem) {
+    .border-radius {
+        border-radius: 20px 12px 0px;
+    }
+
+    @media (width > 40rem) {
+        .border-radius {
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+    }
+
+    @media (width > 48rem) {
+        .border-radius {
+            border-bottom-right-radius: 12px;
+            border-top-left-radius: 20px;
+        }
+    }
+
+    @media (width > 64rem) {
+        .border-radius {
+            border-radius: var(--border-radius);
+        }
+    }
+
+    @media (width > 80rem) {
+        .border-radius {
+            border-start-start-radius: 0;
+            border-start-end-radius: 17px;
+            border-end-start-radius: 12px;
+            border-end-end-radius: 0;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 0;     
+        }
+    }
+
+}
+
+/* border-color */
+@media (max-width: 800px) {
+    .border-color {
+        border-color: rgba(0,0,0,0);
+    }
+}
+
+@media (min-width: 1200px) {
+    .border-color {
+        border-color: oklch(89.7% 0.196 126.665);
+    }
+}
+
+@media (orientation: landscape) {
+    .border-color {
+        border-color: #fff;
+    }
+}
+
+@media (pointer: coarse) {
+    .border-color {
+        border-color: #fff #000;
+    }
+}
+
+@media (width >=96rem) {
+    .border-color {
+        border-color: rebeccapurple aliceblue #fff oklch(98.4% 0.003 247.858);
+    }
+}
+
+@media (width < 96rem) {
+    .border-color {
+        border-color: oklch(96.7% 0.001 286.375) oklch(97% 0 0) oklch(96.7% 0.001 286.375);
+    }
+
+    @media (width > 40rem) {
+        .border-color {
+            border-top-color: oklch(92.4% 0.12 95.746);
+            border-bottom-color: oklch(92.4% 0.12 95.746);
+        }
+    }
+
+    @media (width > 48rem) {
+        .border-color {
+            border-right-color: rgba(137,234,121,0.5);
+            border-left-color: rgba(134,239,172,0.5);
+        }
+    }
+
+    @media (width > 64rem) {
+        .border-color {
+            border-color: var(--border-color);
+        }
+    }
+
+    @media (width > 80rem) {
+        .border-color {
+            border-inline-start-color: #fff;
+            border-inline-end-color: oklch(98.4% 0.003 247.858);
+            border-block-color: oklch(97% 0 0);
+        }
+    }
+
+}
+
+/* border-width */
+@media (max-width: 800px) {
+    .border-width {
+        border-width: 0;
+    }
+}
+
+@media (min-width: 1200px) {
+    .border-width {
+        border-width: 8px;
+    }
+}
+
+@media (orientation: landscape) {
+    .border-width {
+        border-width: 1rem;
+    }
+}
+
+@media (pointer: coarse) {
+    .border-width {
+        border-width: 2rem 1rem;
+    }
+}
+
+@media (width >=96rem) {
+    .border-width {
+        border-width: 100% 0 0 17px;
+    }
+}
+
+@media (width < 96rem) {
+    .border-width {
+        border-width: 20px 1px 0px;
+    }
+
+    @media (width > 40rem) {
+        .border-width {
+            border-top-width: 0;
+            border-bottom-width: 0;
+        }
+    }
+
+    @media (width > 48rem) {
+        .border-width {
+            border-right-width: 12px;
+            border-left-width: 20px;
+        }
+    }
+
+    @media (width > 64rem) {
+        .border-width {
+            border-width: var(--border-width);
+        }
+    }
+
+    @media (width > 80rem) {
+        .border-width {
+            border-inline-start-width: 0;
+            border-inline-end-width: 17px;
+            border-block-width: 12px;
+        }
+    }
+
+}
+
+/* border-style */
+@media (max-width: 800px) {
+    .border-style {
+        border-style: solid;
+    }
+}
+
+@media (min-width: 1200px) {
+    .border-style {
+        border-style: dotted;
+    }
+}
+
+@media (orientation: landscape) {
+    .border-style {
+        border-style: dashed;
+    }
+}
+
+@media (orientation: portrait) {
+    .border-style {
+        border-style: none;
+    }
+}
+
+@media (pointer: coarse) {
+    .border-style {
+        border-style: double;
+    }
+}
+
+@media (width >=96rem) {
+    .border-style {
+        border-style: hidden;
+    }
+}
+
+/* outline-width */
+@media (max-width: 800px) {
+    .outline-width {
+        outline-width: 1px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .outline-width {
+        outline-width: 32px;
+    }
+}
+
+@media (orientation: landscape) {
+    .outline-width {
+        outline-width: var(--outline-width);
+    }
+}
+
+@media (orientation: portrait) {
+    .outline-width {
+        outline-width: auto;
+    }
+}
+
+/* outline-color */
+.outline-color {
+    outline-color: #000000;
+}
+
+@media (print) {
+    .outline-color {
+        outline-color: #ffffff;
+    }
+}
+
+@media (max-width: 800px) {
+    .outline-color {
+        outline-color: inherit;
+    }
+}
+
+@media (min-width: 1200px) {
+    .outline-color {
+        outline-color: oklch(89.7% 0.196 126.665);
+    }
+}
+
+/* outline-style */
+
+@media (max-width: 800px) {
+    .outline-style {
+        outline-style: solid;
+    }
+}
+
+@media (min-width: 1200px) {
+    .outline-style {
+        outline-style: dotted;
+    }
+}
+
+@media (orientation: landscape) {
+    .outline-style {
+        outline-style: dashed;
+    }
+}
+
+@media (orientation: portrait) {
+    .outline-style {
+        outline-style: none;
+    }
+}
+
+@media (pointer: coarse) {
+    .outline-style {
+        outline-style: double;
+    }
+}
+
+@media (width >=96rem) {
+    .outline-style {
+        outline-style: hidden;
+    }
+}
+
+/* outline-offset */
+@media (max-width: 800px) {
+    .outline-offset {
+        outline-offset: 1px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .outline-offset {
+        outline-offset: 32px;
+    }
+}
+
+@media (orientation: landscape) {
+    .outline-offset {
+        outline-offset: var(--outline-offset);
+    }
+}
+
+@media (orientation: portrait) {
+    .outline-offset {
+        outline-offset: auto;
+    }
+}
