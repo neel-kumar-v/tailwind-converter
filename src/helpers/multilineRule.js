@@ -338,7 +338,7 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
           let formattedValue = value
           // If it's a CSS variable like var(--name), simplify to just (name)
           if (value.startsWith('var(--') && value.endsWith(')')) {
-            const varName = value.slice(6, -1) // Remove 'var(--' and ')'
+            const varName = value.slice(4, -1) // Remove 'var( ' and ')'
             formattedValue = `(${varName})`
           } else if (value.startsWith('(') && value.endsWith(')')) {
             // Already in parentheses, don't wrap in brackets

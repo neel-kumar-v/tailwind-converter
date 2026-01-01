@@ -4010,3 +4010,76 @@
         mask-type: luminance;
     }
 }
+
+/* filter */
+.filter {
+    filter: none;
+}
+
+@media (max-width: 800px) {
+    .filter {
+        filter: var(--filter);
+    }
+}
+
+@media (min-width: 1200px) {
+    .filter {
+        filter: url('filters.svg#filter-id');
+    }
+}
+
+@media (orientation: landscape) {
+    .filter {
+        /* base cases */
+        filter: blur(4px) saturate(35%) brightness(25%) contrast(200%) drop-shadow(0 25px 25px rgb(0 0 0 / 0.15)) grayscale(100%) hue-rotate(180deg) invert(100%) sepia(100%);
+    }
+}
+
+@media (pointer: coarse) {
+    .filter {
+        filter: blur(var(--blur)) saturate(var(--saturate)) brightness(var(--brightness)) contrast(var(--contrast)) drop-shadow(var(--drop-shadow)) grayscale(var(--grayscale)) hue-rotate(var(--hue-rotate)) invert(var(--invert)) sepia(var(--sepia));
+    }
+}
+
+@media (width >=96rem) {
+    .filter {
+        filter: blur(19px) saturate(35px) brightness(25rem) drop-shadow(0 25px 25px rgb(0 0 0 / 0.15)) grayscale(100%) hue-rotate(180deg) invert(100%) sepia(100%);
+    }
+}
+
+/* backdrop-filter */
+.backdrop-filter {
+    backdrop-filter: none;
+}
+
+@media (max-width: 800px) {
+    .backdrop-filter {
+        backdrop-filter: var(--backdrop-filter);
+    }
+}
+
+@media (min-width: 1200px) {
+    .backdrop-filter {
+        backdrop-filter: url('backdrop-filters.svg#backdrop-filter-id');
+    }
+}
+
+@media (orientation: landscape) {
+    .backdrop-filter {
+        /* base cases */
+        backdrop-filter: blur(4px) saturate(35%) brightness(25%) contrast(200%) drop-shadow(0 25px 25px rgb(0 0 0 / 0.15)) grayscale(100%) hue-rotate(180deg) invert(100%) sepia(100%);
+    }
+}
+
+@media (pointer: coarse) {
+    .backdrop-filter {
+        backdrop-filter: blur(var(--blur)) saturate(var(--saturate)) brightness(var(--brightness)) contrast(var(--contrast)) drop-shadow(var(--drop-shadow)) grayscale(var(--grayscale)) hue-rotate(var(--hue-rotate)) invert(var(--invert)) sepia(var(--sepia));
+    }
+}
+
+@media (width >=96rem) {
+    .backdrop-filter {
+        backdrop-filter: blur(19px) saturate(35px) brightness(25rem) drop-shadow(0 25px 25px rgb(0 0 0 / 0.15)) grayscale(100%) hue-rotate(180deg) invert(100%) sepia(100%);
+    }
+}
+

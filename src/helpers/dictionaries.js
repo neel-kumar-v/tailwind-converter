@@ -86,6 +86,7 @@ export const singleValueDict = {
   'list-style-image': 'list-image',
   'text-wrap': 'text',
   'hyphens': 'hyphens',
+  '--tw-drop-shadow-color': 'drop-shadow',
 }
 
 export const propertylessDict = {

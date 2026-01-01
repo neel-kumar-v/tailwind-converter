@@ -368,34 +368,41 @@ function parseEdgeCases(property, value, unconvertedValue) {
   return returnStyles
 }
 
-function convertLinearWithAvailableValues(propertyName, value, availableValues, backdrop) {
+function convertScalar(propertyName, value, backdrop) {
+  const isPercentage = value.includes('%')
+  console.log(util.unitRegex.test(value), !util.numberRegex.test(value), value)
+  if(!isPercentage && (util.unitRegex.test(value) || value.includes('(') || !util.numberRegex.test(value))) return `${backdrop}${propertyName}-${util.convertUnits(value)}`
+
   if (valueIsNegative(value)) {
     value = util.convertUnits(value.replace('[-', '').replace(']', ''))
     isNegative = '-'
   }
-  if(availableValues.includes(Number(value))) return `${isNegative}${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
-  else return `${isNegative}${backdrop}${propertyName}-[${value}]` // Else use a arbitrary value
+
+  if(isPercentage) value = Number(value.replace('%', '')) / 100
+  return `${backdrop}${propertyName}-${value * 100}` // If the newValue is a number tailwind has a builtin number for, then use it multiplied by 100
 }
 
-function convertRotationWithAvailableValues(propertyName, value, availableValues, backdrop) {
+function convertScalar100Case(propertyName, value, backdrop) {
+  const isPercentage = value.includes('%')
+  if(!isPercentage && (util.unitRegex.test(value) || value.includes('(') || !util.numberRegex.test(value))) return `${backdrop}${propertyName}-${util.convertUnits(value)}`
+
+  if(value.includes('100%') || value == '1') return `${backdrop}${propertyName}` // If the value is 100%, then just use the property name
+
+  if(isPercentage) value = Number(value.replace('%', '')) / 100
+  return `${backdrop}${propertyName}-${value * 100}` // Else use the property name with the value in brackets
+}
+
+function convertRotation(propertyName, value, backdrop) {
+  const isDegrees = value.includes('deg')
+  if(!isDegrees) return `${backdrop}${propertyName}-${util.convertUnits(value)}`
+
   value = util.toDegrees(value)
   if (valueIsNegative(value)) {
     value = util.convertUnits(value.replace('[-', '').replace(']', ''))
     isNegative = '-'
   }
   value = value.replace('deg', '')  // Remove the deg from the value for parsing
-  if(availableValues.includes(Number(value))) return `${isNegative}${backdrop}${propertyName}-${value}` // If the newValue is a number tailwind has a builtin number for, then use it
-  else return `${isNegative}${backdrop}${propertyName}-[${value}deg]` // Else use a arbitrary value and add deg back to it 
-}
-
-function convertPercentageScaledWithAvailableValues(propertyName, value, backdrop) {
-  if (valueIsNegative(value)) {
-    value = util.convertUnits(value.replace('[-', '').replace(']', ''))
-    isNegative = '-'
-  }
-  if(value.includes('100%')) return `${isNegative}${backdrop}${propertyName}` // If the value is 100%, then just use the property name
-  else if(zeroRegex.test(value)) return `${isNegative}${backdrop}${propertyName}-0` // If the value is 0, then just use the property name with a 0
-  else return `${isNegative}${backdrop}${propertyName}-[${value}]` // Else use the property name with the value in brackets
+  return `${isNegative}${backdrop}${propertyName}-${value}` // If the newValue is a number tailwind has a builtin number for, then use it
 }
 
 function parseFilterRule(property, value) {
@@ -403,48 +410,62 @@ function parseFilterRule(property, value) {
   const backdrop = (property == 'backdrop-filter') ? 'backdrop-' : ''
   let returnStyles = []
   for(let i = 0; i < filterValues.length; i++) {
-    if(filterValues[i] == undefined || filterValues[i] == '') {
+    if(filterValues[i] == undefined || filterValues[i] == '' || filterValues[i] == 'none') {
       returnStyles.push(`${backdrop}filter-none`)
       continue
     }
-
-    let [property, value] = filterValues[i].split('(').map(s => s.trim())
-    value = value.replace(')', '')
-
+    const pCount = (filterValues[i].match(/\(/g) ?? [])
+    const noOtherFunctions = pCount.length <= 1
+    if (filterValues[i].includes('url(') && noOtherFunctions) {
+      returnStyles.push(`${backdrop}filter-[${filterValues[i]}]`)
+      continue
+    }
+    if (filterValues[i].includes('var(') && noOtherFunctions) {
+      returnStyles.push(`${backdrop}filter-(${filterValues[i].replace('var(', '').replace(')', '')})`)
+      continue
+    }
+    const firstPIndex = filterValues[i].indexOf('(')
+    const property = filterValues[i].slice(0, firstPIndex).trim()
+    const value = filterValues[i].slice(firstPIndex + 1).trim().replace('))', ')')
+    console.log(property, value)
     switch(property) {
       case 'blur':
         returnStyles.push(`${backdrop}blur-${util.irregularConvertUnits(blurUnitDict, value)}`)
         break
       case 'brightness':
-        returnStyles.push(convertLinearWithAvailableValues('brightness', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5, 2], backdrop))
+        let returnStyle = convertScalar('brightness', value, backdrop)
+        console.log(returnStyle)
+        returnStyles.push(returnStyle)
         break
       case 'contrast':
-        returnStyles.push(convertLinearWithAvailableValues('contrast', value, [0, 0.5, 0.75, 1, 1.25, 1.5, 2], backdrop))
+        returnStyles.push(convertScalar('contrast', value, backdrop))
         break
       case 'grayscale':
-        returnStyles.push(convertPercentageScaledWithAvailableValues('grayscale', value, backdrop))
+        returnStyles.push(convertScalar100Case('grayscale', value, backdrop))
         break
       case 'hue-rotate':
-        returnStyles.push(convertRotationWithAvailableValues('hue-rotate', value, [0, 15, 30, 60, 90, 180], backdrop))
+        returnStyles.push(convertRotation('hue-rotate', value, backdrop))
         break
       case 'invert':
-        returnStyles.push(convertPercentageScaledWithAvailableValues('invert', value, backdrop))
+        returnStyles.push(convertScalar100Case('invert', value, backdrop))
         break
       case 'saturate':
-        returnStyles.push(convertLinearWithAvailableValues('saturate', value, [0, 0.5, 1, 1.5, 2], backdrop))
+        returnStyles.push(convertScalar('saturate', value, backdrop))
         break
       case 'sepia':
-        returnStyles.push(convertPercentageScaledWithAvailableValues('sepia', value, backdrop))
+        returnStyles.push(convertScalar100Case('sepia', value, backdrop))
         break
       case 'opacity':
-        const convertedValue = util.convertUnits(value)
-        if ((parseFloat(convertedValue) * 100) % 5 == 0) returnStyles.push(`${backdrop}opacity-${parseFloat(convertedValue) * 100}`)
-        else returnStyles.push(`${backdrop}opacity-[${convertedValue}]`)
+        returnStyles.push(convertScalar('opacity', value, backdrop))
         break  
+      case 'drop-shadow':
+        
+        returnStyles.push(`drop-shadow-${util.convertUnits(value)}`)
+        break
       default:
         // createNotification(`(${property}: ${value}) could not be converted`, 1)
         returnStyles.push(`!(${property}: ${value})`)
-        break
+        break 
     }
   }
   return returnStyles
@@ -597,36 +618,36 @@ function parseTransformRule(value) {
         returnStyles.push(`translate-y-${value}`)
         break
       case 'rotate':
-        returnStyles.push(convertRotationWithAvailableValues('rotate', value, [0, 1, 2, 3, 6, 12, 45, 90, 180], ''))
+        returnStyles.push(convertRotation('rotate', value, [0, 1, 2, 3, 6, 12, 45, 90, 180], ''))
         break
       case 'scale':
         const availableScaleValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
         if (value.split(' ').length > 1) {
           let [scaleX, scaleY, scaleZ] = value.replace(',', ' ').replace('  ', ' ').split(' ')
-          returnStyles.push(convertLinearWithAvailableValues('scale-x', scaleX, availableScaleValues, ''))
-          returnStyles.push(convertLinearWithAvailableValues('scale-y', scaleY, availableScaleValues, ''))
+          returnStyles.push(convertScalar('scale-x', scaleX, availableScaleValues, ''))
+          returnStyles.push(convertScalar('scale-y', scaleY, availableScaleValues, ''))
         } else {
-          returnStyles.push(convertLinearWithAvailableValues('scale', value, availableScaleValues, ''))
+          returnStyles.push(convertScalar('scale', value, availableScaleValues, ''))
         }
         break
       case 'scaleX':
-        returnStyles.push(convertLinearWithAvailableValues('scale-x', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
+        returnStyles.push(convertScalar('scale-x', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
         break
       case 'scaleY':
-        returnStyles.push(convertLinearWithAvailableValues('scale-y', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
+        returnStyles.push(convertScalar('scale-y', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
         break
       case 'skewX':
-        returnStyles.push(convertRotationWithAvailableValues('skew-x', value, [0, 1, 2, 3, 6, 12], ''))
+        returnStyles.push(convertRotation('skew-x', value, [0, 1, 2, 3, 6, 12], ''))
         break
       case 'skewY':
-        returnStyles.push(convertRotationWithAvailableValues('skew-y', value, [0, 1, 2, 3, 6, 12], ''))
+        returnStyles.push(convertRotation('skew-y', value, [0, 1, 2, 3, 6, 12], ''))
         break
       case 'skew':
         const availableSkewValues = [0, 1, 2, 3, 6, 12]
         if (value.split(' ').length > 1) {
           let [skewX, skewY] = value.replace(',', ' ').replace('  ', ' ').split(' ')
-          returnStyles.push(convertRotationWithAvailableValues('skew-x', skewX, availableSkewValues, ''))
-          returnStyles.push(convertRotationWithAvailableValues('skew-y', skewY, availableSkewValues, ''))
+          returnStyles.push(convertRotation('skew-x', skewX, availableSkewValues, ''))
+          returnStyles.push(convertRotation('skew-y', skewY, availableSkewValues, ''))
           break
         } 
       case 'translate':

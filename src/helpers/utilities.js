@@ -53,7 +53,7 @@ export function convertUnits(value) {
         // console.log(`Value: ${value}`)
         const coveredByDictionary = unitDict != undefined && unitDict[value] != undefined
 
-        // console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
+        console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
         const isColor = colorsDict[value] != undefined || tailwindColors[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)
         // console.log(`convertUnits() - ${value} was a color: ${isColor}, colorsDict[value]: ${colorsDict[value]}, tailwindColors[value]: ${tailwindColors[value]}`)
         
@@ -87,7 +87,7 @@ export function convertUnits(value) {
         else if (degreeRegex.test(value)) returnValue = toDegrees(value)
         else returnValue = handleBaseCase(value)
 
-        // console.log(`returned value: ${returnValue}`)
+        console.log(`returned value: ${returnValue}`)
         return returnValue
     }
 }
@@ -160,7 +160,7 @@ function handleGeneralRatio(width, height) {
     return `[${replaceSpacesWithUnderscores(width)}/${replaceSpacesWithUnderscores(height)}]`
 }
 function handleVariable(value) {
-  const variableName = value.replace('var(--', '').replace(')', '')
+  const variableName = value.replace('var(', '').replace(')', '')
   return `(${variableName})`
 }
 export function handleNamedVariable(value, variableName) {
@@ -213,6 +213,7 @@ export function revertUnits(object, value) { // This function is used to convert
 
 export function irregularConvertUnits(unitDictionary, value) {
     if(unitDictionary[value] != undefined) return unitDictionary[value]
+    if (value.includes('var(')) return value.replace('var', '')
     if (value.includes('(') && value.includes(')')) return value
     return `[${value}]`
 }
