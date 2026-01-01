@@ -96,6 +96,7 @@ function computeTailwindRule(property, value, prefixes="") {
 
   if(property == "transform") return formatArrayRules(parseTransformRule(value)) // Case #2: The transform property has many different values based on their functions
 
+  // Make a case for handling different types of gradients
   const unconvertedValue = value
   const functionRegex = /repeat|calc|minmax|var\(/
   const hasFunctionSyntax = value.includes('(') && functionRegex.test(value)
@@ -255,7 +256,9 @@ function parseEdgeCases(property, value, unconvertedValue) {
       else returnStyles.push(`order-${value}`)
       break
     case 'opacity':
-      returnStyles.push(`opacity-${value * 100}`)
+      if (unconvertedValue.includes('%')) returnStyles.push(`opacity-${unconvertedValue.replace('%', '')}`)
+      else if(value.includes('(')) returnStyles.push(`opacity-${value}`)
+      else returnStyles.push(`opacity-${value * 100}`)
       break
     case 'aspect-ratio':
       if(value.includes('1 / 1')) returnStyles.push(`aspect-square`)
