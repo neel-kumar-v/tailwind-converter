@@ -242,6 +242,12 @@ export function splitSpacesOutsideParentheses(value) {
     if (part) rawValues.push(part)
     return rawValues
 }
+
+export function convertTimeToMilliseconds(value) {
+    if(value.includes('ms')) return parseFloat(value.replace('ms', ''))
+    if(value.includes('s')) return parseFloat(value.replace('s', '')) * 1000
+    return value
+}
 // TODO: Fix copycss function
 export function copy(type, text) {
   if(text == '' || text == undefined) {

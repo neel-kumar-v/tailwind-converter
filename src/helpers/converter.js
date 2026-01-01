@@ -314,9 +314,18 @@ function parseEdgeCases(property, value, unconvertedValue) {
       else if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`flex-[${unconvertedValue}]`)
       else returnStyles.push(`flex-${value}`)
       break
-  
-    // TODO: Flex
-  
+    case 'transition-property':
+      if (unconvertedValue.includes('color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events')) returnStyles.push(`transition`)
+      else returnStyles.push(`transition-${value}`)
+      break
+    case 'transition-duration':
+      if (unconvertedValue.includes('s') && !unconvertedValue.includes('(')) returnStyles.push(`duration-${util.convertTimeToMilliseconds(unconvertedValue)}`)
+      else returnStyles.push(`duration-${value}`)
+      break
+    case 'transition-delay':
+      if (unconvertedValue.includes('s') && !unconvertedValue.includes('(')) returnStyles.push(`delay-${util.convertTimeToMilliseconds(unconvertedValue)}`)
+      else returnStyles.push(`delay-${value}`)
+      break
     case 'grid-auto-flow': 
       returnStyles.push(`grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
       break
