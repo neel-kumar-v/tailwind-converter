@@ -13,7 +13,7 @@ export function resetDisplay() {
 
 function createCustomizableButton(text, color, outlineStyles) {
   const button = document.createElement('button')
-    button.className = `inline-flex cursor-pointer select-none text-left duration-200 flex-wrap items-center justify-center no-underline hover:no-underline w-fit mr-2 p-1 px-3 hover:px-1.5 h-fit group rounded-lg ${color} my-1  class-copybutton`
+    button.className = `inline-flex cursor-pointer select-none text-left duration-200 flex-wrap items-center justify-center no-underline hover:no-underline w-fit mr-2 p-1 px-3 hover:px-1.5 h-fit group rounded-none ${color} my-1  class-copybutton`
     button.style = outlineStyles
     button.innerHTML = `
       <p class="group-hover:mr-1 duration-200 text-sm xl:text-md text-white font-normal class-name">${text}</p>
@@ -76,7 +76,7 @@ function createOutputSelectorDiv(selector, json) {
   selectorFlexContainer.appendChild(selectorNameElement)
   
   const selectorCopyButton1 = document.createElement('button')
-  selectorCopyButton1.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit xl:mx-3 mx-1 p-1 xl:px-3 px-1 rounded-lg'
+  selectorCopyButton1.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit xl:mx-3 mx-1 p-1 xl:px-3 px-1 rounded-none'
   selectorCopyButton1.innerHTML = `
     <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case max-lg:hidden">Copy as CSS with @apply</p>
     <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case lg:hidden">@apply</p>
@@ -86,7 +86,7 @@ function createOutputSelectorDiv(selector, json) {
   selectorFlexContainer.appendChild(selectorCopyButton1)
   
   const selectorCopyButton2 = document.createElement('button')
-  selectorCopyButton2.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit mx-3 p-1 px-3 rounded-lg'
+  selectorCopyButton2.className = 'inline-flex cursor-pointer select-none text-left duration-100 flex-wrap items-center justify-center no-underline hover:no-underline hover:bg-white/[0.1] w-fit mx-3 p-1 px-3 rounded-none'
   selectorCopyButton2.innerHTML = `
     <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case max-lg:hidden">Copy as TailwindCSS classes</p>
     <p class="mr-2 text-sm xl:text-md text-white/75 font-normal normal-case lg:hidden">Classes</p>
