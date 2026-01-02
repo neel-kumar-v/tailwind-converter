@@ -1,6 +1,22 @@
-import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, spacingUnitDict, lengthUnitSet, fontSizeUnitDict, fontStretchUnitDict, perspectiveUnitDict } from './dictionaries'
+import { 
+  shorthandDict, 
+  unitDict, 
+  borderRadiusUnitDict, 
+  blurUnitDict, 
+  letterSpacingUnitDict, 
+  fontWeightUnitDict, 
+  singleValueDict, 
+  propertylessDict, 
+  borderRadiusDict, 
+  spacingUnitDict, 
+  lengthUnitSet, 
+  fontSizeUnitDict, 
+  fontStretchUnitDict, 
+  perspectiveUnitDict, 
+  tailwindColors 
+} from './dictionaries'
 import * as util from './utilities'
-const zeroRegex = /0[a-zA-Z]*/
+
 export function formatTailwindArrayToDict(tailwindArray) {
   let tailwindDict = {}
   tailwindArray.forEach((item) => {
@@ -289,7 +305,6 @@ function parseEdgeCases(property, value, unconvertedValue) {
       if (unconvertedValue.includes('%') && fontStretchUnitDict[unconvertedValue] != undefined) returnStyles.push(`font-stretch-${fontStretchUnitDict[unconvertedValue]}`)
       else if (unconvertedValue.includes('%')) returnStyles.push(`font-stretch-${unconvertedValue}`)
       else returnStyles.push(`font-stretch-${value}`)
-      console.log(unconvertedValue, value, util.unitRegex.test(value), util.numberRegex.test(unconvertedValue))
       break
     case 'flex-grow':
       if(value.includes('1')) returnStyles.push(`grow`)
@@ -404,7 +419,6 @@ function parseEdgeCases(property, value, unconvertedValue) {
       let negativeFlags = []
       for(let i = 0; i < translations.length; i++) {
         const [value, isNeg] = formatTranslateValue(translations[i])
-        console.log(value, isNeg)
         translations[i] = value
         negativeFlags.push(isNeg ? '-' : '')
       }
@@ -443,7 +457,7 @@ function formatTranslateValue(value) {
 
 function convertScalar(propertyName, value, backdrop) {
   const isPercentage = value.includes('%')
-  console.log(util.unitRegex.test(value), !util.numberRegex.test(value), value)
+  // console.log(util.unitRegex.test(value), !util.numberRegex.test(value), value)
   if(!isPercentage && (util.unitRegex.test(value) || value.includes('(') || !util.numberRegex.test(value))) return `${backdrop}${propertyName}-${util.convertUnits(value)}`
 
   if (valueIsNegative(value)) {
@@ -500,15 +514,13 @@ function parseFilterRule(property, value) {
     const firstPIndex = filterValues[i].indexOf('(')
     const property = filterValues[i].slice(0, firstPIndex).trim()
     const value = filterValues[i].slice(firstPIndex + 1).trim().replace('))', ')')
-    console.log(property, value)
+
     switch(property) {
       case 'blur':
         returnStyles.push(`${backdrop}blur-${util.irregularConvertUnits(blurUnitDict, value)}`)
         break
       case 'brightness':
-        let returnStyle = convertScalar('brightness', value, backdrop)
-        console.log(returnStyle)
-        returnStyles.push(returnStyle)
+        returnStyles.push(convertScalar('brightness', value, backdrop))
         break
       case 'contrast':
         returnStyles.push(convertScalar('contrast', value, backdrop))
@@ -560,8 +572,7 @@ function convertShorthandToTailwind(property, value) {
     if (v.startsWith('[') && v.endsWith(']')) v = v.substring(1, v.length - 1)
     const isSimpleNum = v.match(/^\d+(\.\d+)?$/)
     const isFraction = /^\d+\/\d+$/.test(v)
-    console.log(v, isSimpleNum, isFraction)
-    const inDict = unitDict[`${v}px`] || unitDict[v]
+    const inDict = unitDict[`${v}px`] || unitDict[v] || tailwindColors[v]
     const isTailwindKeyword = /^[a-zA-Z-]+$/.test(v) && !isSimpleNum && !inDict && !v.includes('_')
     if (!isSimpleNum && !isFraction && !inDict && !isTailwindKeyword) v = `[${v}]`
     return isNeg ? `-${prop}-${v}` : `${prop}-${v}`
@@ -597,7 +608,7 @@ function parseTransformRule(value) {
 
     let [property, value] = transformValues[i].split('(').map(s => s.trim())
     value = value.replace(')', '')
-    console.log(property, value)
+
     const dir = ['x', 'y', 'z']
     let negativeFlags = []
 

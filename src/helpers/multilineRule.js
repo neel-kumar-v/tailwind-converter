@@ -126,9 +126,9 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
   if (wildcardMatches.length === 0) return
   
   const wildcardNames = wildcardMatches.map(match => match[1])
-  console.debug('MultilineKey:', multilineKey)
-  console.debug('WildcardNames:', wildcardNames)
-  console.debug('MultilineRules:', multilineRules)
+  // console.debug('MultilineKey:', multilineKey)
+  // console.debug('WildcardNames:', wildcardNames)
+  // console.debug('MultilineRules:', multilineRules)
   
   // Separate wildcard patterns from static rules
   const wildcardPatterns = []
@@ -146,10 +146,10 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
         // Use a more explicit pattern: match everything up to but not including the separator before $
         const wildcardMatch = innerRule.match(/^(.+?)([:-])\$(\w+)$/)
         if (wildcardMatch) {
-          console.debug(`  Extracting pattern from "${innerRule}":`, wildcardMatch)
+          // console.debug(`  Extracting pattern from "${innerRule}":`, wildcardMatch)
           const prefix = wildcardMatch[1]
           const separator = wildcardMatch[2]
-          console.debug(`    Prefix: "${prefix}", Separator: "${separator}"`)
+          // console.debug(`    Prefix: "${prefix}", Separator: "${separator}"`)
           wildcardPatterns.push({
             prefix: prefix, // e.g., '-webkit-line-clamp' (without separator)
             fullPattern: rule, // e.g., '![-webkit-line-clamp:$lines]'
@@ -177,8 +177,8 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
     staticRules.push(rule)
   })
   
-  console.debug('WildcardPatterns:', wildcardPatterns)
-  console.debug('StaticRules:', staticRules)
+  // console.debug('WildcardPatterns:', wildcardPatterns)
+  // console.debug('StaticRules:', staticRules)
   
   if (wildcardPatterns.length === 0) return
   
@@ -201,33 +201,33 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
     
     // Process each prefix group independently
     Object.keys(rulesByPrefix).forEach(prefix => {
-      console.debug(`\n--- Processing prefix: "${prefix}" ---`)
+      // console.debug(`\n--- Processing prefix: "${prefix}" ---`)
       const prefixGroup = rulesByPrefix[prefix]
       const ruleParts = prefixGroup.map(item => item.rulePart)
-      console.debug('RuleParts:', ruleParts)
+      // console.debug('RuleParts:', ruleParts)
       const normalizedRuleParts = ruleParts.map(rule => normalizeRule(rule))
-      console.debug('NormalizedRuleParts:', normalizedRuleParts)
+      // console.debug('NormalizedRuleParts:', normalizedRuleParts)
       
       const normalizedStaticRules = staticRules.map(rule => normalizeRule(rule))
-      console.debug('NormalizedStaticRules:', normalizedStaticRules)
+      // console.debug('NormalizedStaticRules:', normalizedStaticRules)
       if (normalizedStaticRules.length > 0) {
         const isSubsetMatch = isSubset(normalizedStaticRules, normalizedRuleParts)
         const isLooseSubsetMatch = isLooseSubset(normalizedStaticRules, normalizedRuleParts)
-        console.debug('Static rules - isSubset:', isSubsetMatch, 'isLooseSubset:', isLooseSubsetMatch)
+        // console.debug('Static rules - isSubset:', isSubsetMatch, 'isLooseSubset:', isLooseSubsetMatch)
         if (!isSubsetMatch && !isLooseSubsetMatch) {
-          console.debug('Static rules don\'t match, skipping prefix group')
+          // console.debug('Static rules don\'t match, skipping prefix group')
           return
         }
-        console.debug('Static rules match!')
+        // console.debug('Static rules match!')
       }
       
       const matches = {}
       const extractedValues = {}
       let allPatternsMatched = true
       
-      console.debug('Matching wildcard patterns...')
+      // console.debug('Matching wildcard patterns...')
       for (const pattern of wildcardPatterns) {
-        console.debug(`\n  Pattern:`, pattern)
+        // console.debug(`\n  Pattern:`, pattern)
         // Find a rule that matches the pattern
         const matchedItem = prefixGroup.find(({ fullRule: rule, rulePart }) => {
           if (pattern.hasBrackets) {
@@ -242,7 +242,7 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
               const separator = pattern.separator || ':'
               const regex = new RegExp(`^${escapedPrefix}${separator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(.+)$`)
               const matches = regex.test(innerRule)
-              console.debug(`    Checking rulePart "${rulePart}" -> innerRule "${innerRule}" against regex "${regex}" -> ${matches}`)
+              // console.debug(`    Checking rulePart "${rulePart}" -> innerRule "${innerRule}" against regex "${regex}" -> ${matches}`)
               return matches
             }
             return false
@@ -251,14 +251,14 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
             const escapedPrefix = pattern.prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
             const regex = new RegExp(`^${escapedPrefix}-(.+)$`)
             const matches = regex.test(rulePart)
-            console.debug(`    Checking rulePart "${rulePart}" against regex "${regex}" -> ${matches}`)
+            // console.debug(`    Checking rulePart "${rulePart}" against regex "${regex}" -> ${matches}`)
             return matches
           }
         })
         
-        console.debug(`  MatchedItem:`, matchedItem)
+        // console.debug(`  MatchedItem:`, matchedItem)
         if (!matchedItem) {
-          console.debug(`  No match found for pattern ${pattern.fullPattern}`)
+          // console.debug(`  No match found for pattern ${pattern.fullPattern}`)
           allPatternsMatched = false
           break
         }
@@ -277,41 +277,41 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
             const separator = pattern.separator || ':'
             const escapedSeparator = separator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
             valueMatch = innerRule.match(new RegExp(`^${escapedPrefix}${escapedSeparator}(.+)$`))
-            console.debug(`    Extracting value from "${matchedRulePart}" -> innerRule "${innerRule}" -> valueMatch:`, valueMatch)
+            // console.debug(`    Extracting value from "${matchedRulePart}" -> innerRule "${innerRule}" -> valueMatch:`, valueMatch)
           }
         } else {
           const escapedPrefix = pattern.prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
           valueMatch = matchedRulePart.match(new RegExp(`^${escapedPrefix}-(.+)$`))
-          console.debug(`    Extracting value from "${matchedRulePart}" -> valueMatch:`, valueMatch)
+          // console.debug(`    Extracting value from "${matchedRulePart}" -> valueMatch:`, valueMatch)
         }
         
         if (!valueMatch) {
-          console.debug(`  Failed to extract value from matched rule`)
+          // console.debug(`  Failed to extract value from matched rule`)
           allPatternsMatched = false
           break
         }
 
         const value = valueMatch[1]
         const patternWildcardName = pattern.wildcardName
-        console.debug(`  Extracted value: "${value}" for wildcard "${patternWildcardName}"`)
+        // console.debug(`  Extracted value: "${value}" for wildcard "${patternWildcardName}"`)
         
         matches[pattern.prefix] = matchedFullRule
         
         // Check consistency within the same wildcard name
         if (extractedValues[patternWildcardName] !== undefined && extractedValues[patternWildcardName] !== value) {
-          console.debug(`  Value mismatch for wildcard "${patternWildcardName}": expected "${extractedValues[patternWildcardName]}", got "${value}"`)
+          // console.debug(`  Value mismatch for wildcard "${patternWildcardName}": expected "${extractedValues[patternWildcardName]}", got "${value}"`)
           allPatternsMatched = false
           break
         }
         extractedValues[patternWildcardName] = value
       }
       
-      console.debug(`\n  AllPatternsMatched: ${allPatternsMatched}, ExtractedValues:`, extractedValues, `Matches count: ${Object.keys(matches).length}, Patterns count: ${wildcardPatterns.length}`)
+      // console.debug(`\n  AllPatternsMatched: ${allPatternsMatched}, ExtractedValues:`, extractedValues, `Matches count: ${Object.keys(matches).length}, Patterns count: ${wildcardPatterns.length}`)
     
       // Check if we have values for all required wildcards
       const allWildcardsHaveValues = wildcardNames.every(name => extractedValues[name] !== undefined)
       if (allPatternsMatched && Object.keys(matches).length === wildcardPatterns.length && allWildcardsHaveValues) {
-        console.debug('  ✓ All conditions met, replacing rules...')
+        // console.debug('  ✓ All conditions met, replacing rules...')
         // Collect all rules to remove: wildcard matches + static rules from this prefix group
         const rulesToRemove = Object.values(matches)
         
@@ -350,20 +350,20 @@ function handleWildcardRule(json, multilineKey, multilineRules) {
           // Replace all occurrences of this wildcard in the key
           replacementKey = replacementKey.replace(new RegExp(`\\$${wildcardName}`, 'g'), formattedValue)
         }
-        console.debug(`  ReplacementKey: "${replacementKey}"`)
+        // console.debug(`  ReplacementKey: "${replacementKey}"`)
         
         const prefixedKey = prefix ? `${prefix}:${replacementKey}` : replacementKey
-        console.debug(`  PrefixedKey: "${prefixedKey}"`)
+        // console.debug(`  PrefixedKey: "${prefixedKey}"`)
         updatedRules.push(prefixedKey)
         
         json[selector] = updatedRules
-        console.debug(`  ✓ Updated rules for selector "${selector}":`, updatedRules)
+        // console.debug(`  ✓ Updated rules for selector "${selector}":`, updatedRules)
         // } else {
-        console.debug('  ✗ Conditions not met, skipping replacement')
+        // console.debug('  ✗ Conditions not met, skipping replacement')
       }
     })
   })
-  console.debug('=== END WILDCARD RULE HANDLER ===\n')
+  // console.debug('=== END WILDCARD RULE HANDLER ===\n')
 }
 
 function isSubset(array1, array2) {

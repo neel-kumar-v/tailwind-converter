@@ -82,7 +82,7 @@ export const singleValueDict = {
   'list-style-image': 'list-image',
   'text-wrap': 'text',
   'hyphens': 'hyphens',
-  '--tw-drop-shadow-color': 'drop-shadow',
+  '--tw-drop-shadow-color': 'drop-shadow', 'text-shadow': 'text-shadow',
   'backface-visibility': 'backface',
   'perspective-origin': 'perspective-origin',
   'transform-style': 'transform',
@@ -158,11 +158,11 @@ export let unitDict = {
   // '1 1 0%': '1', '1 1 auto': 'auto', '0 1 auto': 'initial', '0 auto': 'initial',
   // 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"': 'sans', 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif': 'serif', 'ui-monospace font-mono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace': 'mono',
   'linear-gradient(to top, var(--tw-gradient-stops))': 'to-t', 'linear-gradient(to top right, var(--tw-gradient-stops))': 'to-tr', 'linear-gradient(to right, var(--tw-gradient-stops))': 'to-r', 'linear-gradient(to bottom right, var(--tw-gradient-stops))': 'to-br', 'linear-gradient(to bottom, var(--tw-gradient-stops))': 'to-b', 'linear-gradient(to bottom left, var(--tw-gradient-stops))': 'to-bl', 'linear-gradient(to left, var(--tw-gradient-stops))': 'to-l', 'linear-gradient(to top left, var(--tw-gradient-stops))': 'to-tl',
-  '0 1px rgb(0 0 0 / 0.05)': '2xs', '0 1px 2px 0 rgb(0 0 0 / 0.05)': 'xs', '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)': 'sm', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)': 'md', '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)': 'lg', '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)': 'xl', '0 25px 50px -12px rgb(0 0 0 / 0.25)': '2xl', 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)': 'inset', '0 0 #000000': 'none', // Box Shadow
-  '0 1px 1px rgb(0 0 0 / 0.05)': 'xs', '0 1px 2px rgb(0 0 0 / 0.15)': 'sm', '0 3px 3px rgb(0 0 0 / 0.12)': 'md', '0 4px 4px rgb(0 0 0 / 0.15)': 'lg', '0 9px 7px rgb(0 0 0 / 0.1)': 'xl', '0 25px 25px rgb(0 0 0 / 0.15)': '2xl', '0 0 #0000': 'none',
+  '0 1px rgb(0 0 0/0.05)': '2xs', '0 1px 2px 0 rgb(0 0 0/0.05)': 'xs', '0 1px 3px 0 rgb(0 0 0/0.1), 0 1px 2px -1px rgb(0 0 0/0.1)': 'sm', '0 4px 6px -1px rgb(0 0 0/0.1), 0 2px 4px -2px rgb(0 0 0/0.1)': 'md', '0 10px 15px -3px rgb(0 0 0/0.1), 0 4px 6px -4px rgb(0 0 0/0.1)': 'lg', '0 20px 25px -5px rgb(0 0 0/0.1), 0 8px 10px -6px rgb(0 0 0/0.1)': 'xl', '0 25px 50px -12px rgb(0 0 0/0.25)': '2xl', 'inset 0 2px 4px 0 rgb(0 0 0/0.05)': 'inset', '0 0 #000000': 'none', // Box Shadow
+  '0 1px 1px rgb(0 0 0/0.05)': 'xs', '0 1px 2px rgb(0 0 0/0.15)': 'sm', '0 3px 3px rgb(0 0 0/0.12)': 'md', '0 4px 4px rgb(0 0 0/0.15)': 'lg', '0 9px 7px rgb(0 0 0/0.1)': 'xl', '0 25px 25px rgb(0 0 0/0.15)': '2xl', '0 0 #0000': 'none',
   'cubic-bezier(0.4, 0, 1, 1)': 'in', 'cubic-bezier(0, 0, 0.2, 1)': 'out', 'cubic-bezier(0.4, 0, 0.2, 1)': 'in-out', 
   'break-word': 'break-words', 'break-all': 'all', 'keep-all': 'keep',
-  '1 / 1': 'square', '16 / 9': 'video',
+  '1/1': 'square', '16/9': 'video',
   '9999px': 'full', 
   // 'bold': '700',  'normal': '400', 'light': '300', 'extrabold': '800', 'black': '900',
   'spin 1s linear infinite': 'spin', 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite': 'ping', 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite': 'pulse', 'bounce 1s infinite': 'bounce',

@@ -14,7 +14,7 @@ import { remPixelConversionRatio, retrieveSettings } from '../main'
   
 export function convertUnits(value) {
     if(value == undefined) {
-        console.log('convertUnits() - value is undefined')
+        // console.log('convertUnits() - value is undefined')
         return value
     }
     value = replaceOperatorSpaces(value).trim()
@@ -40,7 +40,7 @@ export function convertUnits(value) {
     const isSimpleRatio = value.includes('/') && !value.includes('span')
     const isSpanRatio = value.includes('span') && value.includes('/')
     // console.log(`convertUnits() - ${value} is a span ratio: ${isSpanRatio}`)
-    console.log(`convertUnits() - ${value} is a ratio: ${isSimpleRatio}`)
+    // console.log(`convertUnits() - ${value} is a ratio: ${isSimpleRatio}`)
     const isSimpleVariable = value.includes('var(--') && value.split('(').length == 2
     // console.log(`convertUnits() - ${value} is a variable: ${isSimpleVariable}`)
     const isRepeatFunction = value.includes('repeat') && value.includes('minmax(0, 1fr)')
@@ -64,7 +64,7 @@ export function convertUnits(value) {
     else if (rotationRegex.test(value)) returnValue = toDegrees(value)
     else returnValue = handleBaseCase(value)
 
-    console.log(`returned value: ${returnValue}`)
+    // console.log(`returned value: ${returnValue}`)
     return returnValue
 }
 
@@ -168,7 +168,6 @@ function handleBaseCase(value) {
 }
 
 function handleColors(value) {
-    console.log(value, colorsDict[value], tailwindColors[value])
     if(tailwindColors[value] != undefined) return tailwindColors[value]
     if(colorsDict[value] != undefined) value = colorsDict[value]
 
