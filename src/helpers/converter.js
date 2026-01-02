@@ -1,4 +1,4 @@
-import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, spacingUnitDict, lengthUnitSet, fontSizeUnitDict, fontStretchUnitDict } from './dictionaries'
+import { shorthandDict, unitDict, borderRadiusUnitDict, blurUnitDict, letterSpacingUnitDict, fontWeightUnitDict, singleValueDict, propertylessDict, borderRadiusDict, spacingUnitDict, lengthUnitSet, fontSizeUnitDict, fontStretchUnitDict, perspectiveUnitDict } from './dictionaries'
 import * as util from './utilities'
 const zeroRegex = /0[a-zA-Z]*/
 export function formatTailwindArrayToDict(tailwindArray) {
@@ -77,6 +77,7 @@ export function convertCSSJSONToTailwind(cssObject) {
 }
 
 let isNegative = ''
+let arbitraryValue = ''
 function computeTailwindRule(property, value, prefixes="") {
   // Reset isNegative at the start of each rule computation
   isNegative = ''
@@ -98,6 +99,7 @@ function computeTailwindRule(property, value, prefixes="") {
 
   // Make a case for handling different types of gradients
   const unconvertedValue = value
+  arbitraryValue = util.replaceSpacesWithUnderscores(unconvertedValue)
   const functionRegex = /repeat|calc|minmax|var\(/
   const hasFunctionSyntax = value.includes('(') && functionRegex.test(value)
   const valueIsShorthand = (value != undefined && value.split(' ') != undefined && value.split(' ') != null) && value.split(' ').length > 1  // If the value is shorthand and the property is shorthandable
@@ -149,7 +151,7 @@ function handleNegative(value) {
 
 function parseEdgeCases(property, value, unconvertedValue) {
   let returnStyles = []
-    // * EDGE CASES
+  // * EDGE CASES
   switch (property) {
     // * SINGLE VALUES WITH UNITS
     // * BORDER CORNER RADIUS
@@ -199,7 +201,7 @@ function parseEdgeCases(property, value, unconvertedValue) {
       else if (util.unitRegex.test(unconvertedValue)) returnStyles.push(`leading-[${unconvertedValue}]`)
       else returnStyles.push(`leading-${value}`)
       break
-      // * SHORTHANDABLE VALUES EDGE CASES
+    // * SHORTHANDABLE VALUES EDGE CASES
     case 'border-radius':
       let borderRadiuses = value.split(' ')
       returnStyles = []
@@ -318,17 +320,6 @@ function parseEdgeCases(property, value, unconvertedValue) {
       if (unconvertedValue.includes('color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events')) returnStyles.push(`transition`)
       else returnStyles.push(`transition-${value}`)
       break
-    case 'transition-duration':
-      if (unconvertedValue.includes('s') && !unconvertedValue.includes('(')) returnStyles.push(`duration-${util.convertTimeToMilliseconds(unconvertedValue)}`)
-      else returnStyles.push(`duration-${value}`)
-      break
-    case 'transition-delay':
-      if (unconvertedValue.includes('s') && !unconvertedValue.includes('(')) returnStyles.push(`delay-${util.convertTimeToMilliseconds(unconvertedValue)}`)
-      else returnStyles.push(`delay-${value}`)
-      break
-    case 'grid-auto-flow': 
-      returnStyles.push(`grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
-      break
     case 'font-style': 
       if(value.includes('italic')) returnStyles.push(`italic`)
       else if(value.includes('normal')) returnStyles.push(`not-italic`)
@@ -337,7 +328,7 @@ function parseEdgeCases(property, value, unconvertedValue) {
       if(value.includes('none')) returnStyles.push(`normal-case`)
       else returnStyles.push(`${value}`)
       break
-     case 'overflow-wrap':
+    case 'overflow-wrap':
       if(value.include('break-word')) returnStyles.push(`break-words`)
       else returnStyles.push(`${value}`)
       break
@@ -354,8 +345,10 @@ function parseEdgeCases(property, value, unconvertedValue) {
       if (value.includes('(') || value == 'none') returnStyles.push(`content-${value}`)
       else returnStyles.push(`content-[${value}]`)
       break
-    // case 'transform-origin':
-    //   returnStyles.push(`origin-${value}`.replace(' ', '-'))
+    case 'perspective':
+      if(util.unitRegex.test(unconvertedValue)) returnStyles.push(`perspective-${util.translateConvertedToIrregular(perspectiveUnitDict, value)}`)
+      else returnStyles.push(`perspective-${value}`)
+      break
     case 'resize':
       if(value.includes('vertical')) returnStyles.push(`resize-y`)
       else if(value.includes('horizontal')) returnStyles.push(`resize-x`)
@@ -366,15 +359,67 @@ function parseEdgeCases(property, value, unconvertedValue) {
       if(value.includes('none')) returnStyles.push(`snap-align-none`)
       else returnStyles.push(`snap-${value}`)
       break
+    // * TIME
+    case 'transition-duration':
+      if (unconvertedValue.includes('s') && !unconvertedValue.includes('(')) returnStyles.push(`duration-${util.convertTimeToMilliseconds(unconvertedValue)}`)
+      else returnStyles.push(`duration-${value}`)
+      break
+    case 'transition-delay':
+      if (unconvertedValue.includes('s') && !unconvertedValue.includes('(')) returnStyles.push(`delay-${util.convertTimeToMilliseconds(unconvertedValue)}`)
+      else returnStyles.push(`delay-${value}`)
+      break
+    // * TRANSFORM
+    case 'rotate':
+      let rotations = value.split(' ')
+      if (rotations.length == 1) returnStyles.push(convertRotation('rotate', rotations[0], ''))
+      else if (rotations.length == 2) returnStyles.push(convertRotation(`rotate-${rotations[0]}`, rotations[1], ''))
+      else returnStyles.push(`rotate-[${arbitraryValue}]`)
+      break
+    case 'scale':
+      returnStyles.push(convertScalar('scale', value, ''))
+      break
+    case 'translate':
+      let translations = value.split(' ')
+      let negativeFlags = []
+      for(let i = 0; i < translations.length; i++) {
+        const [value, isNeg] = formatTranslateValue(translations[i])
+        console.log(value, isNeg)
+        translations[i] = value
+        negativeFlags.push(isNeg ? '-' : '')
+      }
+      const dir = ['x', 'y', 'z']
+      for (let i = 0; i < translations.length; i++) returnStyles.push(`${negativeFlags[i]}translate-${dir[i]}-${translations[i]}`)
+      break
+    // * MISCELLANEOUS
+    case 'grid-auto-flow': 
+      returnStyles.push(`grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
+      break  
     case 'scroll-snap-type':
       break
-
     default:
       // console.log(`(${property}: ${value}) could not be converted, using ${unconvertedValue}`)
-      if (singleValueDict.hasOwnProperty(property)) returnStyles.push(`${singleValueDict[property]}-[${util.replaceSpacesWithUnderscores(unconvertedValue)}]`)
-      else returnStyles.push(`![${property}:${util.replaceSpacesWithUnderscores(unconvertedValue)}]`)
+      if (singleValueDict.hasOwnProperty(property)) returnStyles.push(`${singleValueDict[property]}-[${arbitraryValue}]`)
+      else returnStyles.push(`![${property}:${arbitraryValue}]`)
   } 
   return returnStyles
+}
+
+function formatTranslateValue(value) {
+  value = value.replace('[', '').replace(']', '')
+  const isNeg = value.includes('-') && !value.includes('var')
+  
+  const isSimpleVariable = value.includes('(--') && value.match(/\)/g)?.length <= 1
+  const isComplexVariable = value.match(/\)/g)?.length > 1
+  if (isSimpleVariable || value.includes('/')) return [value, isNeg]
+  if (isComplexVariable) return [`[${value}]`, isNeg]
+  if (value.includes('1px') || value == 'px') return ['px', isNeg]
+  if (value.includes('100%') || value.includes('full')) return ['full', isNeg]
+
+  const potentialNum = parseFloat(value.replace('px', ''))
+  const possibleTailwindNum = (potentialNum <= 96 || potentialNum % 1 == 0)
+  if (value.includes('px')|| possibleTailwindNum) return [`${potentialNum}`, isNeg]
+
+  else return [`[${value}]`, isNeg]
 }
 
 function convertScalar(propertyName, value, backdrop) {
@@ -402,8 +447,8 @@ function convertScalar100Case(propertyName, value, backdrop) {
 }
 
 function convertRotation(propertyName, value, backdrop) {
-  const isDegrees = value.includes('deg')
-  if(!isDegrees) return `${backdrop}${propertyName}-${util.convertUnits(value)}`
+  const isRotation = value.includes('deg') || value.includes('rad') || value.includes('turn') || value.includes('grad')
+  if(!isRotation) return `${backdrop}${propertyName}-${util.convertUnits(value)}`
 
   value = util.toDegrees(value)
   if (valueIsNegative(value)) {
@@ -468,7 +513,6 @@ function parseFilterRule(property, value) {
         returnStyles.push(convertScalar('opacity', value, backdrop))
         break  
       case 'drop-shadow':
-        
         returnStyles.push(`drop-shadow-${util.convertUnits(value)}`)
         break
       default:
@@ -492,106 +536,27 @@ function convertShorthandToTailwind(property, value) {
     negativeFlags.push(isNegative === '-')
   }
   
-  // Special case for inset to use top/bottom/left/right instead of inset-t/inset-l/etc
-  if (property === 'inset') {
-    const formatInsetValue = (val, isNeg, prop) => {
-      let v = val
-      if (v.startsWith('[') && v.endsWith(']')) v = v.substring(1, v.length - 1)
-      const isSimpleNum = v.match(/^\d+(\.\d+)?$/)
-      const isFraction = /^\d+\/\d+$/.test(v)
-      const inDict = unitDict[`${v}px`] || unitDict[v]
-      const isTailwindKeyword = /^[a-zA-Z-]+$/.test(v) && !isSimpleNum && !inDict && !v.includes('_')
-      if (!isSimpleNum && !isFraction && !inDict && !isTailwindKeyword) v = `[${v}]`
-      return isNeg ? `-${prop}-${v}` : `${prop}-${v}`
-    }
-    
+  const formatShorthandValue = (val, isNeg, prop) => {
+    let v = val
+    if (v.startsWith('[') && v.endsWith(']')) v = v.substring(1, v.length - 1)
+    const isSimpleNum = v.match(/^\d+(\.\d+)?$/)
+    const isFraction = /^\d+\/\d+$/.test(v)
+    console.log(v, isSimpleNum, isFraction)
+    const inDict = unitDict[`${v}px`] || unitDict[v]
+    const isTailwindKeyword = /^[a-zA-Z-]+$/.test(v) && !isSimpleNum && !inDict && !v.includes('_')
+    if (!isSimpleNum && !isFraction && !inDict && !isTailwindKeyword) v = `[${v}]`
+    return isNeg ? `-${prop}-${v}` : `${prop}-${v}`
+  }
+  const formatShorthandValueDynamicArray = (values, negativeFlags, properties) => {
     let styles = []
-    if (processedValues.length === 1) {
-      let valuePart = processedValues[0]
-      if (valuePart.startsWith('[') && valuePart.endsWith(']')) {
-        valuePart = valuePart.substring(1, valuePart.length - 1)
-      }
-      const isSimpleNumber = valuePart.match(/^\d+(\.\d+)?$/)
-      const isFraction = /^\d+\/\d+$/.test(valuePart)
-      const isInDict = unitDict[`${valuePart}px`] || unitDict[valuePart]
-      const isTailwindKeyword = /^[a-zA-Z-]+$/.test(valuePart) && !isSimpleNumber && !isInDict && !valuePart.includes('_')
-      if (!isSimpleNumber && !isFraction && !isInDict && !isTailwindKeyword) {
-        valuePart = `[${valuePart}]`
-      }
-      styles.push(negativeFlags[0] ? `-inset-${valuePart}` : `inset-${valuePart}`)
-    } else if (processedValues.length === 2) {
-      const formatValue = (val) => {
-        let v = val
-        if (v.startsWith('[') && v.endsWith(']')) v = v.substring(1, v.length - 1)
-        const isSimpleNum = v.match(/^\d+(\.\d+)?$/)
-        const isFraction = /^\d+\/\d+$/.test(v)
-        const inDict = unitDict[`${v}px`] || unitDict[v]
-        const isTailwindKeyword = /^[a-zA-Z-]+$/.test(v) && !isSimpleNum && !inDict && !v.includes('_')
-        if (!isSimpleNum && !isFraction && !inDict && !isTailwindKeyword) v = `[${v}]`
-        return v
-      }
-      styles.push(negativeFlags[0] ? `-inset-y-${formatValue(processedValues[0])}` : `inset-y-${formatValue(processedValues[0])}`)
-      styles.push(negativeFlags[1] ? `-inset-x-${formatValue(processedValues[1])}` : `inset-x-${formatValue(processedValues[1])}`)
-    } else if (processedValues.length === 3) {
-      const formatValue = (val) => {
-        let v = val
-        if (v.startsWith('[') && v.endsWith(']')) v = v.substring(1, v.length - 1)
-        const isSimpleNum = v.match(/^\d+(\.\d+)?$/)
-        const isFraction = /^\d+\/\d+$/.test(v)
-        const inDict = unitDict[`${v}px`] || unitDict[v]
-        const isTailwindKeyword = /^[a-zA-Z-]+$/.test(v) && !isSimpleNum && !inDict && !v.includes('_')
-        if (!isSimpleNum && !isFraction && !inDict && !isTailwindKeyword) v = `[${v}]`
-        return v
-      }
-      styles.push(negativeFlags[0] ? `-top-${formatValue(processedValues[0])}` : `top-${formatValue(processedValues[0])}`)
-      styles.push(negativeFlags[1] ? `-inset-x-${formatValue(processedValues[1])}` : `inset-x-${formatValue(processedValues[1])}`)
-      styles.push(negativeFlags[2] ? `-bottom-${formatValue(processedValues[2])}` : `bottom-${formatValue(processedValues[2])}`)
-    } else if (processedValues.length === 4) {
-      styles.push(formatInsetValue(processedValues[0], negativeFlags[0], 'top'))
-      styles.push(formatInsetValue(processedValues[1], negativeFlags[1], 'right'))
-      styles.push(formatInsetValue(processedValues[2], negativeFlags[2], 'bottom'))
-      styles.push(formatInsetValue(processedValues[3], negativeFlags[3], 'left'))
-    }
+    for(let i = 0; i < values.length; i++) styles.push(formatShorthandValue(values[i], negativeFlags[i], properties[i]))
     return styles
   }
-  
-  const shorthandValues = util.shorthand(processedValues, shorthandDict[property])
-  let styles = []
-  
-  let negativeIndex = 0
-  for (let i = 0; i < shorthandValues.length; i++) {
-    let rule = shorthandValues[i]
-    const isValueNegative = negativeFlags[negativeIndex]
-    
-    if (isValueNegative) {
-      const parts = rule.split('-')
-      if (parts.length >= 2) {
-        const propertyPart = parts.slice(0, -1).join('-')
-        let valuePart = parts[parts.length - 1]
-        
-        if (valuePart.startsWith('[') && valuePart.endsWith(']')) {
-          valuePart = valuePart.substring(1, valuePart.length - 1)
-        }
-        if (valuePart.startsWith('-')) {
-          valuePart = valuePart.substring(1)
-        }
-        
-        const isSimpleNumber = valuePart.match(/^\d+(\.\d+)?$/)
-        const isFraction = /^\d+\/\d+$/.test(valuePart)
-        const isInDict = unitDict[`${valuePart}px`] || unitDict[valuePart]
-        if (!isSimpleNumber && !isFraction && !isInDict) {
-          valuePart = `[${valuePart}]`
-        }
-        
-        rule = `-${propertyPart}-${valuePart}`
-      }
-    }
-    
-    styles.push(rule.replace('--', '-'))
-    negativeIndex++
-  }
-  
-  return styles
+  const prefix = shorthandDict[property]
+  const insetPrefixes = [['inset'], ['inset-y', 'inset-x'], ['top', 'inset-x', 'bottom'], ['top', 'right', 'bottom', 'left']]
+  const basePrefixes = [[`${prefix}`], [`${prefix}-y`, `${prefix}-x`], [`${prefix}-t`, `${prefix}-x`, `${prefix}-b`], [`${prefix}-t`, `${prefix}-r`, `${prefix}-b`, `${prefix}-l`]]
+  const prefixes = property === 'inset' ? insetPrefixes : basePrefixes
+  return formatShorthandValueDynamicArray(processedValues, negativeFlags, prefixes[processedValues.length - 1])
 }
 
 function convertPropertylessToTailwind(property, value) {
@@ -613,7 +578,9 @@ function parseTransformRule(value) {
 
     let [property, value] = transformValues[i].split('(').map(s => s.trim())
     value = value.replace(')', '')
-
+    console.log(property, value)
+    const dir = ['x', 'y', 'z']
+    let negativeFlags = []
 
     switch(property) {
       case 'translateX':
@@ -626,52 +593,94 @@ function parseTransformRule(value) {
         if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', ''))
         returnStyles.push(`translate-y-${value}`)
         break
+      case 'translateZ':
+        value = util.convertUnits(value)
+        if (valueIsNegative(value)) value = util.convertUnits(value.replace('[-', '').replace(']', ''))
+        returnStyles.push(`translate-z-${value}`)
+        break
       case 'rotate':
-        returnStyles.push(convertRotation('rotate', value, [0, 1, 2, 3, 6, 12, 45, 90, 180], ''))
+        returnStyles.push(convertRotation('rotate', value, ''))
+        break
+      case 'rotateX':
+        returnStyles.push(convertRotation('rotate-x', value, ''))
+        break
+      case 'rotateY':
+        returnStyles.push(convertRotation('rotate-y', value, ''))
+        break
+      case 'rotateZ':
+        returnStyles.push(convertRotation('rotate-z', value, ''))
+        break
+      case 'rotate3d':
+        let rotations3d = value.split(',').map(s => s.trim())
+        if (rotations3d.length < 4) break
+        const rotationVal = rotations3d[3].replace('deg', '').replace('rad', '').replace('turn', '').replace('grad', '')
+        const rotationUnit = rotations3d[3].replace(rotationVal, '')
+        if (rotations3d[0] != '0') returnStyles.push(convertRotation('rotate-x', `${rotationVal * rotations3d[0]}${rotationUnit}`, ''))
+        if (rotations3d[1] != '0') returnStyles.push(convertRotation('rotate-y', `${rotationVal * rotations3d[1]}${rotationUnit}`, ''))
+        if (rotations3d[2] != '0') returnStyles.push(convertRotation('rotate-z', `${rotationVal * rotations3d[2]}${rotationUnit}`, ''))
         break
       case 'scale':
-        const availableScaleValues = [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5]
-        if (value.split(' ').length > 1) {
-          let [scaleX, scaleY, scaleZ] = value.replace(',', ' ').replace('  ', ' ').split(' ')
-          returnStyles.push(convertScalar('scale-x', scaleX, availableScaleValues, ''))
-          returnStyles.push(convertScalar('scale-y', scaleY, availableScaleValues, ''))
-        } else {
-          returnStyles.push(convertScalar('scale', value, availableScaleValues, ''))
+        let scalings = value.split(', ').map(s => s.trim())
+        if (scalings.length == 1) returnStyles.push(convertScalar('scale', scalings[0], ''))
+        else {
+          returnStyles.push(convertScalar('scale-x', scalings[0], ''))
+          returnStyles.push(convertScalar('scale-y', scalings[1], ''))
+        } 
+        break
+      case 'scale3d':
+        let scalings3d = value.split(', ').map(s => s.trim())
+        if (scalings3d.length == 1) returnStyles.push(convertScalar('scale', scalings3d[0], ''))
+        else if (scalings3d.length == 2) {
+          returnStyles.push(convertScalar('scale-x', scalings3d[0], ''))
+          returnStyles.push(convertScalar('scale-y', scalings3d[1], ''))
+        } else if (scalings3d.length == 3) {
+          returnStyles.push(convertScalar('scale-x', scalings3d[0], ''))
+          returnStyles.push(convertScalar('scale-y', scalings3d[1], ''))
+          returnStyles.push(convertScalar('scale-z', scalings3d[2], ''))
         }
         break
       case 'scaleX':
-        returnStyles.push(convertScalar('scale-x', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
+        returnStyles.push(convertScalar('scale-x', value, ''))
         break
       case 'scaleY':
-        returnStyles.push(convertScalar('scale-y', value, [0, 0.5, 0.75, 0.9, 0.95, 1, 1.05, 1.1, 1.25, 1.5], ''))
+        returnStyles.push(convertScalar('scale-y', value, ''))
+        break
+      case 'scaleZ':
+        returnStyles.push(convertScalar('scale-z', value, ''))
         break
       case 'skewX':
-        returnStyles.push(convertRotation('skew-x', value, [0, 1, 2, 3, 6, 12], ''))
+        returnStyles.push(convertRotation('skew-x', value, ''))
         break
       case 'skewY':
-        returnStyles.push(convertRotation('skew-y', value, [0, 1, 2, 3, 6, 12], ''))
+        returnStyles.push(convertRotation('skew-y', value, ''))
         break
       case 'skew':
-        const availableSkewValues = [0, 1, 2, 3, 6, 12]
-        if (value.split(' ').length > 1) {
-          let [skewX, skewY] = value.replace(',', ' ').replace('  ', ' ').split(' ')
-          returnStyles.push(convertRotation('skew-x', skewX, availableSkewValues, ''))
-          returnStyles.push(convertRotation('skew-y', skewY, availableSkewValues, ''))
-          break
-        } 
+        let skews = value.split(', ').map(s => s.trim())
+        if (skews.length == 1) returnStyles.push(convertRotation('skew', skews[0], ''))
+        else if (skews.length == 2) {
+          returnStyles.push(convertRotation('skew-x', skews[0], ''))
+          returnStyles.push(convertRotation('skew-y', skews[1], ''))
+        }
+        break
       case 'translate':
-        let split = value.split(', ')
-        let [translateX, translateY, translateZ] = [util.convertUnits(split[0]), util.convertUnits(split[1]), split[2]]
-        let returnStylesTranslate = []
-
-        if (valueIsNegative(translateX)) translateX = util.convertUnits(translateX.replace('[-', '').replace(']', ''))
-        returnStylesTranslate.push(`translate-x-${translateX}`)
-
-        if (valueIsNegative(translateY)) translateY = util.convertUnits(translateY.replace('[-', '').replace(']', ''))
-        returnStylesTranslate.push(`translate-y-${translateY}`)
-
-        returnStylesTranslate.push(`transform-[translateZ(${util.replaceSpacesWithUnderscores(translateZ)})]`)
-        returnStyles.push(...returnStylesTranslate) 
+        let translations = value.split(',').map(s => s.trim())
+        negativeFlags = []
+        for(let i = 0; i < translations.length; i++) {
+          const [value, isNeg] = formatTranslateValue(translations[i])
+          translations[i] = value
+          negativeFlags.push(isNeg ? '-' : '')
+        }
+        for (let i = 0; i < translations.length; i++) returnStyles.push(`${negativeFlags[i]}translate-${dir[i]}-${translations[i]}`)
+        break
+      case 'translate3d':
+        let translations3d = value.split(',').map(s => s.trim())
+        negativeFlags = []
+        for(let i = 0; i < translations3d.length; i++) {
+          const [value, isNeg] = formatTranslateValue(translations3d[i])
+          translations3d[i] = value
+          negativeFlags.push(isNeg ? '-' : '')
+        }
+        for (let i = 0; i < translations3d.length; i++) returnStyles.push(`${negativeFlags[i]}translate-${dir[i]}-${translations3d[i]}`)
         break
       default:
         // createNotification(`${property}: ${value} could not be converted cleanly`, '1')

@@ -2,7 +2,7 @@ export const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
 export const otherColorRegex = /^(rgb|rgba|hsl|hsla|hsv|cmyk|oklch)\(\s*(-?\d*\.?\d+%?\s*([,\s]+|$)){2,3}(-?\d*\.?\d+%?\s*,?\s*[\d.]*%?\s*)?\)$/
 export const numberRegex = /\d/
 export const unitRegex = /-?\d*\.?\d+(?:ch|cm|em|ex|in|mm|pc|ms|s|pt|px|rem|vh|vmax|vmin|vw|%)/
-export const degreeRegex = /turn|rad|grad/
+export const rotationRegex = /turn|rad|grad/
 export const sansSerifRegex = /ui-sans-serif|system-ui|sans-serif|Apple Color Emoji|Segoe UI Emoji|Segoe UI Symbol|Noto Color Emoji/
 export const serifRegex = /ui-serif|Georgia|Cambria|Times New Roman|Times|serif/
 export const monospaceRegex = /ui-monospace|SFMono-Regular|Menlo|Monaco|Consolas|Liberation Mono|Courier New|monospace/
@@ -11,112 +11,94 @@ import { unitDict, colorsDict, tailwindColors } from './dictionaries'
 import tinycolor from 'tinycolor2'
 import { createNotification } from './notification'
 import { remPixelConversionRatio, retrieveSettings } from '../main'
-
-export function shorthand(values, property) {
-    let returnStyles = []
-
-    if (values.length === 1) {
-        returnStyles.push(`${property}-${values[0]}`)
-    } else if (values.length === 2) {
-        returnStyles.push(`${property}y-${values[0]}`)
-        returnStyles.push(`${property}x-${values[1]}`)
-    } else if (values.length === 3) {
-        returnStyles.push(`${property}t-${values[0]}`)
-        returnStyles.push(`${property}x-${values[1]}`)
-        returnStyles.push(`${property}b-${values[2]}`)
-    } else if (values.length === 4) {
-        returnStyles.push(`${property}t-${values[0]}`)
-        returnStyles.push(`${property}r-${values[1]}`)
-        returnStyles.push(`${property}b-${values[2]}`)
-        returnStyles.push(`${property}l-${values[3]}`)
-    }
-
-    for(let i = 0; i < returnStyles.length; i++) {
-        if(returnStyles[i] != undefined) returnStyles[i] = returnStyles[i].replace('--', '-') // Sometimes due to the suffixes in the dictionary, there will be 2 dashes, so this fixes that
-    }
-
-    return returnStyles
-}
-  
   
 export function convertUnits(value) {
-    if(value != undefined) {
-        const includesMultipleValues = value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/') && !value.includes(',')
-        // console.log(`convertUnits() - ${value} includes multiple values: ${includesMultipleValues}`)
-        
-        if (value.includes('rem') && !includesMultipleValues) {
-            value = value.replace('rem', '')
-            const num = parseFloat(value)
-            retrieveSettings()
-            value = `${num * remPixelConversionRatio}px`
-        }
-        // console.log(`Value: ${value}`)
-        const coveredByDictionary = unitDict != undefined && unitDict[value] != undefined
-
-        console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
-        const isColor = colorsDict[value] != undefined || tailwindColors[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)
-        // console.log(`convertUnits() - ${value} was a color: ${isColor}, colorsDict[value]: ${colorsDict[value]}, tailwindColors[value]: ${tailwindColors[value]}`)
-        
-        const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',') || value.includes('(')
-        // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
-
-        const isSimpleRatio = value.includes('/') && !value.includes('span')
-        const isSpanRatio = value.includes('span') && value.includes('/')
-        // console.log(`convertUnits() - ${value} is a span ratio: ${isSpanRatio}`)
-        // console.log(`convertUnits() - ${value} is a ratio: ${isSimpleRatio}`)
-        const isSimpleVariable = value.includes('var(--') && value.split('(').length == 2
-        // console.log(`convertUnits() - ${value} is a variable: ${isSimpleVariable}`)
-        const isRepeatFunction = value.includes('repeat') && value.includes('minmax(0, 1fr)')
-        // console.log(`convertUnits() - ${value} is a repeat function: ${isRepeatFunction}`)
-        const isURL = value.includes('url(')
-        // console.log(`convertUnits() - ${value} is a URL: ${isURL}`)
-
-        let returnValue = ''
-
-        // console.log(coveredByDictionary, isColor, includesMultipleValues, !isDigitWithUnits, isSimpleRatio, isSpanRatio, isSimpleVariable, isRepeatFunction, isURL)
-        if (!isURL && (value.includes(`'`) || value.includes(`"`))) return value
-
-        if(coveredByDictionary) returnValue = unitDict[value]
-        else if(isColor) returnValue = handleColors(value)
-        else if(isSimpleVariable) returnValue = handleVariable(value)
-        else if(isSimpleRatio) returnValue = handleRatio(value)
-        else if(isSpanRatio) returnValue = handleSpanRatio(value)
-        else if(isRepeatFunction) returnValue = handleRepeatFunction(value)
-        else if(includesMultipleValues) returnValue = handleMultipleValues(value)
-        else if(!isDigitWithUnits) returnValue = value // if it is not a digit or it is a digit without a unit
-        else if (degreeRegex.test(value)) returnValue = toDegrees(value)
-        else returnValue = handleBaseCase(value)
-
-        console.log(`returned value: ${returnValue}`)
-        return returnValue
+    if(value == undefined) {
+        console.log('convertUnits() - value is undefined')
+        return value
     }
+    value = replaceOperatorSpaces(value).trim()
+    const includesMultipleValues = value.split(' ') != undefined && value.split(' ').length > 1 && !value.includes('/') && !value.includes(',')
+    // console.log(`convertUnits() - ${value} includes multiple values: ${includesMultipleValues}`)
+    
+    if (value.includes('rem') && !includesMultipleValues) {
+        value = value.replace('rem', '')
+        const num = parseFloat(value)
+        retrieveSettings()
+        value = `${num * remPixelConversionRatio}px`
+    }
+    // console.log(`Value: ${value}`)
+    const coveredByDictionary = unitDict != undefined && unitDict[value] != undefined
+
+    // console.log(`convertUnits() - ${value} was covered by the dictionary: ${coveredByDictionary}`)
+    const isColor = colorsDict[value] != undefined || tailwindColors[value] != undefined || hexColorRegex.test(value) || otherColorRegex.test(value)
+    // console.log(`convertUnits() - ${value} was a color: ${isColor}, colorsDict[value]: ${colorsDict[value]}, tailwindColors[value]: ${tailwindColors[value]}`)
+    
+    const isDigitWithUnits = numberRegex.test(value) && unitRegex.test(value) || value.includes(',') || value.includes('(')
+    // console.log(`convertUnits() - ${value} was not a digit with units: ${!isDigitWithUnits}`)
+
+    const isSimpleRatio = value.includes('/') && !value.includes('span')
+    const isSpanRatio = value.includes('span') && value.includes('/')
+    // console.log(`convertUnits() - ${value} is a span ratio: ${isSpanRatio}`)
+    console.log(`convertUnits() - ${value} is a ratio: ${isSimpleRatio}`)
+    const isSimpleVariable = value.includes('var(--') && value.split('(').length == 2
+    // console.log(`convertUnits() - ${value} is a variable: ${isSimpleVariable}`)
+    const isRepeatFunction = value.includes('repeat') && value.includes('minmax(0, 1fr)')
+    // console.log(`convertUnits() - ${value} is a repeat function: ${isRepeatFunction}`)
+    const isURL = value.includes('url(')
+    // console.log(`convertUnits() - ${value} is a URL: ${isURL}`)
+
+    let returnValue = ''
+
+    // console.log(coveredByDictionary, isColor, includesMultipleValues, !isDigitWithUnits, isSimpleRatio, isSpanRatio, isSimpleVariable, isRepeatFunction, isURL)
+    if (!isURL && (value.includes(`'`) || value.includes(`"`))) return value
+
+    if(coveredByDictionary) returnValue = unitDict[value]
+    else if(isColor) returnValue = handleColors(value)
+    else if(isSimpleVariable) returnValue = handleVariable(value)
+    else if(isSimpleRatio) returnValue = handleRatio(value)
+    else if(isSpanRatio) returnValue = handleSpanRatio(value)
+    else if(isRepeatFunction) returnValue = handleRepeatFunction(value)
+    else if(includesMultipleValues) returnValue = handleMultipleValues(value)
+    else if(!isDigitWithUnits) returnValue = value // if it is not a digit or it is a digit without a unit
+    else if (rotationRegex.test(value)) returnValue = toDegrees(value)
+    else returnValue = handleBaseCase(value)
+
+    console.log(`returned value: ${returnValue}`)
+    return returnValue
 }
 
 export function toDegrees(value) {
+    let rotation = 0
     if (value.includes('turn')) {
         let turnValue = value.replace('turn', '')
-        return `${parseFloat(turnValue) * 360}deg`
+        rotation = parseFloat(turnValue) * 360
     }
-    if (value.includes('rad')) {
+    else if (value.includes('rad')) {
         let radValue = value.replace('rad', '')
-        return `${parseFloat(radValue) * 180 / Math.PI}deg`
+        rotation = parseFloat(radValue) * 180 / Math.PI
     }
-    if (value.includes('grad')) {
+    else if (value.includes('grad')) {
         let gradValue = value.replace('grad', '')
-        return `${parseFloat(gradValue) * 0.9}deg`
+        rotation = parseFloat(gradValue) * 0.9
     }
-    return value
+    rotation = Math.round(rotation)
+    return `${rotation}deg`
         
 }
 
-export function replaceSpacesWithUnderscores(value) {
-    // console.log(value)
+function replaceOperatorSpaces(value) {
     // Remove spaces after opening parentheses and before closing parentheses
     let result = value.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')')
     
     // Remove spaces before.after operators (+, -, /, *, =, :)
     result = result.replace(/\s+([+\-*/=:])/g, '$1').replace(/([+\-*/=:])\s+/g, '$1')
-    
+    return result
+}
+
+export function replaceSpacesWithUnderscores(value) {
+    let result = replaceOperatorSpaces(value)
+    // console.log(result)
     return result.replace(/\s+/g, '_')
 }
 
@@ -139,15 +121,13 @@ function parseRGBA(input) {
 }
 
 function handleRatio(value) {
-  let [width, height] = value.split('/')
-  return handleGeneralRatio(convertUnits(width), convertUnits(height))
+  let [width, height] = value.split('/').map(s => s.trim()).map(s => convertUnits(s))
+  return handleGeneralRatio(width, height)
 }
 
 function handleSpanRatio(value) {
-  let [width, height] = value.split('/')
-  width = width.replace('span', '').trim()
-  height = height.replace('span', '').trim()
-  return handleGeneralRatio(convertUnits(width), convertUnits(height))
+  let [width, height] = value.split('/').map(s => s.replace('span', '').trim()).map(s => convertUnits(s))
+  return handleGeneralRatio(width, height)
 }
 
 function handleGeneralRatio(width, height) {
@@ -157,7 +137,7 @@ function handleGeneralRatio(width, height) {
     if (height.includes('(')) height.replace('(', 'var(')
     width.replace('[', '').replace(']', '')
     height.replace('[', '').replace(']', '')
-    return `[${replaceSpacesWithUnderscores(width)}/${replaceSpacesWithUnderscores(height)}]`
+    return `${replaceSpacesWithUnderscores(width)}/${replaceSpacesWithUnderscores(height)}`
 }
 function handleVariable(value) {
   const variableName = value.replace('var(', '').replace(')', '')
@@ -212,15 +192,17 @@ export function revertUnits(object, value) { // This function is used to convert
 }
 
 export function irregularConvertUnits(unitDictionary, value) {
+    value = value.replace('[', '').replace(']', '')
     if(unitDictionary[value] != undefined) return unitDictionary[value]
     if (value.includes('var(')) return value.replace('var', '')
     if (value.includes('(') && value.includes(')')) return value
     return `[${value}]`
 }
 export function translateConvertedToIrregular (irregularUnitDict, value) {
+    value = value.replace('[', '').replace(']', '')
     if(revertUnits(unitDict, value) != undefined) value = `${revertUnits(unitDict, value)}`
     if(irregularUnitDict[value] != undefined) value = irregularUnitDict[value]
-    else value = `[${replaceSpacesWithUnderscores(value)}]`.replace('[[', '[').replace(']]', ']').replace('[(', '(').replace(')]', ')')
+    else value = `[${replaceSpacesWithUnderscores(value)}]`
     return value
 }
 

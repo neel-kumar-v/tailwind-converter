@@ -87,6 +87,9 @@ export const singleValueDict = {
   'text-wrap': 'text',
   'hyphens': 'hyphens',
   '--tw-drop-shadow-color': 'drop-shadow',
+  'backface-visibility': 'backface',
+  'perspective-origin': 'perspective-origin',
+  'transform-style': 'transform',
 }
 
 export const propertylessDict = {
@@ -167,6 +170,8 @@ export let unitDict = {
   'spin 1s linear infinite': 'spin', 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite': 'ping', 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite': 'pulse', 'bounce 1s infinite': 'bounce',
   'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke': 'colors', 'transform, translate, scale, rotate': 'transform',
   'allow-discrete': 'allow',
+  'var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)': '3d', 'var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)': 'cpu',
+  'preserve-3d': '3d', 
 }
 // TODO: Add more values to the non translate values
 export const nonTranslateValues = [
@@ -437,6 +442,14 @@ export const fontSizeUnitDict = {
   '120px': '9xl', '7.5rem': '9xl',
 }
 
+export const perspectiveUnitDict = {
+  '100px': 'dramatic',
+  '300px': 'near',
+  '500px': 'normal',
+  '800px': 'midrange',
+  '1200px': 'distant',
+}
+
 export const specialSelectors = [
   'root', 'is', 'not', 'has', 'where', 'scope', 'host', 'host-context', 
 ]
@@ -456,6 +469,7 @@ export const multilineRules = {
   'rounded-$radius': [['rounded-t-$radius', 'rounded-b-$radius'], ['rounded-l-$radius', 'rounded-r-$radius'], ['rounded-tl-$radius', 'rounded-tr-$radius', 'rounded-bl-$radius', 'rounded-br-$radius'], ['rounded-ss-$radius', 'rounded-se-$radius', 'rounded-es-$radius', 'rounded-ee-$radius'], ['rounded-s-$radius', 'rounded-e-$radius']],
   'border-x-$value': [['border-s-$value', 'border-e-$value'], ['border-l-$value', 'border-r-$value']], 'border-y-$value': ['border-t-$value', 'border-b-$value'],
   'border-$value': [['border-t-$value', 'border-b-$value'], ['border-l-$value', 'border-r-$value'], ['border-s-$value', 'border-e-$value'], ['border-x-$value', 'border-y-$value']],
+  'translate-$value': ['translate-x-$value', 'translate-y-$value'],
 }
 
 export const spacingUnitDict = {
