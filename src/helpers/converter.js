@@ -171,6 +171,11 @@ function parseEdgeCases(property, value, unconvertedValue) {
       else if(value.includes('(')) returnStyles.push(`outline-${util.handleNamedVariable(value, 'length')}`)
       else returnStyles.push(`outline-[${value}]`)
       break
+    case 'stroke-width':
+      if(util.numberRegex.test(unconvertedValue)) returnStyles.push(`stroke-${Math.abs(Number(unconvertedValue.replace('px', '')))}`)
+      else if(value.includes('(')) returnStyles.push(`stroke-${util.handleNamedVariable(value, 'length')}`)
+      else returnStyles.push(`stroke-[${value}]`)
+      break
     case 'outline-offset':
       if(unconvertedValue.includes('px')) returnStyles.push(`outline-offset-${Math.abs(Number(unconvertedValue.replace('px', '')))}`)
       else if(value.includes('(')) returnStyles.push(`outline-offset-${util.handleNamedVariable(value, 'length')}`)
