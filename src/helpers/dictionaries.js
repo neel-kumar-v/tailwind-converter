@@ -2,7 +2,7 @@ export const shorthandDict = {
   'margin': 'm',
   'padding': 'p',
   'inset': 'inset-',
-  'border-width': 'border-',
+  'border-width': 'border-', 'border-color': 'border-',
   'scroll-margin': 'scroll-m',
   'scroll-padding': 'scroll-p',
   'border-spacing': 'border-spacing-',
@@ -13,21 +13,19 @@ export const singleValueDict = {
   'margin-top': 'mt', 'margin-left': 'ml', 'margin-bottom': 'mb', 'margin-right': 'mr',
   'padding-top': 'pt', 'padding-left': 'pl', 'padding-bottom': 'pb', 'padding-right': 'pr',
   'border-top-width': 'border-t', 'border-left-width': 'border-l', 'border-bottom-width': 'border-b', 'border-right-width': 'border-r',
+  'border-inline-width': 'border-y', 'border-block-width': 'border-x', 'border-inline-start-width': 'border-s', 'border-inline-end-width': 'border-e', 
   'height': 'h', 'width': 'w',
   'gap': 'gap', 'column-gap': 'gap-x', 'row-gap': 'gap-y',
   'min-width': 'min-w', 'max-width': 'max-w', 'min-height': 'min-h', 'max-height': 'max-h',
-  // 'line-height': 'leading',
   'text-indent': 'indent',
-  'transition-duration': 'duration', 'transition-delay': 'delay', 'transition-timing-function': 'ease',
+  'transition-timing-function': 'ease', 'transition-behavior': 'transition',
   'grid-row-start': 'row-start', 'grid-row-end': 'row-end', 'grid-column-start': 'col-start', 'grid-column-end': 'col-end', 
   'z-index': 'z',
-  'columns': 'columns',
   'break-after': 'break-after', 'break-before': 'break-before', 'break-inside': 'break-inside',
-  'box-decoration-break-inside': 'box-decoration',
+  'box-decoration-break-inside': 'box-decoration', 'box-decoration-break': 'box-decoration',
   'box-sizing': 'box',
   'float': 'float',
   'clear': 'clear',
-  'flex': 'flex',
   'object-fit': 'object', 'object-position': 'object', 'overflow': 'overflow', 'overflow-x': 'overflow-x', 'overflow-y': 'overflow-y',
   'overscroll': 'overscroll', 'overscroll-x': 'overscroll-x', 'overscroll-y': 'overscroll-y',
   'flex-wrap': 'flex',
@@ -38,42 +36,58 @@ export const singleValueDict = {
   'list-style-type': 'list', 'list-style-position': 'list',
   'text-align': 'text', 'text-decoration-style': 'decoration', 'text-overflow': 'text',
   'vertical-align': 'align',
-  // 'white-space': 'whitespace-pre',
   'background-attachment': 'bg', 'background-clip': 'bg-clip', 'background-origin': 'bg-origin', 'background-position': 'bg', 'background-repeat': 'bg', 'background-size': 'bg', 'background-image': 'bg', 'background-color': 'bg', 'background': 'bg', // Todo: bg-no-repeat edge case
   'border-style': 'border',
-  ' -style': 'outline',
+  'outline-style': 'outline',
   'mix-blend-mode': 'mix-blend', 'background-blend-mode': 'bg-blend',
+  'mask-clip': 'mask-clip', 'mask-composite': 'mask', 'mask-image': 'mask', 'mask-mode': 'mask', 'mask-origin': 'mask-origin', 'mask-position': 'mask', 'mask-repeat': 'mask', 'mask-size': 'mask', 'mask-type': 'mask-type', 
   'border-collapse': 'border',
   'table-layout': 'table',
   'cursor': 'cursor',
   'pointer-events': 'pointer-events',
-  'scroll-behaviour': 'scroll', 'scroll-snap-stop': 'snap',
+  'scroll-behaviour': 'scroll', 'scroll-behavior': 'scroll', 'scroll-snap-stop': 'snap',
   'touch-action': 'touch',
   'user-select': 'select',
   'will-change': 'will-change',
   'text-color': 'text', 'text-decoration-color': 'decoration',
   'border-color': 'border', 'outline-color': 'outline', 'accent-color': 'accent', 'caret-color': 'caret',
+  'border-inline-color': 'border-y', 'border-block-color': 'border-x', 'border-inline-start-color': 'border-s', 'border-inline-end-color': 'border-e',
+  'border-top-color': 'border-t', 'border-bottom-color': 'border-b', 'border-left-color': 'border-l', 'border-right-color': 'border-r',
   'fill': 'fill',
   'stroke': 'stroke',
   'stroke-width': 'stroke',
-  'inset-inline-start': 'start', 'inset-inline-end': 'end',
+  'inset-inline-start': 'start', 'inset-inline-end': 'end', 'inset-inline': 'inset-x', 'inset-block': 'inset-y',
   'top': 'top', 'left': 'left', 'bottom': 'bottom', 'right': 'right',
   'appearance': 'appearance',
-  'margin': 'm', 'padding': 'p', 'inset': 'inset-', 'border-width': 'border', 
-  'scroll-margin': 'scroll-m', 'scroll-margin-top': 'scroll-mt', 'scroll-margin-left': 'scroll-ml', 'scroll-margin-bottom': 'scroll-mb', 'scroll-margin-right': 'scroll-mr', 'scroll-margin-inline-start': 'scroll-ms', 'scroll-margin-inline-end': 'scroll-me', 
-  'scroll-padding': 'scroll-p', 'scroll-padding-top': 'scroll-pt', 'scroll-padding-left': 'scroll-pl', 'scroll-padding-bottom': 'scroll-pb', 'scroll-padding-right': 'scroll-pr', 'scroll-padding-inline-start': 'scroll-ps', 'scroll-padding-inline-end': 'scroll-pe', 
+  'margin': 'm', 'margin-inline': 'mx', 'margin-block': 'my', 'margin-inline-start': 'ms', 'margin-inline-end': 'me', 'margin-block-start': 'ms', 'margin-block-end': 'me', 'margin-top': 'mt', 'margin-left': 'ml', 'margin-bottom': 'mb', 'margin-right': 'mr',
+  'padding': 'p', 'padding-inline': 'px', 'padding-block': 'py', 'padding-inline-start': 'ps', 'padding-inline-end': 'pe', 'padding-block-start': 'ps', 'padding-block-end': 'pe', 'padding-top': 'pt', 'padding-left': 'pl', 'padding-bottom': 'pb', 'padding-right': 'pr',
+  'scroll-margin': 'scroll-m', 'scroll-margin-inline': 'scroll-mx', 'scroll-margin-block': 'scroll-my', 'scroll-margin-inline-start': 'scroll-ms', 'scroll-margin-inline-end': 'scroll-me', 'scroll-margin-block-start': 'scroll-ms', 'scroll-margin-block-end': 'scroll-me', 'scroll-margin-top': 'scroll-mt', 'scroll-margin-left': 'scroll-ml', 'scroll-margin-bottom': 'scroll-mb', 'scroll-margin-right': 'scroll-mr',
+  'scroll-padding': 'scroll-p', 'scroll-padding-inline': 'scroll-px', 'scroll-padding-block': 'scroll-py', 'scroll-padding-inline-start': 'scroll-ps', 'scroll-padding-inline-end': 'scroll-pe', 'scroll-padding-block-start': 'scroll-ps', 'scroll-padding-block-end': 'scroll-pe', 'scroll-padding-top': 'scroll-pt', 'scroll-padding-left': 'scroll-pl', 'scroll-padding-bottom': 'scroll-pb', 'scroll-padding-right': 'scroll-pr',
+  'inset': 'inset', 'border-width': 'border', 
   'border-spacing': 'border-spacing',
   '--tw-scroll-snap-strictness': 'snap', 'scroll-snap-type': 'snap',
   'color': 'text',
   'transform-origin': 'origin',
-  '--tw-ring-color': 'ring', '--tw-ring-inset': 'ring',
+  '--tw-ring-color': 'ring', '--tw-ring-inset': 'ring', 
   'grid-column': 'col-span', 'grid-row': 'row-span', 'grid-column-start': 'col-start', 'grid-column-end': 'col-end', 'grid-row-start': 'row-start', 'grid-row-end': 'row-end',
   'border-left-color': 'border-l', 'border-right-color': 'border-r', 'border-top-color': 'border-t', 'border-bottom-color': 'border-b', 'border-inline-start-color': 'border-start', 'border-inline-end-color': 'border-end',
+  'border-start-start-radius': 'rounded-ss', 'border-start-end-radius': 'rounded-se', 'border-end-start-radius': 'rounded-es', 'border-end-end-radius': 'rounded-ee', 
+  'border-top-left-radius': 'rounded-tl', 'border-top-right-radius': 'rounded-tr', 'border-bottom-left-radius': 'rounded-bl', 'border-bottom-right-radius': 'rounded-br',
   'caption-side': 'caption',
   'forced-color-adjust': 'forced-color-adjust',
-  'overflow-wrap': 'break', 'word-break': 'break', 
+  'overflow-wrap': 'wrap', 'word-break': 'break', 
   'column-reverse': 'col-reverse', 'row-reverse': 'row-reverse',
   'box-shadow': 'shadow',
+  'overscroll-behavior': 'overscroll', 'overscroll-behavior-x': 'overscroll-x', 'overscroll-behavior-y': 'overscroll-y',
+  'list-style-image': 'list-image',
+  'text-wrap': 'text',
+  'hyphens': 'hyphens',
+  '--tw-drop-shadow-color': 'drop-shadow', 'text-shadow': 'text-shadow',
+  'backface-visibility': 'backface',
+  'perspective-origin': 'perspective-origin',
+  'transform-style': 'transform',
+  'color-scheme': 'scheme',
+  'field-sizing': 'field-sizing',
 }
 
 export const propertylessDict = {
@@ -84,6 +98,10 @@ export const propertylessDict = {
   'text-decoration-line': '',
   'text-transform': '',
 }
+
+export const lengthUnitSet = new Set([
+  'width', 'min-width', 'max-width', 
+])
 
 export let unitDict = {
   // Pixel lengths
@@ -119,41 +137,44 @@ export let unitDict = {
   '320px': '80', '20rem': '80',
   '384px': '96', '24rem': '96',
   'min': 'min-content', 'max': 'max-content',
-  'flex-start': 'start', 'flex-end': 'end',
-  'space-between': 'between', 'space-around': 'around', 'space-evenly': 'evenly',
-  'fit-content': 'fit',
-  'border-box': 'border',
-  'padding-box': 'padding',
-  'content-box': 'content',
+  'min-content': 'min', 'max-content': 'max', 'fit-content': 'fit',
+  'flex-start': 'start', 'safe flex-start': 'start-safe', 'safe start': 'start-safe', 'flex-end': 'end', 'safe flex-end': 'end-safe', 'safe end': 'end-safe', 'space-between': 'between', 'space-around': 'around', 'space-evenly': 'evenly', 'safe center': 'center-safe', 'last baseline': 'baseline-last',
+  'border-box': 'border', 'padding-box': 'padding', 'content-box': 'content', 'fill-box': 'fill', 'stroke-box': 'stroke', 'view-box': 'view', 'match-source': 'match',
   'currentColor': 'current',
   'scroll-position': 'scroll',
   'minmax(0, 1fr)': 'fr',
   '100%': 'full', '25%': '1/4', '33%': '1/3', '50%': '1/2', '75%': '3/4',
-  '100vh': 'screen', '100vw': 'screen', '100dvw': 'dvw', '100dvh': 'dvh', '100lvw': 'lvw', '100lvh': 'lvh', '100svh': 'svh', '100svw': 'svw',
+  'calc(infinity * 1px)': 'full',
+  '100vh': 'screen', '100vw': 'screen', '100dvw': 'dvw', '100dvh': 'dvh', '100lvw': 'lvw', '100lvh': 'lvh', '100svh': 'svh', '100svw': 'svw', '1lh': 'lh',
   '0s': '0', '75ms': '75', '100ms': '100', '150ms': '150', '200ms': '200', '300ms': '300', '500ms': '500', '700ms': '700', '1000ms': '1000',
   'column': 'col', 'row': 'row', 'dense': 'dense', 'column dense': 'col-dense', 'row dense': 'row-dense',
-  'repeat(1, minmax(0, 1fr))': '1', 'repeat(2, minmax(0, 1fr))': '2', 'repeat(3, minmax(0, 1fr))': '3', 'repeat(4, minmax(0, 1fr))': '4', 'repeat(5, minmax(0, 1fr))': '5', 'repeat(6, minmax(0, 1fr))': '6', 'repeat(7, minmax(0, 1fr))': '7', 'repeat(8, minmax(0, 1fr))': '8', 'repeat(9, minmax(0, 1fr))': '9', 'repeat(10, minmax(0, 1fr))': '10', 'repeat(11, minmax(0, 1fr))': '11', 'repeat(12, minmax(0, 1fr))': '12',
+  // 'repeat(1, minmax(0, 1fr))': '1', 'repeat(2, minmax(0, 1fr))': '2', 'repeat(3, minmax(0, 1fr))': '3', 'repeat(4, minmax(0, 1fr))': '4', 'repeat(5, minmax(0, 1fr))': '5', 'repeat(6, minmax(0, 1fr))': '6', 'repeat(7, minmax(0, 1fr))': '7', 'repeat(8, minmax(0, 1fr))': '8', 'repeat(9, minmax(0, 1fr))': '9', 'repeat(10, minmax(0, 1fr))': '10', 'repeat(11, minmax(0, 1fr))': '11', 'repeat(12, minmax(0, 1fr))': '12',
   'x var(--tw-scroll-snap-strictness)': 'x', 'y var(--tw-scroll-snap-strictness)': 'y', 'both var(--tw-scroll-snap-strictness)': 'both',
   'bottom left': 'bottom-left', 'bottom right': 'bottom-right', 'top left': 'top-left', 'top right': 'top-right', 'left': 'left', 'right': 'right', 'top': 'top', 'bottom': 'bottom',
   'inherit': 'inherit', 'currentColor': 'current', 'transparent': 'transparent',
   'var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color': '0', 'var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color': '1', 'var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color': '2', 'var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color': '4', 'var(--tw-ring-inset) 0 0 0 calc(8px + var(--tw-ring-offset-width)) var(--tw-ring-color': '8',
-  '-9999': 'first', '9999': 'last',
-  'span 1 / span 1': '1', 'span 2 / span 2': '2', 'span 3 / span 3': '3', 'span 4 / span 4': '4', 'span 5 / span 5': '5', 'span 6 / span 6': '6', 'span 7 / span 7': '7', 'span 8 / span 8': '8', 'span 9 / span 9': '9', 'span 10 / span 10': '10', 'span 11 / span 11': '11', 'span 12 / span 12': '12', '1 / -1': 'full',
-  '1 1 0%': '1', '1 1 auto': 'auto', '0 1 auto': 'initial',
-  'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"': 'sans', 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif': 'serif', 'ui-monospace font-mono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace': 'mono',
+  // '-9999': 'first', '9999': 'last',
+  // 'span 1 / span 1': '1', 'span 2 / span 2': '2', 'span 3 / span 3': '3', 'span 4 / span 4': '4', 'span 5 / span 5': '5', 'span 6 / span 6': '6', 'span 7 / span 7': '7', 'span 8 / span 8': '8', 'span 9 / span 9': '9', 'span 10 / span 10': '10', 'span 11 / span 11': '11', 'span 12 / span 12': '12', '1 / -1': 'full',
+  // '1 1 0%': '1', '1 1 auto': 'auto', '0 1 auto': 'initial', '0 auto': 'initial',
+  // 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"': 'sans', 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif': 'serif', 'ui-monospace font-mono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace': 'mono',
   'linear-gradient(to top, var(--tw-gradient-stops))': 'to-t', 'linear-gradient(to top right, var(--tw-gradient-stops))': 'to-tr', 'linear-gradient(to right, var(--tw-gradient-stops))': 'to-r', 'linear-gradient(to bottom right, var(--tw-gradient-stops))': 'to-br', 'linear-gradient(to bottom, var(--tw-gradient-stops))': 'to-b', 'linear-gradient(to bottom left, var(--tw-gradient-stops))': 'to-bl', 'linear-gradient(to left, var(--tw-gradient-stops))': 'to-l', 'linear-gradient(to top left, var(--tw-gradient-stops))': 'to-tl',
-  '0 1px rgb(0 0 0 / 0.05)': '2xs', '0 1px 2px 0 rgb(0 0 0 / 0.05)': 'xs', '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)': 'sm', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)': 'md', '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)': 'lg', '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)': 'xl', '0 25px 50px -12px rgb(0 0 0 / 0.25)': '2xl', 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)': 'inset', '0 0 #000000': 'none', // Box Shadow
-  '0 1px 1px rgb(0 0 0 / 0.05)': 'xs', '0 1px 2px rgb(0 0 0 / 0.15)': 'sm', '0 3px 3px rgb(0 0 0 / 0.12)': 'md', '0 4px 4px rgb(0 0 0 / 0.15)': 'lg', '0 9px 7px rgb(0 0 0 / 0.1)': 'xl', '0 25px 25px rgb(0 0 0 / 0.15)': '2xl', '0 0 #0000': 'none',
-  'cubic-bezier(0.4, 0, 1, 1)': 'ease-in', 'cubic-bezier(0, 0, 0.2, 1)': 'ease-out', 'cubic-bezier(0.4, 0, 0.2, 1)': 'ease-in-out', 
+  '0 1px rgb(0 0 0/0.05)': '2xs', '0 1px 2px 0 rgb(0 0 0/0.05)': 'xs', '0 1px 3px 0 rgb(0 0 0/0.1), 0 1px 2px -1px rgb(0 0 0/0.1)': 'sm', '0 4px 6px -1px rgb(0 0 0/0.1), 0 2px 4px -2px rgb(0 0 0/0.1)': 'md', '0 10px 15px -3px rgb(0 0 0/0.1), 0 4px 6px -4px rgb(0 0 0/0.1)': 'lg', '0 20px 25px -5px rgb(0 0 0/0.1), 0 8px 10px -6px rgb(0 0 0/0.1)': 'xl', '0 25px 50px -12px rgb(0 0 0/0.25)': '2xl', 'inset 0 2px 4px 0 rgb(0 0 0/0.05)': 'inset', '0 0 #000000': 'none', // Box Shadow
+  '0 1px 1px rgb(0 0 0/0.05)': 'xs', '0 1px 2px rgb(0 0 0/0.15)': 'sm', '0 3px 3px rgb(0 0 0/0.12)': 'md', '0 4px 4px rgb(0 0 0/0.15)': 'lg', '0 9px 7px rgb(0 0 0/0.1)': 'xl', '0 25px 25px rgb(0 0 0/0.15)': '2xl', '0 0 #0000': 'none',
+  'cubic-bezier(0.4, 0, 1, 1)': 'in', 'cubic-bezier(0, 0, 0.2, 1)': 'out', 'cubic-bezier(0.4, 0, 0.2, 1)': 'in-out', 
   'break-word': 'break-words', 'break-all': 'all', 'keep-all': 'keep',
-  '1 / 1': 'square', '16 / 9': 'video',
+  '1/1': 'square', '16/9': 'video',
   '9999px': 'full', 
-  'bold': '700',  'normal': '400', 'light': '300', 'extrabold': '800', 'black': '900',
+  // 'bold': '700',  'normal': '400', 'light': '300', 'extrabold': '800', 'black': '900',
   'spin 1s linear infinite': 'spin', 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite': 'ping', 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite': 'pulse', 'bounce 1s infinite': 'bounce',
+  'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke': 'colors', 'transform, translate, scale, rotate': 'transform',
+  'allow-discrete': 'allow',
+  'var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)': '3d', 'var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)': 'cpu',
+  'preserve-3d': '3d', 
+  'light dark': 'light-dark', 'only light': 'only-light', 'only dark': 'only-dark',
 }
 // TODO: Add more values to the non translate values
 export const nonTranslateValues = [
-  'auto', 'avoid', 'all', 'avoid-page', 'page', 'left', 'right', 'column', 'clone', 'slice', 'block', 'inline-block', 'inline', 'flex', 'inline-flex', 'table', 'inline-table', 'table-caption', 'table-cell', 'table-column', 'table-column-group', 'table-footer-group', 'table-header-group', 'table-row-group', 'table-row', 'flow-root', 'grid', 'inline-grid', 'contents', 'list-item', 'start', 'end', 'right', 'left', 'none', 'start', 'end', 'both', 'contain', 'cover', 'fill', 'scale-down', 'bottom', 'center', 'left-bottom', 'left-top', 'right-bottom', 'right-top', 'top', 'auto', 'clip', 'visible', 'scroll', 'static', 'fixed', 'absolute', 'relative', 'sticky', 'row', 'wrap', 'wrap-reverse', 'nowrap', 'dense', 'normal', 'flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly', 'stretch', 'baseline', 'ordinal', 'slashed-zero', 'lining-nums', 'oldstyle-nums', 'proportional-nums', 'tabular-nums', 'diagonal-fractions', 'stacked-fractions', 'inside', 'outside', 'disc', 'decimal', 'justify', 'underline', 'overline', 'line-through', 'solid', 'double', 'dotted', 'dashed', 'wavy', 'from-font', 'uppercase', 'lowercase', 'capitalize', 'ellipsis', 'wrap', 'nowrap', 'balance', 'pretty', 'text-top', 'text-bottom', 'sub', 'super', 'pre', 'pre-line', 'pre-wrap', 'break-spaces', 'manual', 'fixed', 'local', 'scroll', 'text'
+  'auto', 'avoid', 'all', 'avoid-page', 'avoid-column', 'page', 'left', 'right', 'column', 'clone', 'slice', 'block', 'inline-block', 'inline', 'flex', 'inline-flex', 'table', 'inline-table', 'table-caption', 'table-cell', 'table-column', 'table-column-group', 'table-footer-group', 'table-header-group', 'table-row-group', 'table-row', 'flow-root', 'grid', 'inline-grid', 'contents', 'list-item', 'start', 'end', 'right', 'left', 'none', 'start', 'end', 'both', 'contain', 'cover', 'fill', 'scale-down', 'bottom', 'center', 'left-bottom', 'left-top', 'right-bottom', 'right-top', 'top', 'auto', 'clip', 'visible', 'scroll', 'static', 'fixed', 'absolute', 'relative', 'sticky', 'row', 'wrap', 'wrap-reverse', 'nowrap', 'dense', 'normal', 'flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly', 'stretch', 'baseline', 'ordinal', 'slashed-zero', 'lining-nums', 'oldstyle-nums', 'proportional-nums', 'tabular-nums', 'diagonal-fractions', 'stacked-fractions', 'inside', 'outside', 'disc', 'decimal', 'justify', 'underline', 'overline', 'line-through', 'solid', 'double', 'dotted', 'dashed', 'wavy', 'from-font', 'uppercase', 'lowercase', 'capitalize', 'ellipsis', 'wrap', 'nowrap', 'balance', 'pretty', 'text-top', 'text-bottom', 'sub', 'super', 'pre', 'pre-line', 'pre-wrap', 'break-spaces', 'manual', 'fixed', 'local', 'scroll', 'text'
 ]
 
 export const cssAtRules = [
@@ -161,11 +182,15 @@ export const cssAtRules = [
 ]
 
 export const viewportBreakpoints = {
-  '640px': 'sm', '768px': 'md', '1024px': 'lg', '1280px': 'xl', '1536px': '2xl',
+  '640px': 'sm', '40rem': 'sm',
+  '768px': 'md', '48rem': 'md',
+  '1024px': 'lg', '64rem': 'lg',
+  '1280px': 'xl', '80rem': 'xl',
+  '1536px': '2xl', '96rem': '2xl',
 }
 
 export const mediaQueryDict = {
-  'min-width': '', 'not all and min-width': 'max-', 'max-width': 'max-', 'prefers-color-scheme': '', 'prefers-reduced-motion': 'motion-', 'prefers-contrast': 'contrast-', 'print': 'print:', 'orientation': '', 
+  'min-width': '', 'not all and min-width': 'max-', 'not all and (min-width': 'max-', 'max-width': 'max-', 'prefers-color-scheme': '', 'prefers-reduced-motion': 'motion-', 'prefers-contrast': 'contrast-', 'print': 'print:', 'orientation': '', 
 }
 // css_dict = {
 //   "&[aria-…]": "aria-[…]",
@@ -269,6 +294,7 @@ export const colorsDict = {
   "yellowgreen": "#9acd32"
 }
 export const tailwindColors = {
+  // --- v3 Colors (Hex) ---
   '#f8fafc': 'slate-50', '#f1f5f9': 'slate-100', '#e2e8f0': 'slate-200', '#cbd5e1': 'slate-300', '#94a3b8': 'slate-400', '#64748b': 'slate-500', '#475569': 'slate-600', '#334155': 'slate-700', '#1e293b': 'slate-800', '#0f172a': 'slate-900', '#020617': 'slate-950',
   '#f9fafb': 'gray-50', '#f3f4f6': 'gray-100', '#e5e7eb': 'gray-200', '#d1d5db': 'gray-300', '#9ca3af': 'gray-400', '#6b7280': 'gray-500', '#4b5563': 'gray-600', '#374151': 'gray-700', '#1f2937': 'gray-800', '#111827': 'gray-900', '#030712': 'gray-950',
   '#fafafa': 'zinc-50', '#f4f4f5': 'zinc-100', '#e4e4e7': 'zinc-200', '#d4d4d8': 'zinc-300', '#a1a1aa': 'zinc-400', '#71717a': 'zinc-500', '#52525b': 'zinc-600', '#3f3f46': 'zinc-700', '#27272a': 'zinc-800', '#18181b': 'zinc-900', '#09090b': 'zinc-950',
@@ -292,6 +318,31 @@ export const tailwindColors = {
   '#fdf2f8': 'pink-50', '#fce7f3': 'pink-100', '#fbcfe8': 'pink-200', '#f9a8d4': 'pink-300', '#f472b6': 'pink-400', '#ec4899': 'pink-500', '#db2777': 'pink-600', '#be185d': 'pink-700', '#9d174d': 'pink-800', '#831843': 'pink-900', '#500724': 'pink-950',
   '#fff1f2': 'rose-50', '#ffe4e6': 'rose-100', '#fecdd3': 'rose-200', '#fda4af': 'rose-300', '#fb7185': 'rose-400', '#f43f5e': 'rose-500', '#e11d48': 'rose-600', '#be123c': 'rose-700', '#9f1239': 'rose-800', '#881337': 'rose-900', '#4c0519': 'rose-950',
   '#ffffff': 'white', '#000000': 'black',
+
+  // --- v4 Colors (OKLCH) ---
+  '#000': 'black', '#fff': 'white',
+  'oklch(98.4% 0.003 247.858)': 'slate-50', 'oklch(96.8% 0.007 247.896)': 'slate-100', 'oklch(92.9% 0.013 255.508)': 'slate-200', 'oklch(86.9% 0.022 252.894)': 'slate-300', 'oklch(70.4% 0.04 256.788)': 'slate-400', 'oklch(55.4% 0.046 257.417)': 'slate-500', 'oklch(44.6% 0.043 257.281)': 'slate-600', 'oklch(37.2% 0.044 257.287)': 'slate-700', 'oklch(27.9% 0.041 260.031)': 'slate-800', 'oklch(20.8% 0.042 265.755)': 'slate-900', 'oklch(12.9% 0.042 264.695)': 'slate-950',
+  'oklch(98.5% 0.002 247.839)': 'gray-50', 'oklch(96.7% 0.003 264.542)': 'gray-100', 'oklch(92.8% 0.006 264.531)': 'gray-200', 'oklch(87.2% 0.01 258.338)': 'gray-300', 'oklch(70.7% 0.022 261.325)': 'gray-400', 'oklch(55.1% 0.027 264.364)': 'gray-500', 'oklch(44.6% 0.03 256.802)': 'gray-600', 'oklch(37.3% 0.034 259.733)': 'gray-700', 'oklch(27.8% 0.033 256.848)': 'gray-800', 'oklch(21% 0.034 264.665)': 'gray-900', 'oklch(13% 0.028 261.692)': 'gray-950',
+  'oklch(98.5% 0 0)': 'zinc-50', 'oklch(96.7% 0.001 286.375)': 'zinc-100', 'oklch(92% 0.004 286.32)': 'zinc-200', 'oklch(87.1% 0.006 286.286)': 'zinc-300', 'oklch(70.5% 0.015 286.067)': 'zinc-400', 'oklch(55.2% 0.016 285.938)': 'zinc-500', 'oklch(44.2% 0.017 285.786)': 'zinc-600', 'oklch(37% 0.013 285.805)': 'zinc-700', 'oklch(27.4% 0.006 286.033)': 'zinc-800', 'oklch(21% 0.006 285.885)': 'zinc-900', 'oklch(14.1% 0.005 285.823)': 'zinc-950',
+  'oklch(98.5% 0 0)': 'neutral-50', 'oklch(97% 0 0)': 'neutral-100', 'oklch(92.2% 0 0)': 'neutral-200', 'oklch(87% 0 0)': 'neutral-300', 'oklch(70.8% 0 0)': 'neutral-400', 'oklch(55.6% 0 0)': 'neutral-500', 'oklch(43.9% 0 0)': 'neutral-600', 'oklch(37.1% 0 0)': 'neutral-700', 'oklch(26.9% 0 0)': 'neutral-800', 'oklch(20.5% 0 0)': 'neutral-900', 'oklch(14.5% 0 0)': 'neutral-950',
+  'oklch(98.5% 0.001 106.423)': 'stone-50', 'oklch(97% 0.001 106.424)': 'stone-100', 'oklch(92.3% 0.003 48.717)': 'stone-200', 'oklch(86.9% 0.005 56.366)': 'stone-300', 'oklch(70.9% 0.01 56.259)': 'stone-400', 'oklch(55.3% 0.013 58.071)': 'stone-500', 'oklch(44.4% 0.011 73.639)': 'stone-600', 'oklch(37.4% 0.01 67.558)': 'stone-700', 'oklch(26.8% 0.007 34.298)': 'stone-800', 'oklch(21.6% 0.006 56.043)': 'stone-900', 'oklch(14.7% 0.004 49.25)': 'stone-950',
+  'oklch(97.1% 0.013 17.38)': 'red-50', 'oklch(93.6% 0.032 17.717)': 'red-100', 'oklch(88.5% 0.062 18.334)': 'red-200', 'oklch(80.8% 0.114 19.571)': 'red-300', 'oklch(70.4% 0.191 22.216)': 'red-400', 'oklch(63.7% 0.237 25.331)': 'red-500', 'oklch(57.7% 0.245 27.325)': 'red-600', 'oklch(50.5% 0.213 27.518)': 'red-700', 'oklch(44.4% 0.177 26.899)': 'red-800', 'oklch(39.6% 0.141 25.723)': 'red-900', 'oklch(25.8% 0.092 26.042)': 'red-950',
+  'oklch(98% 0.016 73.684)': 'orange-50', 'oklch(95.4% 0.038 75.164)': 'orange-100', 'oklch(90.1% 0.076 70.697)': 'orange-200', 'oklch(83.7% 0.128 66.29)': 'orange-300', 'oklch(75% 0.183 55.934)': 'orange-400', 'oklch(70.5% 0.213 47.604)': 'orange-500', 'oklch(64.6% 0.222 41.116)': 'orange-600', 'oklch(55.3% 0.195 38.402)': 'orange-700', 'oklch(47% 0.157 37.304)': 'orange-800', 'oklch(40.8% 0.123 38.172)': 'orange-900', 'oklch(26.6% 0.079 36.259)': 'orange-950',
+  'oklch(98.7% 0.022 95.277)': 'amber-50', 'oklch(96.2% 0.059 95.617)': 'amber-100', 'oklch(92.4% 0.12 95.746)': 'amber-200', 'oklch(87.9% 0.169 91.605)': 'amber-300', 'oklch(82.8% 0.189 84.429)': 'amber-400', 'oklch(76.9% 0.188 70.08)': 'amber-500', 'oklch(66.6% 0.179 58.318)': 'amber-600', 'oklch(55.5% 0.163 48.998)': 'amber-700', 'oklch(47.3% 0.137 46.201)': 'amber-800', 'oklch(41.4% 0.112 45.904)': 'amber-900', 'oklch(27.9% 0.077 45.635)': 'amber-950',
+  'oklch(98.7% 0.026 102.212)': 'yellow-50', 'oklch(97.3% 0.071 103.193)': 'yellow-100', 'oklch(94.5% 0.129 101.54)': 'yellow-200', 'oklch(90.5% 0.182 98.111)': 'yellow-300', 'oklch(85.2% 0.199 91.936)': 'yellow-400', 'oklch(79.5% 0.184 86.047)': 'yellow-500', 'oklch(68.1% 0.162 75.834)': 'yellow-600', 'oklch(55.4% 0.135 66.442)': 'yellow-700', 'oklch(47.6% 0.114 61.907)': 'yellow-800', 'oklch(42.1% 0.095 57.708)': 'yellow-900', 'oklch(28.6% 0.066 53.813)': 'yellow-950',
+  'oklch(98.6% 0.031 120.757)': 'lime-50', 'oklch(96.7% 0.067 122.328)': 'lime-100', 'oklch(93.8% 0.127 124.321)': 'lime-200', 'oklch(89.7% 0.196 126.665)': 'lime-300', 'oklch(84.1% 0.238 128.85)': 'lime-400', 'oklch(76.8% 0.233 130.85)': 'lime-500', 'oklch(64.8% 0.2 131.684)': 'lime-600', 'oklch(53.2% 0.157 131.589)': 'lime-700', 'oklch(45.3% 0.124 130.933)': 'lime-800', 'oklch(40.5% 0.101 131.063)': 'lime-900', 'oklch(27.4% 0.072 132.109)': 'lime-950',
+  'oklch(98.2% 0.018 155.826)': 'green-50', 'oklch(96.2% 0.044 156.743)': 'green-100', 'oklch(92.5% 0.084 155.995)': 'green-200', 'oklch(87.1% 0.15 154.449)': 'green-300', 'oklch(79.2% 0.209 151.711)': 'green-400', 'oklch(72.3% 0.219 149.579)': 'green-500', 'oklch(62.7% 0.194 149.214)': 'green-600', 'oklch(52.7% 0.154 150.069)': 'green-700', 'oklch(44.8% 0.119 151.328)': 'green-800', 'oklch(39.3% 0.095 152.535)': 'green-900', 'oklch(26.6% 0.065 152.934)': 'green-950',
+  'oklch(97.9% 0.021 166.113)': 'emerald-50', 'oklch(95% 0.052 163.051)': 'emerald-100', 'oklch(90.5% 0.093 164.15)': 'emerald-200', 'oklch(84.5% 0.143 164.978)': 'emerald-300', 'oklch(76.5% 0.177 163.223)': 'emerald-400', 'oklch(69.6% 0.17 162.48)': 'emerald-500', 'oklch(59.6% 0.145 163.225)': 'emerald-600', 'oklch(50.8% 0.118 165.612)': 'emerald-700', 'oklch(43.2% 0.095 166.913)': 'emerald-800', 'oklch(37.8% 0.077 168.94)': 'emerald-900', 'oklch(26.2% 0.051 172.552)': 'emerald-950',
+  'oklch(98.4% 0.014 180.72)': 'teal-50', 'oklch(95.3% 0.051 180.801)': 'teal-100', 'oklch(91% 0.096 180.426)': 'teal-200', 'oklch(85.5% 0.138 181.071)': 'teal-300', 'oklch(77.7% 0.152 181.912)': 'teal-400', 'oklch(70.4% 0.14 182.503)': 'teal-500', 'oklch(60% 0.118 184.704)': 'teal-600', 'oklch(51.1% 0.096 186.391)': 'teal-700', 'oklch(43.7% 0.078 188.216)': 'teal-800', 'oklch(38.6% 0.063 188.416)': 'teal-900', 'oklch(27.7% 0.046 192.524)': 'teal-950',
+  'oklch(98.4% 0.019 200.873)': 'cyan-50', 'oklch(95.6% 0.045 203.388)': 'cyan-100', 'oklch(91.7% 0.08 205.041)': 'cyan-200', 'oklch(86.5% 0.127 207.078)': 'cyan-300', 'oklch(78.9% 0.154 211.53)': 'cyan-400', 'oklch(71.5% 0.143 215.221)': 'cyan-500', 'oklch(60.9% 0.126 221.723)': 'cyan-600', 'oklch(52% 0.105 223.128)': 'cyan-700', 'oklch(45% 0.085 224.283)': 'cyan-800', 'oklch(39.8% 0.07 227.392)': 'cyan-900', 'oklch(30.2% 0.056 229.695)': 'cyan-950',
+  'oklch(97.7% 0.013 236.62)': 'sky-50', 'oklch(95.1% 0.026 236.824)': 'sky-100', 'oklch(90.1% 0.058 230.902)': 'sky-200', 'oklch(82.8% 0.111 230.318)': 'sky-300', 'oklch(74.6% 0.16 232.661)': 'sky-400', 'oklch(68.5% 0.169 237.323)': 'sky-500', 'oklch(58.8% 0.158 241.966)': 'sky-600', 'oklch(50% 0.134 242.749)': 'sky-700', 'oklch(44.3% 0.11 240.79)': 'sky-800', 'oklch(39.1% 0.09 240.876)': 'sky-900', 'oklch(29.3% 0.066 243.157)': 'sky-950',
+  'oklch(97% 0.014 254.604)': 'blue-50', 'oklch(93.2% 0.032 255.585)': 'blue-100', 'oklch(88.2% 0.059 254.128)': 'blue-200', 'oklch(80.9% 0.105 251.813)': 'blue-300', 'oklch(70.7% 0.165 254.624)': 'blue-400', 'oklch(62.3% 0.214 259.815)': 'blue-500', 'oklch(54.6% 0.245 262.881)': 'blue-600', 'oklch(48.8% 0.243 264.376)': 'blue-700', 'oklch(42.4% 0.199 265.638)': 'blue-800', 'oklch(37.9% 0.146 265.522)': 'blue-900', 'oklch(28.2% 0.091 267.935)': 'blue-950',
+  'oklch(96.2% 0.018 272.314)': 'indigo-50', 'oklch(93% 0.034 272.788)': 'indigo-100', 'oklch(87% 0.065 274.039)': 'indigo-200', 'oklch(78.5% 0.115 274.713)': 'indigo-300', 'oklch(67.3% 0.182 276.935)': 'indigo-400', 'oklch(58.5% 0.233 277.117)': 'indigo-500', 'oklch(51.1% 0.262 276.966)': 'indigo-600', 'oklch(45.7% 0.24 277.023)': 'indigo-700', 'oklch(39.8% 0.195 277.366)': 'indigo-800', 'oklch(35.9% 0.144 278.697)': 'indigo-900', 'oklch(25.7% 0.09 281.288)': 'indigo-950',
+  'oklch(96.9% 0.016 293.756)': 'violet-50', 'oklch(94.3% 0.029 294.588)': 'violet-100', 'oklch(89.4% 0.057 293.283)': 'violet-200', 'oklch(81.1% 0.111 293.571)': 'violet-300', 'oklch(70.2% 0.183 293.541)': 'violet-400', 'oklch(60.6% 0.25 292.717)': 'violet-500', 'oklch(54.1% 0.281 293.009)': 'violet-600', 'oklch(49.1% 0.27 292.581)': 'violet-700', 'oklch(43.2% 0.232 292.759)': 'violet-800', 'oklch(38% 0.189 293.745)': 'violet-900', 'oklch(28.3% 0.141 291.089)': 'violet-950',
+  'oklch(97.7% 0.014 308.299)': 'purple-50', 'oklch(94.6% 0.033 307.174)': 'purple-100', 'oklch(90.2% 0.063 306.703)': 'purple-200', 'oklch(82.7% 0.119 306.383)': 'purple-300', 'oklch(71.4% 0.203 305.504)': 'purple-400', 'oklch(62.7% 0.265 303.9)': 'purple-500', 'oklch(55.8% 0.288 302.321)': 'purple-600', 'oklch(49.6% 0.265 301.924)': 'purple-700', 'oklch(43.8% 0.218 303.724)': 'purple-800', 'oklch(38.1% 0.176 304.987)': 'purple-900', 'oklch(29.1% 0.149 302.717)': 'purple-950',
+  'oklch(97.7% 0.017 320.058)': 'fuchsia-50', 'oklch(95.2% 0.037 318.852)': 'fuchsia-100', 'oklch(90.3% 0.076 319.62)': 'fuchsia-200', 'oklch(83.3% 0.145 321.434)': 'fuchsia-300', 'oklch(74% 0.238 322.16)': 'fuchsia-400', 'oklch(66.7% 0.295 322.15)': 'fuchsia-500', 'oklch(59.1% 0.293 322.896)': 'fuchsia-600', 'oklch(51.8% 0.253 323.949)': 'fuchsia-700', 'oklch(45.2% 0.211 324.591)': 'fuchsia-800', 'oklch(40.1% 0.17 325.612)': 'fuchsia-900', 'oklch(29.3% 0.136 325.661)': 'fuchsia-950',
+  'oklch(97.1% 0.014 343.198)': 'pink-50', 'oklch(94.8% 0.028 342.258)': 'pink-100', 'oklch(89.9% 0.061 343.231)': 'pink-200', 'oklch(82.3% 0.12 346.018)': 'pink-300', 'oklch(71.8% 0.202 349.761)': 'pink-400', 'oklch(65.6% 0.241 354.308)': 'pink-500', 'oklch(59.2% 0.249 0.584)': 'pink-600', 'oklch(52.5% 0.223 3.958)': 'pink-700', 'oklch(45.9% 0.187 3.815)': 'pink-800', 'oklch(40.8% 0.153 2.432)': 'pink-900', 'oklch(28.4% 0.109 3.907)': 'pink-950',
+  'oklch(96.9% 0.015 12.422)': 'rose-50', 'oklch(94.1% 0.03 12.58)': 'rose-100', 'oklch(89.2% 0.058 10.001)': 'rose-200', 'oklch(81% 0.117 11.638)': 'rose-300', 'oklch(71.2% 0.194 13.428)': 'rose-400', 'oklch(64.5% 0.246 16.439)': 'rose-500', 'oklch(58.6% 0.253 17.585)': 'rose-600', 'oklch(51.4% 0.222 16.935)': 'rose-700', 'oklch(45.5% 0.188 13.697)': 'rose-800', 'oklch(41% 0.159 10.272)': 'rose-900', 'oklch(27.1% 0.105 12.094)': 'rose-950',
 }
 
 export const borderRadiusDict = {
@@ -306,6 +357,7 @@ export const borderRadiusDict = {
 }
 
 export const borderRadiusUnitDict = {
+  '100%': 'full',
   '0px': 'none',
   '2px': 'xs',
   '4px': 'sm',
@@ -349,6 +401,18 @@ export const fontWeightUnitDict = {
   '800': 'black',
 }
 
+export const fontStretchUnitDict = {
+  '50%': 'ultra-condensed',
+  '62.5%': 'extra-condensed',
+  '75%': 'condensed',
+  '87.5%': 'semi-condensed',
+  '100%': 'normal',
+  '112.5%': 'medium',
+  '125%': 'expanded',
+  '150%': 'extra-expanded',
+  '200%': 'ultra-expanded',
+}
+
 export const lineHeightUnitDict = {
   '12px': '3', '0.75rem': '3',
   '16px': '4', '1rem': '4',
@@ -361,18 +425,66 @@ export const lineHeightUnitDict = {
   '1': 'none', '1.25': 'tight', '1.375': 'snug', '1.5': 'normal', '1.625': 'relaxed', '2': 'loose',
 }
 
+export const fontSizeUnitDict = {
+  '12px': 'xs', '0.75rem': 'xs',
+  '14px': 'sm', '0.875rem': 'sm',
+  '16px': 'base', '1rem': 'base',
+  '18px': 'lg', '1.125rem': 'lg',
+  '20px': 'xl', '1.25rem': 'xl',
+  '24px': '2xl', '1.5rem': '2xl',
+  '30px': '3xl', '1.875rem': '3xl',
+  '36px': '4xl', '2.25rem': '4xl',
+  '48px': '5xl', '3rem': '5xl',
+  '60px': '6xl', '3.75rem': '6xl',
+  '72px': '7xl', '4.5rem': '7xl',
+  '96px': '8xl', '6rem': '8xl',
+  '120px': '9xl', '7.5rem': '9xl',
+}
+
+export const perspectiveUnitDict = {
+  '100px': 'dramatic',
+  '300px': 'near',
+  '500px': 'normal',
+  '800px': 'midrange',
+  '1200px': 'distant',
+}
+
 export const specialSelectors = [
-  'root',
-  'is',
-  'not',
-  'has',
-  'where',
-  'scope',
-  'host',
-  'host-context',
+  'root', 'is', 'not', 'has', 'where', 'scope', 'host', 'host-context', 
 ]
   
 export const multilineRules = {
-  'sr-only': ['absolute', 'w-px', 'h-px', 'p-0', '-m-px', 'overflow-hidden', '![clip-path:inset(50%)]', 'whitespace-nowrap', 'border-0'],
-  'not-sr-only': ['static', 'w-auto', 'h-auto', 'p-0', 'm-0', 'overflow-visible', '![clip:auto]', 'whitespace-normal'],
+  'sr-only': ['absolute', 'w-px', 'h-px', 'p-0', '-m-px', 'overflow-hidden', 'clip-path:inset(50%)', 'whitespace-nowrap', 'border-0'],
+  'not-sr-only': ['static', 'w-auto', 'h-auto', 'p-0', 'm-0', 'overflow-visible', 'clip:auto', 'whitespace-normal'],
+  'size-$size': ['w-$size', 'h-$size'],
+  'antialiased': ['-webkit-font-smoothing:antialiased', '-moz-osx-font-smoothing:grayscale'],
+  'subpixel-antialiased': ['-webkit-font-smoothing:auto', '-moz-osx-font-smoothing:auto'],
+  'line-clamp-$lines': ['![-webkit-line-clamp:$lines]', '![-webkit-box-orient:vertical]', 'overflow-hidden', '-webkit-box'],
+  'line-clamp-none': ['![-webkit-line-clamp:unset]', '![-webkit-box-orient:horizontal]', 'overflow-visible', 'block'],
+  'text-$size/$line': ['text-$size', 'leading-$line'],
+  'truncate': ['text-ellipsis', 'overflow-hidden', 'whitespace-nowrap'],
+  'rounded-t-$radius': ['rounded-tl-$radius', 'rounded-tr-$radius'], 'rounded-b-$radius': ['rounded-bl-$radius', 'rounded-br-$radius'], 'rounded-l-$radius': ['rounded-tl-$radius', 'rounded-bl-$radius'], 'rounded-r-$radius': ['rounded-tr-$radius', 'rounded-br-$radius'],
+  'rounded-s-$radius': ['rounded-ss-$radius', 'rounded-es-$radius'], 'rounded-e-$radius': ['rounded-se-$radius', 'rounded-ee-$radius'],
+  'rounded-$radius': [['rounded-t-$radius', 'rounded-b-$radius'], ['rounded-l-$radius', 'rounded-r-$radius'], ['rounded-tl-$radius', 'rounded-tr-$radius', 'rounded-bl-$radius', 'rounded-br-$radius'], ['rounded-ss-$radius', 'rounded-se-$radius', 'rounded-es-$radius', 'rounded-ee-$radius'], ['rounded-s-$radius', 'rounded-e-$radius']],
+  'border-x-$value': [['border-s-$value', 'border-e-$value'], ['border-l-$value', 'border-r-$value']], 'border-y-$value': ['border-t-$value', 'border-b-$value'],
+  'border-$value': [['border-t-$value', 'border-b-$value'], ['border-l-$value', 'border-r-$value'], ['border-s-$value', 'border-e-$value'], ['border-x-$value', 'border-y-$value']],
+  'translate-$value': ['translate-x-$value', 'translate-y-$value'],
 }
+
+export const spacingUnitDict = {
+  '16rem': '3xs', '256px': '3xs',
+  '18rem': '2xs', '288px': '2xs',
+  '20rem': 'xs', '320px': 'xs',
+  '24rem': 'sm', '384px': 'sm',
+  '28rem': 'md', '448px': 'md',
+  '32rem': 'lg', '512px': 'lg',
+  '36rem': 'xl', '576px': 'xl',
+  '42rem': '2xl', '672px': '2xl',
+  '48rem': '3xl', '768px': '3xl',
+  '56rem': '4xl', '896px': '4xl',
+  '64rem': '5xl', '1024px': '5xl',
+  '72rem': '6xl', '1152px': '6xl',
+  '80rem': '7xl', '1280px': '7xl',
+  'auto': 'auto', 'fit-content': 'fit', 'max-content': 'max', 'min-content': 'min',
+}
+
