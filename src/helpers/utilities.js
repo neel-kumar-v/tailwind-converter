@@ -91,8 +91,11 @@ function replaceOperatorSpaces(value) {
     // Remove spaces after opening parentheses and before closing parentheses
     let result = value.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')')
     
-    // Remove spaces before.after operators (+, -, /, *, =, :)
+    // Remove spaces before/after operators (+, -, /, *, =, :)
     result = result.replace(/\s+([+\-*/=:])/g, '$1').replace(/([+\-*/=:])\s+/g, '$1')
+
+    // Remove spaces after commas
+    result = result.replace(/,\s+/g, ',')
     return result
 }
 

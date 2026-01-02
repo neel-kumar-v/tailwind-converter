@@ -4458,3 +4458,532 @@
         transform-style: flat;
     }
 }
+
+/* accent-color */
+.accent-color {
+    accent-color: #000000;
+}
+
+@media (print) {
+    .accent-color {
+        accent-color: #ffffff;
+    }
+}
+
+@media (max-width: 800px) {
+    .accent-color {
+        accent-color: inherit;
+    }
+}
+
+@media (min-width: 1200px) {
+    .accent-color {
+        accent-color: oklch(89.7% 0.196 126.665);
+    }
+}
+
+/* appearance */
+.appearance {
+    appearance: preserve-3d;
+}
+
+@media (print) {
+    .appearance {
+        appearance: flat;
+    }
+}
+
+/* caret-color */
+.caret-color {
+    caret-color: #000000;
+}
+
+@media (print) {
+    .caret-color {
+        caret-color: #ffffff;
+    }
+}
+
+@media (max-width: 800px) {
+    .caret-color {
+        caret-color: inherit;
+    }
+}
+
+@media (min-width: 1200px) {
+    .caret-color {
+        caret-color: oklch(89.7% 0.196 126.665);
+    }
+}
+
+/* color-scheme */
+.color-scheme {
+    color-scheme: normal;
+}
+@media (max-width: 800px) {
+    .color-scheme {
+        color-scheme: dark;
+    }
+}
+
+@media (min-width: 1200px) {
+    .color-scheme {
+        color-scheme: light;
+    }
+}
+
+@media (orientation: landscape) {
+    .color-scheme {
+        color-scheme: light dark;
+    }
+}
+
+@media (pointer: coarse) {
+    .color-scheme {
+        color-scheme: only light;
+    }
+}
+
+@media (width >=96rem) {
+    .color-scheme {
+        color-scheme: only dark;
+    }
+}
+
+/* cursor */
+.cursor {
+    cursor: auto;
+}
+@media (max-width: 800px) {
+    .cursor {
+        cursor: default;
+    }
+}
+
+@media (min-width: 1200px) {
+    .cursor {
+        cursor: pointer;
+    }
+}
+
+@media (orientation: landscape) {
+    .cursor {
+        cursor: wait;
+    }
+}
+
+@media (pointer: coarse) {
+    .cursor {
+        cursor: not-allowed;
+    }
+}
+
+@media (width >=96rem) {
+    .cursor {
+        cursor: text;
+    }
+}
+
+@media (width < 96rem) {
+    .cursor {
+        cursor: sw-resize;
+    }
+
+    @media (width > 40rem) {
+        .cursor {
+            cursor: nwse-resize;
+        }
+    }
+
+    @media (width > 48rem) {
+        .cursor {
+            cursor: grab;
+        }
+    }
+
+    @media (width > 64rem) {
+        .cursor {
+            cursor: progress;
+        }
+    }
+
+    @media (width > 80rem) {
+        .cursor {
+            cursor: crosshair;
+        }
+    }
+}
+
+/* field-sizing */
+.field-sizing {
+    field-sizing: content;
+}
+
+@media (print) {
+    .field-sizing {
+        field-sizing: fixed;
+    }
+}
+
+/* pointer-events */
+.pointer-events {
+    pointer-events: auto;
+}
+
+@media (print) {
+    .pointer-events {
+        pointer-events: none;
+    }
+}
+
+/* resize */
+.resize {
+    resize: both;
+}
+
+@media (max-width: 800px) {
+    .resize {
+        resize: none;
+    }
+}
+
+@media (min-width: 1200px) {
+    .resize {
+        resize: horizontal;
+    }
+}
+
+@media (orientation: landscape) {
+    .resize {
+        resize: vertical;
+    }
+}
+
+/* scroll-behavior */
+.scroll-behavior {
+    scroll-behavior: auto;
+}
+
+@media (print) {
+    .scroll-behavior {
+        scroll-behavior: none;
+    }
+}
+
+/* scroll-padding */
+.scroll-padding {
+    scroll-padding: 0;
+}
+
+@media (max-width: 800px) {
+    .scroll-padding {
+        scroll-padding: 1px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .scroll-padding {
+        scroll-padding: 4px 5rem 100% 100vh;
+    }
+}
+
+@media (orientation: landscape) {
+    .scroll-padding {
+        scroll-padding: -32px calc(var(--scroll-padding)+1) var(--scroll-padding);
+    }
+}
+
+@media (pointer: coarse) {
+    .scroll-padding {
+        scroll-padding-inline: 100svw;
+    }
+}
+
+@media (width >=96rem) {
+    .scroll-padding {
+        scroll-padding-block-start: 100dvh;
+    }
+}
+
+@media (width < 96rem) {
+    .scroll-padding {
+        scroll-padding-right: 25%;
+    }
+
+    @media (width > 40rem) {
+        .scroll-padding {
+            scroll-padding-left: 33%;
+        }
+    }
+
+    @media (width > 48rem) {
+        .scroll-padding {
+            scroll-padding-top: 1 / 12;
+        }
+    }
+
+    @media (width > 64rem) {
+        .scroll-padding {
+            scroll-padding-bottom: var(--scroll-padding);
+        }
+    }
+
+    @media (width > 80rem) {
+        .scroll-padding {
+            scroll-padding-inline-start: 3px;
+        }
+    }
+}
+
+/* scroll-margin */
+.scroll-margin {
+    scroll-margin: 0;
+}
+
+@media (max-width: 800px) {
+    .scroll-margin {
+        scroll-margin: 1px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .scroll-margin {
+        scroll-margin: 4px 5rem 100% 100vh;
+    }
+}
+
+@media (orientation: landscape) {
+    .scroll-margin {
+        scroll-margin: -32px calc(var(--scroll-margin)+1) var(--scroll-margin);
+    }
+}
+
+@media (pointer: coarse) {
+    .scroll-margin {
+        scroll-margin-inline: 100svw;
+    }
+}
+
+@media (width >=96rem) {
+    .scroll-margin {
+        scroll-margin-block-start: 100dvh;
+    }
+}
+
+@media (width < 96rem) {
+    .scroll-margin {
+        scroll-margin-right: 25%;
+    }
+
+    @media (width > 40rem) {
+        .scroll-margin {
+            scroll-margin-left: 33%;
+        }
+    }
+
+    @media (width > 48rem) {
+        .scroll-margin {
+            scroll-margin-top: 1 / 12;
+        }
+    }
+
+    @media (width > 64rem) {
+        .scroll-margin {
+            scroll-margin-bottom: var(--scroll-margin);
+        }
+    }
+
+    @media (width > 80rem) {
+        .scroll-margin {
+            scroll-margin-inline-start: 3px;
+        }
+    }
+}
+
+/* scroll-snap-align */
+.scroll-snap-align {
+    scroll-snap-align: start;
+}
+
+@media (max-width: 800px) {
+    .scroll-snap-align {
+        scroll-snap-align: none;
+    }
+}
+
+@media (min-width: 1200px) {
+    .scroll-snap-align {
+        scroll-snap-align: end;
+    }
+}
+
+@media (orientation: landscape) {
+    .scroll-snap-align {
+        scroll-snap-align: center;
+    }
+}
+
+/* scroll-snap-stop */
+.scroll-snap-stop {
+    scroll-snap-stop: always;
+}
+
+@media (max-width: 800px) {
+    .scroll-snap-stop {
+        scroll-snap-stop: normal;
+    }
+}
+
+/* scroll-snap-stop */
+.scroll-snap-type {
+    scroll-snap-type: none;
+}
+
+@media (max-width: 800px) {
+    .scroll-snap-type {
+        scroll-snap-type: x;
+    }
+}
+@media (min-width: 1200px) {
+    .scroll-snap-type {
+        scroll-snap-type: y;
+    }
+}
+@media (orientation: landscape) {
+    .scroll-snap-type {
+        scroll-snap-type: both;
+    }
+}
+
+/* --tw-scroll-snap-strictness */
+.scroll-snap-strictness {
+    --tw-scroll-snap-strictness: mandatory;
+}
+@media (max-width: 800px) {
+    .scroll-snap-strictness {
+        --tw-scroll-snap-strictness: proximity;
+    }
+}
+
+/* touch-action */
+.touch-action {
+    touch-action: auto;
+}
+
+@media (max-width: 800px) {
+    .touch-action {
+        touch-action: none;
+    }
+}
+
+@media (min-width: 1200px) {
+    .touch-action {
+        touch-action: pan-x;
+    }
+}
+
+@media (orientation: landscape) {
+    .touch-action {
+        touch-action: pan-y;
+    }
+}
+
+@media (pointer: coarse) {
+    .touch-action {
+        touch-action: pan-left;
+    }
+}
+
+@media (width >=96rem) {
+    .touch-action {
+        touch-action: pan-right;
+    }
+}
+
+@media (width < 96rem) {
+    .touch-action {
+        touch-action: pan-up;
+    }
+
+    @media (width > 40rem) {
+        .touch-action {
+            touch-action: pan-down;
+        }
+    }
+
+    @media (width > 48rem) {
+        .touch-action {
+            touch-action: pinch-zoom;
+        }
+    }
+
+    @media (width > 64rem) {
+        .touch-action {
+            touch-action: manipulation;
+        }
+    }
+
+    @media (width > 80rem) {
+        .touch-action {
+            touch-action: double-tap-zoom;
+        }
+    }
+}
+
+/* user-select */
+.user-select {
+    user-select: text;
+}
+
+@media (max-width: 800px) {
+    .user-select {
+        user-select: none;
+    }
+}
+
+@media (min-width: 1200px) {
+    .user-select {
+        user-select: all;
+    }
+}
+
+@media (orientation: landscape) {
+    .user-select {
+        user-select: auto;
+    }
+}
+
+/* will-change */
+.will-change {
+    will-change: auto;
+}
+
+@media (max-width: 800px) {
+    .will-change {
+        will-change: scroll-position;
+    }
+}
+
+@media (min-width: 1200px) {
+    .will-change {
+        will-change: contents;
+    }
+}
+
+@media (orientation: landscape) {
+    .will-change {
+        will-change: transform;
+    }
+}
+
+@media (pointer: coarse) {
+    .will-change {
+        will-change: var(--will-change);
+    }
+}
+
+@media (width >=96rem) {
+    .will-change {
+        will-change: top, left;
+    }
+}

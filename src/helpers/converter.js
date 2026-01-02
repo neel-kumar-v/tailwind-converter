@@ -245,8 +245,17 @@ function parseEdgeCases(property, value, unconvertedValue) {
     // * NUMBER NO UNIT
     case '--tw-divide-x-reverse':
       if (value == '1') returnStyles.push(`divide-x-reverse`)
+      else returnStyles.push(`![${property}:${arbitraryValue}]`)
+      break
     case '--tw-divide-y-reverse':
       if (value == '1') returnStyles.push(`divide-y-reverse`)
+      else returnStyles.push(`![${property}:${arbitraryValue}]`)
+      break
+    case '--tw-scroll-snap-strictness':
+      if(value == 'mandatory') returnStyles.push(`snap-mandatory`)
+      else if(value == 'proximity') returnStyles.push(`snap-proximity`)
+      else returnStyles.push(`![${property}:${arbitraryValue}]`)
+      break
     case 'order':
       if(value == '0') returnStyles.push(`order-none`)
       else if (parseInt(unconvertedValue) < -99) {
@@ -359,6 +368,13 @@ function parseEdgeCases(property, value, unconvertedValue) {
       if(value.includes('none')) returnStyles.push(`snap-align-none`)
       else returnStyles.push(`snap-${value}`)
       break
+    case 'scroll-snap-type':
+      if(value.includes('none')) returnStyles.push(`snap-none`)
+      if(value.includes('x')) returnStyles.push(`snap-x`)
+      if(value.includes('y')) returnStyles.push(`snap-y`)
+      if(value.includes('both')) returnStyles.push(`snap-both`)
+      else returnStyles.push(`snap-${value}`)
+      break
     // * TIME
     case 'transition-duration':
       if (unconvertedValue.includes('s') && !unconvertedValue.includes('(')) returnStyles.push(`duration-${util.convertTimeToMilliseconds(unconvertedValue)}`)
@@ -394,8 +410,6 @@ function parseEdgeCases(property, value, unconvertedValue) {
     case 'grid-auto-flow': 
       returnStyles.push(`grid-flow-${value}`.replace(' ', '-').replace('column', 'col'))
       break  
-    case 'scroll-snap-type':
-      break
     default:
       // console.log(`(${property}: ${value}) could not be converted, using ${unconvertedValue}`)
       if (singleValueDict.hasOwnProperty(property)) returnStyles.push(`${singleValueDict[property]}-[${arbitraryValue}]`)

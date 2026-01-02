@@ -14,11 +14,9 @@ export const singleValueDict = {
   'padding-top': 'pt', 'padding-left': 'pl', 'padding-bottom': 'pb', 'padding-right': 'pr',
   'border-top-width': 'border-t', 'border-left-width': 'border-l', 'border-bottom-width': 'border-b', 'border-right-width': 'border-r',
   'border-inline-width': 'border-y', 'border-block-width': 'border-x', 'border-inline-start-width': 'border-s', 'border-inline-end-width': 'border-e', 
-
   'height': 'h', 'width': 'w',
   'gap': 'gap', 'column-gap': 'gap-x', 'row-gap': 'gap-y',
   'min-width': 'min-w', 'max-width': 'max-w', 'min-height': 'min-h', 'max-height': 'max-h',
-  // 'line-height': 'leading',
   'text-indent': 'indent',
   'transition-timing-function': 'ease', 'transition-behavior': 'transition',
   'grid-row-start': 'row-start', 'grid-row-end': 'row-end', 'grid-column-start': 'col-start', 'grid-column-end': 'col-end', 
@@ -28,7 +26,6 @@ export const singleValueDict = {
   'box-sizing': 'box',
   'float': 'float',
   'clear': 'clear',
-  // 'flex': 'flex',
   'object-fit': 'object', 'object-position': 'object', 'overflow': 'overflow', 'overflow-x': 'overflow-x', 'overflow-y': 'overflow-y',
   'overscroll': 'overscroll', 'overscroll-x': 'overscroll-x', 'overscroll-y': 'overscroll-y',
   'flex-wrap': 'flex',
@@ -39,7 +36,6 @@ export const singleValueDict = {
   'list-style-type': 'list', 'list-style-position': 'list',
   'text-align': 'text', 'text-decoration-style': 'decoration', 'text-overflow': 'text',
   'vertical-align': 'align',
-  // 'white-space': 'whitespace-pre',
   'background-attachment': 'bg', 'background-clip': 'bg-clip', 'background-origin': 'bg-origin', 'background-position': 'bg', 'background-repeat': 'bg', 'background-size': 'bg', 'background-image': 'bg', 'background-color': 'bg', 'background': 'bg', // Todo: bg-no-repeat edge case
   'border-style': 'border',
   'outline-style': 'outline',
@@ -49,7 +45,7 @@ export const singleValueDict = {
   'table-layout': 'table',
   'cursor': 'cursor',
   'pointer-events': 'pointer-events',
-  'scroll-behaviour': 'scroll', 'scroll-snap-stop': 'snap',
+  'scroll-behaviour': 'scroll', 'scroll-behavior': 'scroll', 'scroll-snap-stop': 'snap',
   'touch-action': 'touch',
   'user-select': 'select',
   'will-change': 'will-change',
@@ -65,14 +61,14 @@ export const singleValueDict = {
   'appearance': 'appearance',
   'margin': 'm', 'margin-inline': 'mx', 'margin-block': 'my', 'margin-inline-start': 'ms', 'margin-inline-end': 'me', 'margin-block-start': 'ms', 'margin-block-end': 'me', 'margin-top': 'mt', 'margin-left': 'ml', 'margin-bottom': 'mb', 'margin-right': 'mr',
   'padding': 'p', 'padding-inline': 'px', 'padding-block': 'py', 'padding-inline-start': 'ps', 'padding-inline-end': 'pe', 'padding-block-start': 'ps', 'padding-block-end': 'pe', 'padding-top': 'pt', 'padding-left': 'pl', 'padding-bottom': 'pb', 'padding-right': 'pr',
+  'scroll-margin': 'scroll-m', 'scroll-margin-inline': 'scroll-mx', 'scroll-margin-block': 'scroll-my', 'scroll-margin-inline-start': 'scroll-ms', 'scroll-margin-inline-end': 'scroll-me', 'scroll-margin-block-start': 'scroll-ms', 'scroll-margin-block-end': 'scroll-me', 'scroll-margin-top': 'scroll-mt', 'scroll-margin-left': 'scroll-ml', 'scroll-margin-bottom': 'scroll-mb', 'scroll-margin-right': 'scroll-mr',
+  'scroll-padding': 'scroll-p', 'scroll-padding-inline': 'scroll-px', 'scroll-padding-block': 'scroll-py', 'scroll-padding-inline-start': 'scroll-ps', 'scroll-padding-inline-end': 'scroll-pe', 'scroll-padding-block-start': 'scroll-ps', 'scroll-padding-block-end': 'scroll-pe', 'scroll-padding-top': 'scroll-pt', 'scroll-padding-left': 'scroll-pl', 'scroll-padding-bottom': 'scroll-pb', 'scroll-padding-right': 'scroll-pr',
   'inset': 'inset', 'border-width': 'border', 
-  'scroll-margin': 'scroll-m', 'scroll-margin-top': 'scroll-mt', 'scroll-margin-left': 'scroll-ml', 'scroll-margin-bottom': 'scroll-mb', 'scroll-margin-right': 'scroll-mr', 'scroll-margin-inline-start': 'scroll-ms', 'scroll-margin-inline-end': 'scroll-me', 
-  'scroll-padding': 'scroll-p', 'scroll-padding-top': 'scroll-pt', 'scroll-padding-left': 'scroll-pl', 'scroll-padding-bottom': 'scroll-pb', 'scroll-padding-right': 'scroll-pr', 'scroll-padding-inline-start': 'scroll-ps', 'scroll-padding-inline-end': 'scroll-pe', 
   'border-spacing': 'border-spacing',
   '--tw-scroll-snap-strictness': 'snap', 'scroll-snap-type': 'snap',
   'color': 'text',
   'transform-origin': 'origin',
-  '--tw-ring-color': 'ring', '--tw-ring-inset': 'ring',
+  '--tw-ring-color': 'ring', '--tw-ring-inset': 'ring', 
   'grid-column': 'col-span', 'grid-row': 'row-span', 'grid-column-start': 'col-start', 'grid-column-end': 'col-end', 'grid-row-start': 'row-start', 'grid-row-end': 'row-end',
   'border-left-color': 'border-l', 'border-right-color': 'border-r', 'border-top-color': 'border-t', 'border-bottom-color': 'border-b', 'border-inline-start-color': 'border-start', 'border-inline-end-color': 'border-end',
   'border-start-start-radius': 'rounded-ss', 'border-start-end-radius': 'rounded-se', 'border-end-start-radius': 'rounded-es', 'border-end-end-radius': 'rounded-ee', 
@@ -90,6 +86,8 @@ export const singleValueDict = {
   'backface-visibility': 'backface',
   'perspective-origin': 'perspective-origin',
   'transform-style': 'transform',
+  'color-scheme': 'scheme',
+  'field-sizing': 'field-sizing',
 }
 
 export const propertylessDict = {
@@ -172,6 +170,7 @@ export let unitDict = {
   'allow-discrete': 'allow',
   'var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)': '3d', 'var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)': 'cpu',
   'preserve-3d': '3d', 
+  'light dark': 'light-dark', 'only light': 'only-light', 'only dark': 'only-dark',
 }
 // TODO: Add more values to the non translate values
 export const nonTranslateValues = [
